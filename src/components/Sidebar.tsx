@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
@@ -12,7 +13,7 @@ import {
   ArrowRightToLine, 
   Clipboard, 
   BarChart3, 
-  Package3D, 
+  Boxes, 
   DollarSign,
   Menu,
   X,
@@ -180,7 +181,7 @@ const Sidebar = ({ className }: SidebarProps) => {
             <SidebarGroup title="Exibições">
               <SidebarItem icon={Clipboard} title="Lista de Tarefas" to="/tasks" />
               <SidebarItem icon={BarChart3} title="Estatísticas" to="/statistics" />
-              <SidebarItem icon={Package3D} title="Visualização 3D" to="/location-view" />
+              <SidebarItem icon={Boxes} title="Visualização 3D" to="/location-view" />
               <SidebarItem icon={DollarSign} title="Resumo de Saldo" to="/balance" />
             </SidebarGroup>
           </div>
