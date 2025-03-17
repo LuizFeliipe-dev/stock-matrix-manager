@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
@@ -13,7 +12,7 @@ import {
   ArrowRightToLine, 
   Clipboard, 
   BarChart3, 
-  Cube, 
+  Package3D, 
   DollarSign,
   Menu,
   X,
@@ -77,7 +76,6 @@ const SidebarItem = ({
         </span>
       )}
       
-      {/* Subtle highlight animation on hover */}
       <span className={cn(
         "absolute inset-0 rounded-md transition-opacity",
         "bg-gradient-to-r from-primary/10 to-transparent opacity-0",
@@ -129,7 +127,6 @@ const Sidebar = ({ className }: SidebarProps) => {
   
   return (
     <>
-      {/* Mobile menu button */}
       {isMobile && (
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -140,7 +137,6 @@ const Sidebar = ({ className }: SidebarProps) => {
         </button>
       )}
       
-      {/* Backdrop for mobile */}
       {isMobile && isOpen && (
         <div 
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
@@ -157,7 +153,6 @@ const Sidebar = ({ className }: SidebarProps) => {
         className
       )}>
         <div className="flex flex-col h-full">
-          {/* Logo and Header */}
           <div className="flex items-center mb-8 px-2">
             <div className="bg-primary text-primary-foreground p-2 rounded-lg">
               <Box className="h-6 w-6" />
@@ -185,12 +180,11 @@ const Sidebar = ({ className }: SidebarProps) => {
             <SidebarGroup title="Exibições">
               <SidebarItem icon={Clipboard} title="Lista de Tarefas" to="/tasks" />
               <SidebarItem icon={BarChart3} title="Estatísticas" to="/statistics" />
-              <SidebarItem icon={Cube} title="Visualização 3D" to="/location-view" />
+              <SidebarItem icon={Package3D} title="Visualização 3D" to="/location-view" />
               <SidebarItem icon={DollarSign} title="Resumo de Saldo" to="/balance" />
             </SidebarGroup>
           </div>
           
-          {/* User info and logout */}
           <div className="mt-auto pt-4 border-t border-sidebar-border">
             <div className="px-3 py-2 mb-2">
               <div className="text-sm font-medium">{user?.name}</div>

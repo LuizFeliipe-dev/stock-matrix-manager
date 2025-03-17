@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -12,7 +11,7 @@ import {
   Users,
   Clipboard,
   BarChart3,
-  Cube,
+  Package3D,
   DollarSign,
   ArrowRightToLine,
   Box,
