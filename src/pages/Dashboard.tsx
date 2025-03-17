@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -171,6 +170,10 @@ const Dashboard = () => {
             </div>
             
             <div className="bg-white rounded-xl shadow-sm border mb-8 overflow-hidden">
+              <div className="p-6 pb-2">
+                <h2 className="text-xl font-semibold">Visualização 3D do Armazém</h2>
+                <p className="text-sm text-gray-500 mt-1">Clique nos itens para ver detalhes</p>
+              </div>
               <div className="h-80">
                 <Stats3DView />
               </div>
