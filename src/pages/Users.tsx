@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -13,9 +12,19 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/hooks/use-toast';
+import { UserPermission } from '../types/auth';
 
-// Mock data for users
-const mockUsers = [
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  department: string;
+  permission: string;
+  lastAccess: string;
+}
+
+const mockUsers: UserData[] = [
   { 
     id: '1', 
     name: 'Usuário Básico', 
@@ -63,7 +72,6 @@ const mockUsers = [
   },
 ];
 
-// Form schema
 const userFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
   email: z.string().email({ message: 'Email inválido' }),
@@ -77,10 +85,10 @@ const userFormSchema = z.object({
 type UserFormValues = z.infer<typeof userFormSchema>;
 
 const Users = () => {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState<UserData[]>(mockUsers);
   const [searchTerm, setSearchTerm] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserFormValues | null>(null);
+  const [editingUser, setEditingUser] = useState<(UserFormValues & { id: string }) | null>(null);
   const { toast } = useToast();
 
   const form = useForm<UserFormValues>({
@@ -106,14 +114,21 @@ const Users = () => {
     setOpenDialog(true);
   };
 
-  const handleEditUser = (user: any) => {
-    setEditingUser(user);
+  const handleEditUser = (user: UserData) => {
+    setEditingUser({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      department: user.department,
+      permission: user.permission as UserPermission,
+    });
     form.reset({
       name: user.name,
       email: user.email,
       role: user.role,
       department: user.department,
-      permission: user.permission,
+      permission: user.permission as UserPermission,
     });
     setOpenDialog(true);
   };
@@ -128,21 +143,31 @@ const Users = () => {
 
   const onSubmit = (data: UserFormValues) => {
     if (editingUser) {
-      // Update existing user
-      setUsers(users.map(user => 
-        user.id === editingUser.id 
-          ? { ...user, ...data } 
-          : user
-      ));
+      setUsers(users.map(user => {
+        if (user.id === editingUser.id) {
+          return {
+            ...user,
+            name: data.name,
+            email: data.email,
+            role: data.role,
+            department: data.department,
+            permission: data.permission,
+          };
+        }
+        return user;
+      }));
       toast({
         title: "Usuário atualizado",
         description: "As informações do usuário foram atualizadas com sucesso",
       });
     } else {
-      // Add new user
-      const newUser = {
+      const newUser: UserData = {
         id: (users.length + 1).toString(),
-        ...data,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        department: data.department,
+        permission: data.permission,
         lastAccess: 'Nunca acessou'
       };
       setUsers([...users, newUser]);

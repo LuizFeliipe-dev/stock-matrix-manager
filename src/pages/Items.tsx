@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -23,8 +22,21 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
-// Sample data
-const initialItems = [
+interface Item {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  group: string;
+  supplier: string;
+  initialStock: number;
+  stock: number;
+  minStock: number;
+  price: number;
+  location: string;
+}
+
+const initialItems: Item[] = [
   {
     id: 1,
     code: 'ITM001',
@@ -157,7 +169,6 @@ const initialItems = [
   },
 ];
 
-// Sample suppliers and groups
 const suppliers = [
   { id: '1', name: 'Dell Computadores' },
   { id: '2', name: 'LG Brasil' },
@@ -177,11 +188,11 @@ const groups = [
 ];
 
 const Items = () => {
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = useState<Item[]>(initialItems);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterGroup, setFilterGroup] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
-  const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [editingItem, setEditingItem] = useState<ItemFormValues | null>(null);
   const { toast } = useToast();
 
   const handleAddItem = () => {
@@ -189,7 +200,7 @@ const Items = () => {
     setOpenDialog(true);
   };
 
-  const handleEditItem = (item: any) => {
+  const handleEditItem = (item: Item) => {
     setEditingItem({
       code: item.code,
       name: item.name,
@@ -214,27 +225,38 @@ const Items = () => {
 
   const onSubmitItem = (data: ItemFormValues) => {
     if (editingItem) {
-      // Update existing item
-      setItems(items.map(item => 
-        item.code === editingItem.code 
-          ? { 
-              ...item, 
-              ...data, 
-              // Maintain the same stock level but update other fields
-              stock: item.stock
-            } 
-          : item
-      ));
+      setItems(items.map(item => {
+        if (item.code === editingItem.code) {
+          return {
+            ...item,
+            name: data.name,
+            description: data.description || '',
+            group: data.group,
+            supplier: data.supplier,
+            initialStock: data.initialStock,
+            minStock: data.minStock,
+            price: data.price,
+            location: data.location || '',
+          };
+        }
+        return item;
+      }));
       toast({
         title: "Item atualizado",
         description: "As informações do item foram atualizadas com sucesso",
       });
     } else {
-      // Add new item
-      const newItem = {
+      const newItem: Item = {
         id: items.length + 1,
-        ...data,
-        // Set initial stock for a new item
+        code: data.code,
+        name: data.name,
+        description: data.description || '',
+        group: data.group,
+        supplier: data.supplier,
+        initialStock: data.initialStock,
+        minStock: data.minStock,
+        price: data.price,
+        location: data.location || '',
         stock: data.initialStock,
       };
       setItems([...items, newItem]);
@@ -246,7 +268,6 @@ const Items = () => {
     setOpenDialog(false);
   };
 
-  // Filter items based on search term and selected group
   const filteredItems = items.filter(item => {
     const matchesSearch = 
       item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
