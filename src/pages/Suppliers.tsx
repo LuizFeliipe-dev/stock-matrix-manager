@@ -1,0 +1,517 @@
+
+import { useState } from 'react';
+import AuthRequired from '../components/AuthRequired';
+import Sidebar from '../components/Sidebar';
+import { motion } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { 
+  Truck, 
+  Plus, 
+  Search, 
+  Pencil, 
+  Trash2,
+  Phone,
+  Mail,
+  MapPin,
+  Building
+} from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription 
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+// Define the supplier schema
+const supplierFormSchema = z.object({
+  name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
+  code: z.string().min(3, { message: 'Código deve ter pelo menos 3 caracteres' }),
+  contactName: z.string().min(2, { message: 'Nome do contato deve ter pelo menos 2 caracteres' }),
+  email: z.string().email({ message: 'Email inválido' }),
+  phone: z.string().min(8, { message: 'Telefone deve ter pelo menos 8 caracteres' }),
+  address: z.string().min(5, { message: 'Endereço deve ter pelo menos 5 caracteres' }),
+  city: z.string().min(2, { message: 'Cidade deve ter pelo menos 2 caracteres' }),
+  state: z.string().min(2, { message: 'Estado deve ter pelo menos 2 caracteres' }),
+});
+
+type SupplierFormValues = z.infer<typeof supplierFormSchema>;
+
+// Define the Supplier interface
+interface Supplier {
+  id: string;
+  code: string;
+  name: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  lastPurchase: string;
+}
+
+// Initial suppliers data
+const initialSuppliers: Supplier[] = [
+  {
+    id: '1',
+    code: 'SUP001',
+    name: 'Dell Computadores',
+    contactName: 'Carlos Silva',
+    email: 'carlos.silva@dell.com',
+    phone: '(11) 3333-4444',
+    address: 'Av. Paulista, 1000',
+    city: 'São Paulo',
+    state: 'SP',
+    lastPurchase: '10/03/2023',
+  },
+  {
+    id: '2',
+    code: 'SUP002',
+    name: 'LG Brasil',
+    contactName: 'Maria Oliveira',
+    email: 'maria.oliveira@lg.com',
+    phone: '(11) 2222-3333',
+    address: 'Rua Augusta, 500',
+    city: 'São Paulo',
+    state: 'SP',
+    lastPurchase: '25/04/2023',
+  },
+  {
+    id: '3',
+    code: 'SUP003',
+    name: 'MobiliaCorp',
+    contactName: 'João Santos',
+    email: 'joao.santos@mobiliacorp.com',
+    phone: '(21) 4444-5555',
+    address: 'Av. Rio Branco, 100',
+    city: 'Rio de Janeiro',
+    state: 'RJ',
+    lastPurchase: '05/05/2023',
+  },
+  {
+    id: '4',
+    code: 'SUP004',
+    name: 'Logitech Brasil',
+    contactName: 'Ana Pereira',
+    email: 'ana.pereira@logitech.com',
+    phone: '(11) 5555-6666',
+    address: 'Av. Faria Lima, 200',
+    city: 'São Paulo',
+    state: 'SP',
+    lastPurchase: '18/06/2023',
+  },
+  {
+    id: '5',
+    code: 'SUP005',
+    name: 'Café Especial SA',
+    contactName: 'Roberto Almeida',
+    email: 'roberto.almeida@cafeespecial.com',
+    phone: '(31) 6666-7777',
+    address: 'Rua dos Cafezais, 150',
+    city: 'Belo Horizonte',
+    state: 'MG',
+    lastPurchase: '30/07/2023',
+  },
+];
+
+const Suppliers = () => {
+  const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  const { toast } = useToast();
+
+  // Initialize form
+  const form = useForm<SupplierFormValues>({
+    resolver: zodResolver(supplierFormSchema),
+    defaultValues: {
+      name: '',
+      code: '',
+      contactName: '',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
+      state: '',
+    },
+  });
+
+  // Handle form submission
+  const onSubmit = (data: SupplierFormValues) => {
+    if (editingSupplier) {
+      // Update existing supplier
+      setSuppliers(suppliers.map(supplier => {
+        if (supplier.id === editingSupplier.id) {
+          return {
+            ...supplier,
+            name: data.name,
+            code: data.code,
+            contactName: data.contactName,
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+            city: data.city,
+            state: data.state,
+          };
+        }
+        return supplier;
+      }));
+
+      toast({
+        title: "Fornecedor atualizado",
+        description: "As informações do fornecedor foram atualizadas com sucesso",
+      });
+    } else {
+      // Add new supplier
+      const newSupplier: Supplier = {
+        id: (suppliers.length + 1).toString(),
+        code: data.code,
+        name: data.name,
+        contactName: data.contactName,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        lastPurchase: 'N/A',
+      };
+
+      setSuppliers([...suppliers, newSupplier]);
+
+      toast({
+        title: "Fornecedor adicionado",
+        description: "Novo fornecedor foi adicionado com sucesso",
+      });
+    }
+
+    setOpenDialog(false);
+    form.reset();
+  };
+
+  const handleAddSupplier = () => {
+    setEditingSupplier(null);
+    form.reset({
+      name: '',
+      code: '',
+      contactName: '',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
+      state: '',
+    });
+    setOpenDialog(true);
+  };
+
+  const handleEditSupplier = (supplier: Supplier) => {
+    setEditingSupplier(supplier);
+    form.reset({
+      name: supplier.name,
+      code: supplier.code,
+      contactName: supplier.contactName,
+      email: supplier.email,
+      phone: supplier.phone,
+      address: supplier.address,
+      city: supplier.city,
+      state: supplier.state,
+    });
+    setOpenDialog(true);
+  };
+
+  const handleDeleteSupplier = (supplierId: string) => {
+    setSuppliers(suppliers.filter(supplier => supplier.id !== supplierId));
+    toast({
+      title: "Fornecedor excluído",
+      description: "O fornecedor foi removido com sucesso",
+    });
+  };
+
+  // Filter suppliers based on search term
+  const filteredSuppliers = suppliers.filter(supplier => 
+    supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    supplier.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    supplier.contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    supplier.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <AuthRequired>
+      <div className="min-h-screen flex">
+        <Sidebar />
+        
+        <main className="flex-1 ml-64 p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="page-transition"
+          >
+            <header className="flex justify-between items-center mb-8">
+              <div>
+                <h1 className="text-3xl font-semibold flex items-center">
+                  <Truck className="mr-3 h-8 w-8 text-primary" />
+                  Cadastro de Fornecedores
+                </h1>
+                <p className="text-gray-500 mt-1">
+                  Gerencie os fornecedores do sistema
+                </p>
+              </div>
+              
+              <Button onClick={handleAddSupplier}>
+                <Plus className="mr-2 h-5 w-5" />
+                Novo Fornecedor
+              </Button>
+            </header>
+            
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
+              <div className="p-6 border-b">
+                <div className="relative w-full max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Input
+                    type="text"
+                    placeholder="Buscar fornecedores..."
+                    className="pl-10"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Código</TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Contato</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Telefone</TableHead>
+                      <TableHead>Localização</TableHead>
+                      <TableHead>Última Compra</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredSuppliers.map((supplier) => (
+                      <TableRow key={supplier.id}>
+                        <TableCell className="font-medium">{supplier.code}</TableCell>
+                        <TableCell>{supplier.name}</TableCell>
+                        <TableCell>{supplier.contactName}</TableCell>
+                        <TableCell>{supplier.email}</TableCell>
+                        <TableCell>{supplier.phone}</TableCell>
+                        <TableCell>{`${supplier.city}, ${supplier.state}`}</TableCell>
+                        <TableCell>{supplier.lastPurchase}</TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => handleEditSupplier(supplier)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => handleDeleteSupplier(supplier.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              
+              <div className="p-4 border-t flex justify-between items-center">
+                <div className="text-sm text-gray-500">
+                  Exibindo {filteredSuppliers.length} de {suppliers.length} fornecedores
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm">Anterior</Button>
+                  <Button variant="default" size="sm">1</Button>
+                  <Button variant="outline" size="sm">Próxima</Button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </main>
+      </div>
+      
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingSupplier ? 'Editar Fornecedor' : 'Adicionar Novo Fornecedor'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingSupplier 
+                ? 'Edite as informações do fornecedor abaixo.' 
+                : 'Preencha os campos abaixo para adicionar um novo fornecedor.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Código</FormLabel>
+                      <FormControl>
+                        <Input placeholder="SUP001" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome da Empresa</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nome do fornecedor" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="contactName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome do Contato</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nome do contato" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="email@exemplo.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefone</FormLabel>
+                    <FormControl>
+                      <Input placeholder="(00) 0000-0000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Endereço</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Rua, número, complemento" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cidade</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Cidade" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estado</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Estado" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setOpenDialog(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit">
+                  {editingSupplier ? 'Salvar Alterações' : 'Cadastrar Fornecedor'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </AuthRequired>
+  );
+};
+
+export default Suppliers;

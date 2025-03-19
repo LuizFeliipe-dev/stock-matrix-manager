@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -22,6 +23,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
+// Define the Item interface
 interface Item {
   id: number;
   code: string;
@@ -225,27 +227,32 @@ const Items = () => {
 
   const onSubmitItem = (data: ItemFormValues) => {
     if (editingItem) {
-      setItems(items.map(item => {
-        if (item.code === editingItem.code) {
-          return {
-            ...item,
-            name: data.name,
-            description: data.description || '',
-            group: data.group,
-            supplier: data.supplier,
-            initialStock: data.initialStock,
-            minStock: data.minStock,
-            price: data.price,
-            location: data.location || '',
-          };
-        }
-        return item;
-      }));
+      // Update existing item
+      setItems(prevItems => 
+        prevItems.map(item => {
+          if (item.code === editingItem.code) {
+            return {
+              ...item,
+              name: data.name,
+              description: data.description || '',
+              group: data.group,
+              supplier: data.supplier,
+              initialStock: data.initialStock,
+              minStock: data.minStock,
+              price: data.price,
+              location: data.location || '',
+            };
+          }
+          return item;
+        })
+      );
+      
       toast({
         title: "Item atualizado",
         description: "As informações do item foram atualizadas com sucesso",
       });
     } else {
+      // Add new item with all required fields
       const newItem: Item = {
         id: items.length + 1,
         code: data.code,
@@ -259,12 +266,15 @@ const Items = () => {
         location: data.location || '',
         stock: data.initialStock,
       };
+      
       setItems([...items, newItem]);
+      
       toast({
         title: "Item adicionado",
         description: "Novo item foi adicionado com sucesso",
       });
     }
+    
     setOpenDialog(false);
   };
 
