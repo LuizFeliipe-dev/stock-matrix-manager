@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -22,6 +21,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Save } from 'lucide-react';
+import { ItemFormValues } from '@/types/item';
 
 // Form schema
 const itemFormSchema = z.object({
@@ -35,8 +35,6 @@ const itemFormSchema = z.object({
   price: z.coerce.number().min(0, { message: 'Preço não pode ser negativo' }),
   location: z.string().optional(),
 });
-
-export type ItemFormValues = z.infer<typeof itemFormSchema>;
 
 interface ItemFormProps {
   initialData?: ItemFormValues | null;

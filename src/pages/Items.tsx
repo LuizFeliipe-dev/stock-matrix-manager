@@ -1,42 +1,14 @@
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
-import ItemForm, { ItemFormValues } from '../components/ItemForm';
-import { motion } from 'framer-motion';
-import { Package, Plus, Pencil, Trash2, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription 
-} from '@/components/ui/dialog';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-
-// Define the Item interface
-interface Item {
-  id: number;
-  code: string;
-  name: string;
-  description: string;
-  group: string;
-  supplier: string;
-  initialStock: number;
-  stock: number;
-  minStock: number;
-  price: number;
-  location: string;
-}
+import { Item, ItemFormValues } from '../types/item';
+import ItemsHeader from '../components/items/ItemsHeader';
+import ItemFilters from '../components/items/ItemFilters';
+import ItemsTable from '../components/items/ItemsTable';
+import ItemFormDialog from '../components/items/ItemFormDialog';
 
 const initialItems: Item[] = [
   {
@@ -300,148 +272,37 @@ const Items = () => {
             animate={{ opacity: 1, y: 0 }}
             className="page-transition"
           >
-            <header className="flex justify-between items-center mb-8">
-              <div>
-                <h1 className="text-3xl font-semibold flex items-center">
-                  <Package className="mr-3 h-8 w-8 text-primary" />
-                  Cadastro de Itens
-                </h1>
-                <p className="text-gray-500 mt-1">
-                  Gerencie os itens disponíveis no sistema
-                </p>
-              </div>
-              
-              <Button onClick={handleAddItem}>
-                <Plus className="mr-2 h-5 w-5" />
-                Novo Item
-              </Button>
-            </header>
+            <ItemsHeader onAddItem={handleAddItem} />
             
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
-              <div className="p-6 border-b">
-                <div className="flex items-center">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <Input
-                      type="text"
-                      placeholder="Buscar itens..."
-                      className="pl-10"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="ml-4">
-                    <Select
-                      value={filterGroup}
-                      onValueChange={setFilterGroup}
-                    >
-                      <SelectTrigger className="w-[200px]">
-                        <SelectValue placeholder="Todos os grupos" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">Todos os grupos</SelectItem>
-                        {groups.map(group => (
-                          <SelectItem key={group.id} value={group.name}>
-                            {group.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
+              <ItemFilters 
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                filterGroup={filterGroup}
+                setFilterGroup={setFilterGroup}
+                groups={groups}
+              />
               
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50 text-gray-700 text-left">
-                      <th className="py-3 px-6 font-medium">Código</th>
-                      <th className="py-3 px-6 font-medium">Nome</th>
-                      <th className="py-3 px-6 font-medium">Grupo</th>
-                      <th className="py-3 px-6 font-medium">Fornecedor</th>
-                      <th className="py-3 px-6 font-medium">Estoque</th>
-                      <th className="py-3 px-6 font-medium">Preço</th>
-                      <th className="py-3 px-6 font-medium">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {filteredItems.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="py-3 px-6">{item.code}</td>
-                        <td className="py-3 px-6 font-medium">{item.name}</td>
-                        <td className="py-3 px-6">{item.group}</td>
-                        <td className="py-3 px-6">{item.supplier}</td>
-                        <td className="py-3 px-6">
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            item.stock > item.minStock 
-                              ? 'bg-green-50 text-green-600 border border-green-200' 
-                              : item.stock > 0 
-                                ? 'bg-amber-50 text-amber-600 border border-amber-200' 
-                                : 'bg-red-50 text-red-600 border border-red-200'
-                          }`}>
-                            {item.stock} unidades
-                          </span>
-                        </td>
-                        <td className="py-3 px-6">
-                          R$ {item.price.toFixed(2)}
-                        </td>
-                        <td className="py-3 px-6">
-                          <div className="flex space-x-2">
-                            <button 
-                              className="p-1 rounded-full hover:bg-gray-200 transition-colors"
-                              onClick={() => handleEditItem(item)}
-                            >
-                              <Pencil className="h-4 w-4 text-gray-500" />
-                            </button>
-                            <button 
-                              className="p-1 rounded-full hover:bg-gray-200 transition-colors"
-                              onClick={() => handleDeleteItem(item.id)}
-                            >
-                              <Trash2 className="h-4 w-4 text-gray-500" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              
-              <div className="p-4 border-t flex justify-between items-center">
-                <div className="text-sm text-gray-500">
-                  Exibindo {filteredItems.length} de {items.length} itens
-                </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">Anterior</Button>
-                  <Button variant="default" size="sm">1</Button>
-                  <Button variant="outline" size="sm">Próxima</Button>
-                </div>
-              </div>
+              <ItemsTable 
+                items={filteredItems}
+                onEdit={handleEditItem}
+                onDelete={handleDeleteItem}
+                filteredCount={filteredItems.length}
+                totalCount={items.length}
+              />
             </div>
           </motion.div>
         </main>
       </div>
 
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[700px]">
-          <DialogHeader>
-            <DialogTitle>{editingItem ? 'Editar Item' : 'Adicionar Novo Item'}</DialogTitle>
-            <DialogDescription>
-              {editingItem 
-                ? 'Edite as informações do item abaixo.' 
-                : 'Preencha os campos abaixo para adicionar um novo item.'}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <ItemForm
-            initialData={editingItem}
-            onSubmit={onSubmitItem}
-            suppliers={suppliers}
-            groups={groups}
-          />
-        </DialogContent>
-      </Dialog>
+      <ItemFormDialog
+        open={openDialog}
+        onOpenChange={setOpenDialog}
+        editingItem={editingItem}
+        onSubmit={onSubmitItem}
+        suppliers={suppliers}
+        groups={groups}
+      />
     </AuthRequired>
   );
 };
