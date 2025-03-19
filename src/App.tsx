@@ -12,13 +12,13 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Items from "./pages/Items";
+import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 
 // Creating empty placeholder pages for navigation to work
 const WarehousesPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Armazéns</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const SuppliersPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Fornecedores</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const GroupsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Grupos</h1><p className="mt-4">Página em desenvolvimento</p></div>;
-const UsersPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Usuários</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const EntryPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Entrada</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const InventoryPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Inventário</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const DeparturePage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Saída</h1><p className="mt-4">Página em desenvolvimento</p></div>;
@@ -45,7 +45,7 @@ const App = () => (
               <Route path="/suppliers" element={<SuppliersPage />} />
               <Route path="/groups" element={<GroupsPage />} />
               <Route path="/warehouses" element={<WarehousesPage />} />
-              <Route path="/users" element={<UsersPage />} />
+              <Route path="/users" element={<Users />} />
               <Route path="/entry" element={<EntryPage />} />
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/departure" element={<DeparturePage />} />
