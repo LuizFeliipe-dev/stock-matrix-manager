@@ -1,10 +1,6 @@
 
-import { motion } from 'framer-motion';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
-import ItemsHeader from '../components/items/ItemsHeader';
-import ItemFilters from '../components/items/ItemFilters';
-import ItemsTable from '../components/items/ItemsTable';
 import ItemFormDialog from '../components/items/ItemFormDialog';
 import { useItems, suppliers, groups } from '../hooks/useItems';
 import ItemsPageContent from '../components/items/ItemsPageContent';

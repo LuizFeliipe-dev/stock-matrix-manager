@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
+import Sidebar from "./components/Sidebar";
 
 // Pages
 import Index from "./pages/Index";
@@ -18,6 +19,7 @@ import Warehouses from "./pages/Warehouses";
 import Groups from "./pages/Groups";
 import Events from "./pages/Events";
 import NotFound from "./pages/NotFound";
+import DepartureSection from "./components/events/DepartureSection";
 
 // Creating empty placeholder pages for navigation to work
 const LocationsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Locações</h1><p className="mt-4">Página em desenvolvimento</p></div>;
@@ -25,7 +27,21 @@ const RacksPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-
 const CorridorsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Corredores</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const EntryPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Entrada</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const InventoryPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Inventário</h1><p className="mt-4">Página em desenvolvimento</p></div>;
-const DeparturePage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Saída</h1><p className="mt-4">Página em desenvolvimento</p></div>;
+const DeparturePage = () => (
+  <div className="min-h-screen flex">
+    <Sidebar />
+    <main className="flex-1 ml-64 p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="page-transition"
+      >
+        <h1 className="text-2xl font-bold mb-6">Saída de Produtos</h1>
+        <DepartureSection />
+      </motion.div>
+    </main>
+  </div>
+);
 const TasksPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Lista de Tarefas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const StatisticsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Estatísticas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const LocationViewPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Visualização 3D</h1><p className="mt-4">Página em desenvolvimento</p></div>;
