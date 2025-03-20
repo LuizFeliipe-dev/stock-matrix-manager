@@ -18,7 +18,10 @@ import {
   Menu,
   X,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Grid3X3,
+  Layers,
+  LayoutGrid
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -162,7 +165,7 @@ const Sidebar = ({ className }: SidebarProps) => {
           </div>
           
           <div className="flex-1 overflow-y-auto space-y-1">
-            <SidebarItem icon={LayoutDashboard} title="Dashboard" to="/" />
+            <SidebarItem icon={LayoutDashboard} title="Dashboard" to="/dashboard" />
             
             <SidebarGroup title="Cadastros">
               <SidebarItem icon={Package} title="Itens" to="/items" />
@@ -170,6 +173,12 @@ const Sidebar = ({ className }: SidebarProps) => {
               <SidebarItem icon={Box} title="Grupos" to="/groups" />
               <SidebarItem icon={Warehouse} title="Armazéns" to="/warehouses" />
               <SidebarItem icon={Users} title="Usuários" to="/users" permission="manager" />
+            </SidebarGroup>
+            
+            <SidebarGroup title="Localizações">
+              <SidebarItem icon={LayoutGrid} title="Corredores" to="/corridors" />
+              <SidebarItem icon={Grid3X3} title="Racks/Prateleiras" to="/racks" />
+              <SidebarItem icon={Layers} title="Níveis" to="/locations" />
             </SidebarGroup>
             
             <SidebarGroup title="Eventos">

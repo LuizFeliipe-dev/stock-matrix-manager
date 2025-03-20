@@ -23,11 +23,10 @@ import DepartureSection from "./components/events/DepartureSection";
 import EntrySection from "./components/events/EntrySection";
 import InventorySection from "./components/events/InventorySection";
 import Stats3DView from "./components/Stats3DView";
-
-// Creating empty placeholder pages for navigation to work
-const LocationsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Locações</h1><p className="mt-4">Página em desenvolvimento</p></div>;
-const RacksPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Racks/Prateleiras</h1><p className="mt-4">Página em desenvolvimento</p></div>;
-const CorridorsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Corredores</h1><p className="mt-4">Página em desenvolvimento</p></div>;
+import LocationsPage from "./pages/Locations";
+import RacksPage from "./pages/Racks";
+import CorridorsPage from "./pages/Corridors";
+import BalancePage from "./pages/Balance";
 
 // Create proper pages for Entry, Inventory, and Location View
 const EntryPage = () => (
@@ -99,7 +98,6 @@ const LocationViewPage = () => (
 
 const TasksPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Lista de Tarefas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const StatisticsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Estatísticas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
-const BalancePage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Resumo de Saldo</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 
 const queryClient = new QueryClient();
 
