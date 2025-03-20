@@ -4,7 +4,9 @@ export interface Item {
   code: string;
   name: string;
   description: string;
+  groupId: string;
   group: string;
+  supplierId: string;
   supplier: string;
   initialStock: number;
   stock: number;

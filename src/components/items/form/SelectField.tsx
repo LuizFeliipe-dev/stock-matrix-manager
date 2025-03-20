@@ -33,13 +33,16 @@ const SelectField = ({
 }: SelectFieldProps) => {
   return (
     <FormField form={form} name={name} label={label}>
-      <Select onValueChange={value => form.setValue(name, value)}>
+      <Select 
+        onValueChange={value => form.setValue(name, value)}
+        value={form.watch(name) || undefined}
+      >
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
-            <SelectItem key={option.id} value={option.name}>
+            <SelectItem key={option.id} value={option.id}>
               {option.name}
             </SelectItem>
           ))}

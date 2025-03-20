@@ -10,7 +10,9 @@ const initialItems: Item[] = [
     code: 'ITM001',
     name: 'Notebook Dell XPS 13',
     description: 'Notebook premium com processador Intel Core i7, 16GB RAM e 512GB SSD',
+    groupId: '1',
     group: 'Eletrônicos',
+    supplierId: '1',
     supplier: 'Dell Computadores',
     initialStock: 20,
     stock: 15,
@@ -156,10 +158,21 @@ export const groups = [
   { id: '4', name: 'Acessórios' },
 ];
 
+// Helper to find supplier and group names from IDs
+const findSupplierName = (id: string) => {
+  const supplier = suppliers.find(s => s.id === id);
+  return supplier ? supplier.name : '';
+};
+
+const findGroupName = (id: string) => {
+  const group = groups.find(g => g.id === id);
+  return group ? group.name : '';
+};
+
 export const useItems = () => {
   const [items, setItems] = useState<Item[]>(initialItems);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterGroup, setFilterGroup] = useState('');
+  const [filterGroup, setFilterGroup] = useState('all');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<ItemFormValues | null>(null);
   const { toast } = useToast();
@@ -174,8 +187,8 @@ export const useItems = () => {
       code: item.code,
       name: item.name,
       description: item.description || '',
-      group: item.group,
-      supplier: item.supplier,
+      group: item.groupId,
+      supplier: item.supplierId,
       initialStock: item.initialStock,
       minStock: item.minStock,
       price: item.price,
@@ -202,8 +215,10 @@ export const useItems = () => {
               ...item,
               name: data.name,
               description: data.description || '',
-              group: data.group,
-              supplier: data.supplier,
+              groupId: data.group,
+              group: findGroupName(data.group),
+              supplierId: data.supplier,
+              supplier: findSupplierName(data.supplier),
               initialStock: data.initialStock,
               minStock: data.minStock,
               price: data.price,
@@ -225,8 +240,10 @@ export const useItems = () => {
         code: data.code,
         name: data.name,
         description: data.description || '',
-        group: data.group,
-        supplier: data.supplier,
+        groupId: data.group,
+        group: findGroupName(data.group),
+        supplierId: data.supplier,
+        supplier: findSupplierName(data.supplier),
         initialStock: data.initialStock,
         minStock: data.minStock,
         price: data.price,
@@ -251,7 +268,7 @@ export const useItems = () => {
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.supplier.toLowerCase().includes(searchTerm.toLowerCase());
       
-    const matchesGroup = filterGroup ? item.group === filterGroup : true;
+    const matchesGroup = filterGroup === 'all' ? true : item.groupId === filterGroup;
     
     return matchesSearch && matchesGroup;
   });

@@ -41,16 +41,16 @@ const ItemFilters = ({
         
         <div className="ml-4">
           <Select
-            value={filterGroup}
+            value={filterGroup || "all"}
             onValueChange={setFilterGroup}
           >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Todos os grupos" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os grupos</SelectItem>
+              <SelectItem value="all">Todos os grupos</SelectItem>
               {groups.map(group => (
-                <SelectItem key={group.id} value={group.name}>
+                <SelectItem key={group.id} value={group.id}>
                   {group.name}
                 </SelectItem>
               ))}
