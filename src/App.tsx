@@ -20,13 +20,48 @@ import Groups from "./pages/Groups";
 import Events from "./pages/Events";
 import NotFound from "./pages/NotFound";
 import DepartureSection from "./components/events/DepartureSection";
+import EntrySection from "./components/events/EntrySection";
+import InventorySection from "./components/events/InventorySection";
+import Stats3DView from "./components/Stats3DView";
 
 // Creating empty placeholder pages for navigation to work
 const LocationsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Locações</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const RacksPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Racks/Prateleiras</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const CorridorsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Corredores</h1><p className="mt-4">Página em desenvolvimento</p></div>;
-const EntryPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Entrada</h1><p className="mt-4">Página em desenvolvimento</p></div>;
-const InventoryPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Inventário</h1><p className="mt-4">Página em desenvolvimento</p></div>;
+
+// Create proper pages for Entry, Inventory, and Location View
+const EntryPage = () => (
+  <div className="min-h-screen flex">
+    <Sidebar />
+    <main className="flex-1 ml-64 p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="page-transition"
+      >
+        <h1 className="text-2xl font-bold mb-6">Entrada de Produtos</h1>
+        <EntrySection />
+      </motion.div>
+    </main>
+  </div>
+);
+
+const InventoryPage = () => (
+  <div className="min-h-screen flex">
+    <Sidebar />
+    <main className="flex-1 ml-64 p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="page-transition"
+      >
+        <h1 className="text-2xl font-bold mb-6">Inventário</h1>
+        <InventorySection />
+      </motion.div>
+    </main>
+  </div>
+);
+
 const DeparturePage = () => (
   <div className="min-h-screen flex">
     <Sidebar />
@@ -42,9 +77,28 @@ const DeparturePage = () => (
     </main>
   </div>
 );
+
+// Create a dedicated page for 3D visualization
+const LocationViewPage = () => (
+  <div className="min-h-screen flex">
+    <Sidebar />
+    <main className="flex-1 ml-64 p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="page-transition"
+      >
+        <h1 className="text-2xl font-bold mb-6">Visualização 3D do Armazém</h1>
+        <div className="bg-white rounded-xl shadow-sm border overflow-hidden h-[calc(100vh-180px)]">
+          <Stats3DView />
+        </div>
+      </motion.div>
+    </main>
+  </div>
+);
+
 const TasksPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Lista de Tarefas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const StatisticsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Estatísticas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
-const LocationViewPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Visualização 3D</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const BalancePage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Resumo de Saldo</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 
 const queryClient = new QueryClient();
