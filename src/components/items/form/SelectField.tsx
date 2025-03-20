@@ -35,7 +35,7 @@ const SelectField = ({
     <FormField form={form} name={name} label={label}>
       <Select 
         onValueChange={value => form.setValue(name, value)}
-        value={form.watch(name) || undefined}
+        value={form.watch(name)?.toString() || undefined}
       >
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
