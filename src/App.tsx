@@ -16,6 +16,7 @@ import Users from "./pages/Users";
 import Suppliers from "./pages/Suppliers";
 import Warehouses from "./pages/Warehouses";
 import Groups from "./pages/Groups";
+import Events from "./pages/Events";
 import NotFound from "./pages/NotFound";
 
 // Creating empty placeholder pages for navigation to work
@@ -29,7 +30,6 @@ const TasksPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-
 const StatisticsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Estatísticas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const LocationViewPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Visualização 3D</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const BalancePage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Resumo de Saldo</h1><p className="mt-4">Página em desenvolvimento</p></div>;
-const EventsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Eventos</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 
 const queryClient = new QueryClient();
 
@@ -53,10 +53,10 @@ const App = () => (
               <Route path="/racks" element={<RacksPage />} />
               <Route path="/corridors" element={<CorridorsPage />} />
               <Route path="/users" element={<Users />} />
+              <Route path="/events" element={<Events />} />
               <Route path="/entry" element={<EntryPage />} />
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/departure" element={<DeparturePage />} />
-              <Route path="/events" element={<EventsPage />} />
               <Route path="/tasks" element={<TasksPage />} />
               <Route path="/statistics" element={<StatisticsPage />} />
               <Route path="/location-view" element={<LocationViewPage />} />
