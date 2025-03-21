@@ -78,7 +78,7 @@ const RacksPage = () => {
                       <TableHead>Código</TableHead>
                       <TableHead>Nome</TableHead>
                       {!isMobile && <TableHead>Descrição</TableHead>}
-                      <TableHead>ID do Corredor</TableHead>
+                      <TableHead>Corredor</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>

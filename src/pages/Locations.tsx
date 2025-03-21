@@ -78,7 +78,7 @@ const LocationsPage = () => {
                       <TableHead>Código</TableHead>
                       <TableHead>Nome</TableHead>
                       {!isMobile && <TableHead>Descrição</TableHead>}
-                      <TableHead>ID da Prateleira</TableHead>
+                      <TableHead>Prateleira</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>

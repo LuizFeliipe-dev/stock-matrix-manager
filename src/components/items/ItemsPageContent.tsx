@@ -5,6 +5,7 @@ import ItemsHeader from './ItemsHeader';
 import ItemFilters from './ItemFilters';
 import ItemsTable from './ItemsTable';
 import { groups } from '@/hooks/useItems';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ItemsPageContentProps {
   filteredItems: Item[];
@@ -29,34 +30,34 @@ const ItemsPageContent = ({
   handleEditItem,
   handleDeleteItem
 }: ItemsPageContentProps) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <main className="flex-1 ml-64 p-8">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="page-transition"
-      >
-        <ItemsHeader onAddItem={handleAddItem} />
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="page-transition"
+    >
+      <ItemsHeader onAddItem={handleAddItem} />
+      
+      <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
+        <ItemFilters 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          filterGroup={filterGroup}
+          setFilterGroup={setFilterGroup}
+          groups={groups}
+        />
         
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
-          <ItemFilters 
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            filterGroup={filterGroup}
-            setFilterGroup={setFilterGroup}
-            groups={groups}
-          />
-          
-          <ItemsTable 
-            items={filteredItems}
-            onEdit={handleEditItem}
-            onDelete={handleDeleteItem}
-            filteredCount={filteredItems.length}
-            totalCount={items.length}
-          />
-        </div>
-      </motion.div>
-    </main>
+        <ItemsTable 
+          items={filteredItems}
+          onEdit={handleEditItem}
+          onDelete={handleDeleteItem}
+          filteredCount={filteredItems.length}
+          totalCount={items.length}
+        />
+      </div>
+    </motion.div>
   );
 };
 

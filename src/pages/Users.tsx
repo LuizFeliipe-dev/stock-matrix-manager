@@ -1,17 +1,36 @@
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
+import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { motion } from 'framer-motion';
-import { Users as UsersIcon, Plus, Pencil, Trash2, Search, UserPlus, Shield, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { 
+  Users as UsersIcon, 
+  Plus, 
+  Pencil, 
+  Trash2, 
+  Search, 
+  UserPlus, 
+  Shield, 
+  X 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useToast } from '@/hooks/use-toast';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { UserPermission } from '../types/auth';
 
 interface UserData {
@@ -90,6 +109,7 @@ const Users = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [editingUser, setEditingUser] = useState<(UserFormValues & { id: string }) | null>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
@@ -188,19 +208,19 @@ const Users = () => {
 
   return (
     <AuthRequired>
-      <div className="min-h-screen flex">
+      <div className="min-h-screen flex flex-col">
         <Sidebar />
         
-        <main className="flex-1 ml-64 p-8">
+        <ResponsiveContainer>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="page-transition"
           >
-            <header className="flex justify-between items-center mb-8">
+            <header className="flex flex-wrap gap-4 justify-between items-center mb-6">
               <div>
-                <h1 className="text-3xl font-semibold flex items-center">
-                  <UsersIcon className="mr-3 h-8 w-8 text-primary" />
+                <h1 className="text-2xl font-bold flex items-center">
+                  <UsersIcon className="mr-3 h-6 w-6 text-primary" />
                   Usuários
                 </h1>
                 <p className="text-gray-500 mt-1">
@@ -215,8 +235,8 @@ const Users = () => {
             </header>
             
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
-              <div className="p-6 border-b">
-                <div className="flex items-center">
+              <div className="p-4 border-b">
+                <div className={`flex ${isMobile ? 'flex-col space-y-3' : 'items-center space-x-3'}`}>
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                     <Input
@@ -227,9 +247,9 @@ const Users = () => {
                     />
                   </div>
                   
-                  <div className="ml-4">
+                  <div className={isMobile ? "w-full" : "w-[200px]"}>
                     <Select>
-                      <SelectTrigger className="w-[200px]">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Todos os departamentos" />
                       </SelectTrigger>
                       <SelectContent>
@@ -245,49 +265,59 @@ const Users = () => {
                 </div>
               </div>
               
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50 text-gray-700 text-left">
-                      <th className="py-3 px-6 font-medium">Nome</th>
-                      <th className="py-3 px-6 font-medium">Email</th>
-                      <th className="py-3 px-6 font-medium">Cargo</th>
-                      <th className="py-3 px-6 font-medium">Departamento</th>
-                      <th className="py-3 px-6 font-medium">Último Acesso</th>
-                      <th className="py-3 px-6 font-medium">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {filteredUsers.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="py-3 px-6 font-medium">{user.name}</td>
-                        <td className="py-3 px-6">{user.email}</td>
-                        <td className="py-3 px-6">{user.role}</td>
-                        <td className="py-3 px-6">{user.department}</td>
-                        <td className="py-3 px-6">{user.lastAccess}</td>
-                        <td className="py-3 px-6">
-                          <div className="flex space-x-2">
-                            <button 
-                              className="p-1 rounded-full hover:bg-gray-200 transition-colors"
-                              onClick={() => handleEditUser(user)}
-                            >
-                              <Pencil className="h-4 w-4 text-gray-500" />
-                            </button>
-                            <button 
-                              className="p-1 rounded-full hover:bg-gray-200 transition-colors"
-                              onClick={() => handleDeleteUser(user.id)}
-                            >
-                              <Trash2 className="h-4 w-4 text-gray-500" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="responsive-table">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Email</TableHead>
+                      {!isMobile && <TableHead>Cargo</TableHead>}
+                      {!isMobile && <TableHead>Departamento</TableHead>}
+                      <TableHead>Acesso</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={isMobile ? 4 : 6} className="text-center py-6 text-muted-foreground">
+                          Nenhum usuário encontrado.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredUsers.map((user) => (
+                        <TableRow key={user.id} className="hover:bg-gray-50 transition-colors">
+                          <TableCell className="font-medium">{user.name}</TableCell>
+                          <TableCell className="max-w-[140px] truncate">{user.email}</TableCell>
+                          {!isMobile && <TableCell>{user.role}</TableCell>}
+                          {!isMobile && <TableCell>{user.department}</TableCell>}
+                          <TableCell className="text-sm">{user.lastAccess}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => handleEditUser(user)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => handleDeleteUser(user.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               </div>
               
-              <div className="p-4 border-t flex justify-between items-center">
+              <div className="p-4 border-t flex flex-wrap justify-between items-center gap-3">
                 <div className="text-sm text-gray-500">
                   Exibindo {filteredUsers.length} de {users.length} usuários
                 </div>
@@ -299,7 +329,7 @@ const Users = () => {
               </div>
             </div>
           </motion.div>
-        </main>
+        </ResponsiveContainer>
       </div>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>

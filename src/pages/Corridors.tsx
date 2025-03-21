@@ -78,7 +78,7 @@ const CorridorsPage = () => {
                       <TableHead>Código</TableHead>
                       <TableHead>Nome</TableHead>
                       {!isMobile && <TableHead>Descrição</TableHead>}
-                      <TableHead>ID do Armazém</TableHead>
+                      <TableHead>Armazém</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>

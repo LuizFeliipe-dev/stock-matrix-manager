@@ -1,8 +1,9 @@
-
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
+import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { motion } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -25,7 +26,8 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogDescription 
+  DialogDescription,
+  DialogFooter
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -45,7 +47,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// Define the category schema
 const groupFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
   code: z.string().min(2, { message: 'Código deve ter pelo menos 2 caracteres' }),
@@ -56,7 +57,6 @@ const groupFormSchema = z.object({
 
 type GroupFormValues = z.infer<typeof groupFormSchema>;
 
-// Define the Group interface
 interface Group {
   id: string;
   name: string;
@@ -67,7 +67,6 @@ interface Group {
   itemCount: number;
 }
 
-// Initial groups data
 const initialGroups: Group[] = [
   {
     id: '1',
@@ -113,8 +112,8 @@ const Groups = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
-  // Initialize form
   const form = useForm<GroupFormValues>({
     resolver: zodResolver(groupFormSchema),
     defaultValues: {
@@ -126,10 +125,8 @@ const Groups = () => {
     },
   });
 
-  // Handle form submission
   const onSubmit = (data: GroupFormValues) => {
     if (editingGroup) {
-      // Update existing group
       setGroups(groups.map(group => {
         if (group.id === editingGroup.id) {
           return {
@@ -149,7 +146,6 @@ const Groups = () => {
         description: "As informações da categoria foram atualizadas com sucesso",
       });
     } else {
-      // Add new group
       const newGroup: Group = {
         id: (groups.length + 1).toString(),
         name: data.name,
@@ -204,7 +200,6 @@ const Groups = () => {
     });
   };
 
-  // Filter groups based on search term
   const filteredGroups = groups.filter(group => 
     group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     group.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -213,19 +208,19 @@ const Groups = () => {
 
   return (
     <AuthRequired>
-      <div className="min-h-screen flex">
+      <div className="min-h-screen flex flex-col">
         <Sidebar />
         
-        <main className="flex-1 ml-64 p-8">
+        <ResponsiveContainer>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="page-transition"
           >
-            <header className="flex justify-between items-center mb-8">
+            <header className="flex flex-wrap gap-4 justify-between items-center mb-6">
               <div>
-                <h1 className="text-3xl font-semibold flex items-center">
-                  <FolderRoot className="mr-3 h-8 w-8 text-primary" />
+                <h1 className="text-2xl font-bold flex items-center">
+                  <FolderRoot className="mr-3 h-6 w-6 text-primary" />
                   Cadastro de Categorias
                 </h1>
                 <p className="text-gray-500 mt-1">
@@ -240,7 +235,7 @@ const Groups = () => {
             </header>
             
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
-              <div className="p-6 border-b">
+              <div className="p-4 border-b">
                 <div className="relative w-full max-w-md">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <Input
@@ -253,17 +248,17 @@ const Groups = () => {
                 </div>
               </div>
               
-              <div className="overflow-x-auto">
+              <div className="responsive-table">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Código</TableHead>
                       <TableHead>Nome</TableHead>
-                      <TableHead>Descrição</TableHead>
-                      <TableHead>Taxa (%)</TableHead>
-                      <TableHead>Estoque Mín.</TableHead>
+                      {!isMobile && <TableHead>Descrição</TableHead>}
+                      {!isMobile && <TableHead>Taxa (%)</TableHead>}
+                      <TableHead>Est. Mín.</TableHead>
                       <TableHead>Itens</TableHead>
-                      <TableHead>Ações</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -271,8 +266,8 @@ const Groups = () => {
                       <TableRow key={group.id}>
                         <TableCell className="font-medium">{group.code}</TableCell>
                         <TableCell>{group.name}</TableCell>
-                        <TableCell className="max-w-xs truncate">{group.description}</TableCell>
-                        <TableCell>{group.taxRate.toFixed(1)}%</TableCell>
+                        {!isMobile && <TableCell className="max-w-xs truncate">{group.description}</TableCell>}
+                        {!isMobile && <TableCell>{group.taxRate.toFixed(1)}%</TableCell>}
                         <TableCell>{group.minStock}</TableCell>
                         <TableCell>
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -280,7 +275,7 @@ const Groups = () => {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <div className="flex space-x-2">
+                          <div className="flex justify-end space-x-2">
                             <Button 
                               variant="ghost" 
                               size="icon"
@@ -303,7 +298,7 @@ const Groups = () => {
                 </Table>
               </div>
               
-              <div className="p-4 border-t flex justify-between items-center">
+              <div className="p-4 border-t flex flex-wrap justify-between items-center gap-3">
                 <div className="text-sm text-gray-500">
                   Exibindo {filteredGroups.length} de {groups.length} categorias
                 </div>
@@ -315,7 +310,7 @@ const Groups = () => {
               </div>
             </div>
           </motion.div>
-        </main>
+        </ResponsiveContainer>
       </div>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
