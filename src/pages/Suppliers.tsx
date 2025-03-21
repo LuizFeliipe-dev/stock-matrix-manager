@@ -43,6 +43,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import ResponsiveContainer from '@/components/ResponsiveContainer';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Define the supplier schema
 const supplierFormSchema = z.object({
@@ -142,6 +144,7 @@ const Suppliers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   // Initialize form
   const form = useForm<SupplierFormValues>({
@@ -261,16 +264,16 @@ const Suppliers = () => {
       <div className="min-h-screen flex">
         <Sidebar />
         
-        <main className="flex-1 ml-64 p-8">
+        <ResponsiveContainer>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="page-transition"
           >
-            <header className="flex justify-between items-center mb-8">
+            <header className={`flex ${isMobile ? 'flex-col space-y-4' : 'justify-between items-center'} mb-8`}>
               <div>
-                <h1 className="text-3xl font-semibold flex items-center">
-                  <Truck className="mr-3 h-8 w-8 text-primary" />
+                <h1 className="text-2xl md:text-3xl font-semibold flex items-center">
+                  <Truck className="mr-3 h-6 w-6 md:h-8 md:w-8 text-primary" />
                   Cadastro de Fornecedores
                 </h1>
                 <p className="text-gray-500 mt-1">
@@ -278,14 +281,14 @@ const Suppliers = () => {
                 </p>
               </div>
               
-              <Button onClick={handleAddSupplier}>
+              <Button onClick={handleAddSupplier} className={isMobile ? "w-full" : ""}>
                 <Plus className="mr-2 h-5 w-5" />
                 Novo Fornecedor
               </Button>
             </header>
             
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
-              <div className="p-6 border-b">
+              <div className="p-4 md:p-6 border-b">
                 <div className="relative w-full max-w-md">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <Input
@@ -298,16 +301,16 @@ const Suppliers = () => {
                 </div>
               </div>
               
-              <div className="overflow-x-auto">
+              <div className="responsive-table">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Código</TableHead>
                       <TableHead>Nome</TableHead>
-                      <TableHead>Contato</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Telefone</TableHead>
-                      <TableHead>Localização</TableHead>
+                      {!isMobile && <TableHead>Contato</TableHead>}
+                      {!isMobile && <TableHead>Email</TableHead>}
+                      {!isMobile && <TableHead>Telefone</TableHead>}
+                      {!isMobile && <TableHead>Localização</TableHead>}
                       <TableHead>Última Compra</TableHead>
                       <TableHead>Ações</TableHead>
                     </TableRow>
@@ -317,10 +320,10 @@ const Suppliers = () => {
                       <TableRow key={supplier.id}>
                         <TableCell className="font-medium">{supplier.code}</TableCell>
                         <TableCell>{supplier.name}</TableCell>
-                        <TableCell>{supplier.contactName}</TableCell>
-                        <TableCell>{supplier.email}</TableCell>
-                        <TableCell>{supplier.phone}</TableCell>
-                        <TableCell>{`${supplier.city}, ${supplier.state}`}</TableCell>
+                        {!isMobile && <TableCell>{supplier.contactName}</TableCell>}
+                        {!isMobile && <TableCell>{supplier.email}</TableCell>}
+                        {!isMobile && <TableCell>{supplier.phone}</TableCell>}
+                        {!isMobile && <TableCell>{`${supplier.city}, ${supplier.state}`}</TableCell>}
                         <TableCell>{supplier.lastPurchase}</TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
@@ -346,7 +349,7 @@ const Suppliers = () => {
                 </Table>
               </div>
               
-              <div className="p-4 border-t flex justify-between items-center">
+              <div className="p-4 border-t flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="text-sm text-gray-500">
                   Exibindo {filteredSuppliers.length} de {suppliers.length} fornecedores
                 </div>
@@ -358,11 +361,11 @@ const Suppliers = () => {
               </div>
             </div>
           </motion.div>
-        </main>
+        </ResponsiveContainer>
       </div>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[550px]">
+        <DialogContent className="sm:max-w-[550px] w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingSupplier ? 'Editar Fornecedor' : 'Adicionar Novo Fornecedor'}

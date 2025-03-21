@@ -40,6 +40,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import ResponsiveContainer from '@/components/ResponsiveContainer';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Define the warehouse schema
 const warehouseFormSchema = z.object({
@@ -116,6 +118,7 @@ const Warehouses = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   // Initialize form
   const form = useForm<WarehouseFormValues>({
@@ -240,16 +243,16 @@ const Warehouses = () => {
       <div className="min-h-screen flex">
         <Sidebar />
         
-        <main className="flex-1 ml-64 p-8">
+        <ResponsiveContainer>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="page-transition"
           >
-            <header className="flex justify-between items-center mb-8">
+            <header className={`flex ${isMobile ? 'flex-col space-y-4' : 'justify-between items-center'} mb-8`}>
               <div>
-                <h1 className="text-3xl font-semibold flex items-center">
-                  <Warehouse className="mr-3 h-8 w-8 text-primary" />
+                <h1 className="text-2xl md:text-3xl font-semibold flex items-center">
+                  <Warehouse className="mr-3 h-6 w-6 md:h-8 md:w-8 text-primary" />
                   Cadastro de Armazéns
                 </h1>
                 <p className="text-gray-500 mt-1">
@@ -257,14 +260,14 @@ const Warehouses = () => {
                 </p>
               </div>
               
-              <Button onClick={handleAddWarehouse}>
+              <Button onClick={handleAddWarehouse} className={isMobile ? "w-full" : ""}>
                 <Plus className="mr-2 h-5 w-5" />
                 Novo Armazém
               </Button>
             </header>
             
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
-              <div className="p-6 border-b">
+              <div className="p-4 md:p-6 border-b">
                 <div className="relative w-full max-w-md">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <Input
@@ -277,15 +280,15 @@ const Warehouses = () => {
                 </div>
               </div>
               
-              <div className="overflow-x-auto">
+              <div className="responsive-table">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Código</TableHead>
                       <TableHead>Nome</TableHead>
-                      <TableHead>Localização</TableHead>
-                      <TableHead>Gerente</TableHead>
-                      <TableHead>Área Total (m²)</TableHead>
+                      {!isMobile && <TableHead>Localização</TableHead>}
+                      {!isMobile && <TableHead>Gerente</TableHead>}
+                      {!isMobile && <TableHead>Área Total (m²)</TableHead>}
                       <TableHead>Ocupação</TableHead>
                       <TableHead>Ações</TableHead>
                     </TableRow>
@@ -295,9 +298,9 @@ const Warehouses = () => {
                       <TableRow key={warehouse.id}>
                         <TableCell className="font-medium">{warehouse.code}</TableCell>
                         <TableCell>{warehouse.name}</TableCell>
-                        <TableCell>{`${warehouse.city}, ${warehouse.state}`}</TableCell>
-                        <TableCell>{warehouse.manager}</TableCell>
-                        <TableCell>{warehouse.totalArea.toLocaleString()} m²</TableCell>
+                        {!isMobile && <TableCell>{`${warehouse.city}, ${warehouse.state}`}</TableCell>}
+                        {!isMobile && <TableCell>{warehouse.manager}</TableCell>}
+                        {!isMobile && <TableCell>{warehouse.totalArea.toLocaleString()} m²</TableCell>}
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -341,7 +344,7 @@ const Warehouses = () => {
                 </Table>
               </div>
               
-              <div className="p-4 border-t flex justify-between items-center">
+              <div className="p-4 border-t flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="text-sm text-gray-500">
                   Exibindo {filteredWarehouses.length} de {warehouses.length} armazéns
                 </div>
@@ -353,11 +356,11 @@ const Warehouses = () => {
               </div>
             </div>
           </motion.div>
-        </main>
+        </ResponsiveContainer>
       </div>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[550px]">
+        <DialogContent className="sm:max-w-[550px] w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingWarehouse ? 'Editar Armazém' : 'Adicionar Novo Armazém'}
