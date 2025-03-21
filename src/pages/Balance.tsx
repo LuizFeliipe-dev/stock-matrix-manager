@@ -2,6 +2,8 @@
 import { motion } from 'framer-motion';
 import { BarChart, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
+import ResponsiveContainer from '@/components/ResponsiveContainer';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useBalance } from '@/hooks/useBalance';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -24,7 +26,7 @@ import {
   BarChart as RechartsBarChart, 
   CartesianGrid, 
   Legend, 
-  ResponsiveContainer, 
+  ResponsiveContainer as RechartsContainer, 
   Tooltip as RechartsTooltip, 
   XAxis, 
   YAxis 
@@ -48,6 +50,8 @@ const BalancePage = () => {
     setSelectedYear,
     totals
   } = useBalance();
+  
+  const isMobile = useIsMobile();
 
   // Prepare data for the chart
   const chartData = balanceSummaries.map(summary => ({
@@ -58,9 +62,9 @@ const BalancePage = () => {
   }));
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col">
       <Sidebar />
-      <main className="flex-1 ml-64 p-8">
+      <ResponsiveContainer>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -108,14 +112,14 @@ const BalancePage = () => {
             <div className="lg:col-span-2">
               <Card className="h-full">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-center justify-between'}`}>
                     <CardTitle className="text-lg">Movimentação Mensal</CardTitle>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Select 
                         value={selectedWarehouse} 
                         onValueChange={setSelectedWarehouse}
                       >
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger className={isMobile ? "w-full" : "w-[180px]"}>
                           <SelectValue placeholder="Selecione o armazém" />
                         </SelectTrigger>
                         <SelectContent>
@@ -131,7 +135,7 @@ const BalancePage = () => {
                         value={selectedYear.toString()} 
                         onValueChange={value => setSelectedYear(Number(value))}
                       >
-                        <SelectTrigger className="w-[120px]">
+                        <SelectTrigger className={isMobile ? "w-full" : "w-[120px]"}>
                           <SelectValue placeholder="Ano" />
                         </SelectTrigger>
                         <SelectContent>
@@ -147,7 +151,7 @@ const BalancePage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <RechartsContainer width="100%" height="100%">
                       <RechartsBarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
@@ -157,7 +161,7 @@ const BalancePage = () => {
                         <Bar dataKey="entrada" name="Entrada" fill="#4ade80" />
                         <Bar dataKey="saída" name="Saída" fill="#f87171" />
                       </RechartsBarChart>
-                    </ResponsiveContainer>
+                    </RechartsContainer>
                   </div>
                 </CardContent>
               </Card>
@@ -169,40 +173,42 @@ const BalancePage = () => {
                   <CardTitle className="text-lg">Detalhes por Armazém</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Armazém</TableHead>
-                        <TableHead>Mês</TableHead>
-                        <TableHead className="text-right">Valor</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {balanceSummaries.length === 0 ? (
+                  <div className="responsive-table">
+                    <Table>
+                      <TableHeader>
                         <TableRow>
-                          <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
-                            Nenhum dado encontrado.
-                          </TableCell>
+                          <TableHead>Armazém</TableHead>
+                          <TableHead>Mês</TableHead>
+                          <TableHead className="text-right">Valor</TableHead>
                         </TableRow>
-                      ) : (
-                        balanceSummaries.map((summary, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{summary.warehouseName}</TableCell>
-                            <TableCell>{summary.month}</TableCell>
-                            <TableCell className="text-right font-medium">
-                              {formatCurrency(summary.currentValue)}
+                      </TableHeader>
+                      <TableBody>
+                        {balanceSummaries.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
+                              Nenhum dado encontrado.
                             </TableCell>
                           </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
+                        ) : (
+                          balanceSummaries.map((summary, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="max-w-[120px] truncate">{summary.warehouseName}</TableCell>
+                              <TableCell>{summary.month}</TableCell>
+                              <TableCell className="text-right font-medium">
+                                {formatCurrency(summary.currentValue)}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </CardContent>
               </Card>
             </div>
           </div>
         </motion.div>
-      </main>
+      </ResponsiveContainer>
     </div>
   );
 };

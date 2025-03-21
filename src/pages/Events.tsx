@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
+import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import EntrySection from '@/components/events/EntrySection';
 import InventorySection from '@/components/events/InventorySection';
@@ -11,22 +12,22 @@ import DepartureSection from '@/components/events/DepartureSection';
 const Events = () => {
   return (
     <AuthRequired>
-      <div className="min-h-screen flex">
+      <div className="min-h-screen flex flex-col">
         <Sidebar />
-        <main className="flex-1 ml-64 p-8">
+        <ResponsiveContainer>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="page-transition"
           >
-            <header className="mb-8">
-              <h1 className="text-3xl font-semibold">Eventos</h1>
+            <header className="mb-6 md:mb-8">
+              <h1 className="text-2xl md:text-3xl font-semibold">Eventos</h1>
               <p className="text-gray-500 mt-1">
                 Gerencie entradas, inventários e saídas de itens do armazém
               </p>
             </header>
 
-            <Card className="mb-8">
+            <Card className="mb-6 md:mb-8">
               <CardHeader>
                 <CardTitle>Visão Geral de Processos</CardTitle>
                 <CardDescription>
@@ -53,7 +54,7 @@ const Events = () => {
               </CardContent>
             </Card>
           </motion.div>
-        </main>
+        </ResponsiveContainer>
       </div>
     </AuthRequired>
   );

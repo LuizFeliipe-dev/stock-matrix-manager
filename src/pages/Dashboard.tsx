@@ -1,9 +1,12 @@
+
 import { useEffect, useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
 import DashboardCard from '../components/DashboardCard';
 import Stats3DView from '../components/Stats3DView';
+import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { useAuth } from '../lib/auth';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { motion } from 'framer-motion';
 import {
   Package,
@@ -21,6 +24,7 @@ import {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [greeting, setGreeting] = useState('');
 
   useEffect(() => {
@@ -38,17 +42,17 @@ const Dashboard = () => {
 
   return (
     <AuthRequired>
-      <div className="min-h-screen flex">
+      <div className="min-h-screen flex flex-col">
         <Sidebar />
         
-        <main className="flex-1 ml-64 p-8">
+        <ResponsiveContainer>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="page-transition"
           >
-            <header className="mb-8">
-              <h1 className="text-3xl font-semibold">
+            <header className="mb-6 md:mb-8">
+              <h1 className="text-2xl md:text-3xl font-semibold">
                 {greeting}, {user?.name}
               </h1>
               <p className="text-gray-500 mt-1">
@@ -56,7 +60,7 @@ const Dashboard = () => {
               </p>
             </header>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
               <DashboardCard
                 title="Total de Itens"
                 value="1,243"
@@ -90,8 +94,8 @@ const Dashboard = () => {
               />
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white rounded-xl shadow-sm border p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+              <div className="bg-white rounded-xl shadow-sm border p-4 md:p-6">
                 <h2 className="text-xl font-semibold mb-4">Tarefas Pendentes</h2>
                 <div className="space-y-3">
                   <TaskItem 
@@ -118,7 +122,7 @@ const Dashboard = () => {
                 </button>
               </div>
               
-              <div className="bg-white rounded-xl shadow-sm border p-6">
+              <div className="bg-white rounded-xl shadow-sm border p-4 md:p-6">
                 <h2 className="text-xl font-semibold mb-4">Atividade Recente</h2>
                 <div className="space-y-3">
                   <ActivityItem 
@@ -127,7 +131,7 @@ const Dashboard = () => {
                     icon={<Clipboard className="h-5 w-5" />}
                   />
                   <ActivityItem 
-                    title="Nova entrada registrada: 150 itens do Fornecedor ABC"
+                    title={isMobile ? "Nova entrada: 150 itens" : "Nova entrada registrada: 150 itens do Fornecedor ABC"}
                     time="Há 2 horas"
                     icon={<ArrowRightToLine className="h-5 w-5" />}
                   />
@@ -143,7 +147,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
               <DashboardCard
                 title="Eventos"
                 icon={<Activity className="h-6 w-6" />}
@@ -169,17 +173,19 @@ const Dashboard = () => {
               />
             </div>
             
-            <div className="bg-white rounded-xl shadow-sm border mb-8 overflow-hidden">
-              <div className="p-6 pb-2">
-                <h2 className="text-xl font-semibold">Visualização 3D do Armazém</h2>
-                <p className="text-sm text-gray-500 mt-1">Clique nos itens para ver detalhes</p>
+            {!isMobile && (
+              <div className="bg-white rounded-xl shadow-sm border mb-8 overflow-hidden">
+                <div className="p-6 pb-2">
+                  <h2 className="text-xl font-semibold">Visualização 3D do Armazém</h2>
+                  <p className="text-sm text-gray-500 mt-1">Clique nos itens para ver detalhes</p>
+                </div>
+                <div className="h-80">
+                  <Stats3DView />
+                </div>
               </div>
-              <div className="h-80">
-                <Stats3DView />
-              </div>
-            </div>
+            )}
           </motion.div>
-        </main>
+        </ResponsiveContainer>
       </div>
     </AuthRequired>
   );

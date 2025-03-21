@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Box, TruckIcon, FileCheck, Search, PackageX } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import DepartureStepCard from './DepartureStepCard';
 
 const DepartureSection = () => {
   const [orderNumber, setOrderNumber] = useState('');
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleStartDeparture = () => {
     if (!orderNumber) {
@@ -31,7 +33,7 @@ const DepartureSection = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center">
+          <CardTitle className="flex items-center text-base md:text-lg">
             <PackageX className="mr-2 h-5 w-5" />
             Saída de Produtos
           </CardTitle>
@@ -40,7 +42,7 @@ const DepartureSection = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4 mb-6">
+          <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4 mb-6`}>
             <div className="flex-1">
               <Input
                 placeholder="Número da ordem de saída"
@@ -48,7 +50,7 @@ const DepartureSection = () => {
                 onChange={(e) => setOrderNumber(e.target.value)}
               />
             </div>
-            <Button onClick={handleStartDeparture}>
+            <Button onClick={handleStartDeparture} className={isMobile ? "w-full" : ""}>
               <Box className="mr-2 h-4 w-4" />
               Iniciar Saída
             </Button>
@@ -81,12 +83,12 @@ const DepartureSection = () => {
           </div>
         </CardContent>
         <CardFooter className="border-t pt-4">
-          <div className="flex justify-between w-full">
-            <Button variant="ghost" className="gap-1">
+          <div className={`${isMobile ? 'flex flex-col gap-3 w-full' : 'flex justify-between w-full'}`}>
+            <Button variant="ghost" className="gap-1" size={isMobile ? "sm" : "default"}>
               <Search className="h-4 w-4" />
               Pesquisar Saídas
             </Button>
-            <Button variant="outline" disabled>
+            <Button variant="outline" disabled size={isMobile ? "sm" : "default"}>
               Saída em Andamento
             </Button>
           </div>
@@ -95,47 +97,49 @@ const DepartureSection = () => {
       
       <Card>
         <CardHeader>
-          <CardTitle>Saídas Recentes</CardTitle>
+          <CardTitle className="text-base md:text-lg">Saídas Recentes</CardTitle>
           <CardDescription>Últimas 5 saídas registradas no sistema</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr className="border-b">
-                <th className="text-left p-3">Ordem</th>
-                <th className="text-left p-3">Data</th>
-                <th className="text-left p-3">Destino</th>
-                <th className="text-left p-3">Itens</th>
-                <th className="text-left p-3">Status</th>
-                <th className="text-right p-3">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...Array(5)].map((_, index) => (
-                <tr key={index} className="border-b">
-                  <td className="p-3">#{20000 + index}</td>
-                  <td className="p-3">{new Date(Date.now() - index * 86400000).toLocaleDateString()}</td>
-                  <td className="p-3">{['Cliente A', 'Loja B', 'Filial C', 'Distribuidor D', 'Cliente E'][index]}</td>
-                  <td className="p-3">{3 + index} itens</td>
-                  <td className="p-3">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      index === 0 
-                        ? 'bg-blue-50 text-blue-600 border border-blue-200' 
-                        : 'bg-green-50 text-green-600 border border-green-200'
-                    }`}>
-                      {index === 0 ? 'Em Transporte' : 'Entregue'}
-                    </span>
-                  </td>
-                  <td className="p-3 text-right">
-                    <Button variant="ghost" size="sm">Detalhes</Button>
-                  </td>
+          <div className="responsive-table">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr className="border-b">
+                  <th className="text-left p-3">Ordem</th>
+                  <th className="text-left p-3">Data</th>
+                  {!isMobile && <th className="text-left p-3">Destino</th>}
+                  <th className="text-left p-3">Itens</th>
+                  <th className="text-left p-3">Status</th>
+                  <th className="text-right p-3">Ações</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {[...Array(5)].map((_, index) => (
+                  <tr key={index} className="border-b">
+                    <td className="p-3">#{20000 + index}</td>
+                    <td className="p-3">{new Date(Date.now() - index * 86400000).toLocaleDateString()}</td>
+                    {!isMobile && <td className="p-3">{['Cliente A', 'Loja B', 'Filial C', 'Distribuidor D', 'Cliente E'][index]}</td>}
+                    <td className="p-3">{3 + index} itens</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        index === 0 
+                          ? 'bg-blue-50 text-blue-600 border border-blue-200' 
+                          : 'bg-green-50 text-green-600 border border-green-200'
+                      }`}>
+                        {index === 0 ? 'Em Transporte' : 'Entregue'}
+                      </span>
+                    </td>
+                    <td className="p-3 text-right">
+                      <Button variant="ghost" size="sm">Detalhes</Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
         <CardFooter className="border-t pt-4">
-          <Button variant="outline">Ver Todas as Saídas</Button>
+          <Button variant="outline" className={isMobile ? "w-full" : ""}>Ver Todas as Saídas</Button>
         </CardFooter>
       </Card>
     </div>

@@ -2,6 +2,8 @@
 import { motion } from 'framer-motion';
 import { Search, Plus, Edit, Trash2 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
+import ResponsiveContainer from '@/components/ResponsiveContainer';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useRacks } from '@/hooks/useRacks';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -25,6 +27,7 @@ const RacksPage = () => {
   } = useRacks();
   
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleDelete = (id: number) => {
     deleteRack(id);
@@ -35,15 +38,15 @@ const RacksPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col">
       <Sidebar />
-      <main className="flex-1 ml-64 p-8">
+      <ResponsiveContainer>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="page-transition"
         >
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-wrap gap-4 justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Racks/Prateleiras</h1>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
@@ -68,53 +71,55 @@ const RacksPage = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Código</TableHead>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>ID do Corredor</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRacks.length === 0 ? (
+              <div className="responsive-table">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                        Nenhuma prateleira encontrada.
-                      </TableCell>
+                      <TableHead>Código</TableHead>
+                      <TableHead>Nome</TableHead>
+                      {!isMobile && <TableHead>Descrição</TableHead>}
+                      <TableHead>ID do Corredor</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
-                  ) : (
-                    filteredRacks.map((rack) => (
-                      <TableRow key={rack.id}>
-                        <TableCell className="font-medium">{rack.code}</TableCell>
-                        <TableCell>{rack.name}</TableCell>
-                        <TableCell>{rack.description}</TableCell>
-                        <TableCell>{rack.corridorId}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="outline" size="icon">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              onClick={() => handleDelete(rack.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredRacks.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={isMobile ? 4 : 5} className="text-center py-6 text-muted-foreground">
+                          Nenhuma prateleira encontrada.
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : (
+                      filteredRacks.map((rack) => (
+                        <TableRow key={rack.id}>
+                          <TableCell className="font-medium">{rack.code}</TableCell>
+                          <TableCell>{rack.name}</TableCell>
+                          {!isMobile && <TableCell>{rack.description}</TableCell>}
+                          <TableCell>{rack.corridorId}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button variant="outline" size="icon">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() => handleDelete(rack.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
-      </main>
+      </ResponsiveContainer>
     </div>
   );
 };

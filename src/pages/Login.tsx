@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { motion } from 'framer-motion';
 import { Box, LogIn } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,17 +39,17 @@ const Login = () => {
         className="w-full max-w-md"
       >
         <div className="bg-white/80 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden border border-white/50">
-          <div className="p-8">
-            <div className="flex justify-center mb-8">
+          <div className="p-6 md:p-8">
+            <div className="flex justify-center mb-6 md:mb-8">
               <div className="bg-primary text-primary-foreground p-3 rounded-xl">
-                <Box className="h-10 w-10" />
+                <Box className="h-8 w-8 md:h-10 md:w-10" />
               </div>
             </div>
 
-            <h1 className="text-2xl font-bold text-center mb-2">
+            <h1 className="text-xl md:text-2xl font-bold text-center mb-1 md:mb-2">
               MALLDRE WMS
             </h1>
-            <p className="text-gray-500 text-center mb-8">
+            <p className="text-gray-500 text-center text-sm md:text-base mb-6 md:mb-8">
               Sistema de Gerenciamento de Armazém
             </p>
 
@@ -116,7 +118,7 @@ const Login = () => {
               </div>
             </form>
 
-            <div className="mt-8 text-center text-sm text-gray-500">
+            <div className="mt-6 md:mt-8 text-center text-sm text-gray-500">
               <p>
                 Usuários para teste (senha: 123456):
               </p>

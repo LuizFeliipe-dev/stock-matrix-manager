@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowRightToLine, Plus, Truck, Package, Search, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import EntryStepCard from './EntryStepCard';
 
 const EntrySection = () => {
   const [orderNumber, setOrderNumber] = useState('');
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleStartEntry = () => {
     if (!orderNumber) {
@@ -31,7 +33,7 @@ const EntrySection = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center">
+          <CardTitle className="flex items-center text-base md:text-lg">
             <ArrowRightToLine className="mr-2 h-5 w-5" />
             Entrada de Mercadorias
           </CardTitle>
@@ -40,7 +42,7 @@ const EntrySection = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4 mb-6">
+          <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4 mb-6`}>
             <div className="flex-1">
               <Input
                 placeholder="Número da ordem de compra"
@@ -48,7 +50,7 @@ const EntrySection = () => {
                 onChange={(e) => setOrderNumber(e.target.value)}
               />
             </div>
-            <Button onClick={handleStartEntry}>
+            <Button onClick={handleStartEntry} className={isMobile ? "w-full" : ""}>
               <Plus className="mr-2 h-4 w-4" />
               Iniciar Entrada
             </Button>
@@ -81,12 +83,12 @@ const EntrySection = () => {
           </div>
         </CardContent>
         <CardFooter className="border-t pt-4">
-          <div className="flex justify-between w-full">
-            <Button variant="ghost" className="gap-1">
+          <div className={`${isMobile ? 'flex flex-col gap-3 w-full' : 'flex justify-between w-full'}`}>
+            <Button variant="ghost" className="gap-1" size={isMobile ? "sm" : "default"}>
               <Search className="h-4 w-4" />
               Pesquisar Entradas
             </Button>
-            <Button variant="outline" disabled>
+            <Button variant="outline" disabled size={isMobile ? "sm" : "default"}>
               Entrada em Andamento
             </Button>
           </div>
@@ -95,43 +97,45 @@ const EntrySection = () => {
       
       <Card>
         <CardHeader>
-          <CardTitle>Entradas Recentes</CardTitle>
+          <CardTitle className="text-base md:text-lg">Entradas Recentes</CardTitle>
           <CardDescription>Últimas 5 entradas registradas no sistema</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr className="border-b">
-                <th className="text-left p-3">Ordem</th>
-                <th className="text-left p-3">Data</th>
-                <th className="text-left p-3">Fornecedor</th>
-                <th className="text-left p-3">Itens</th>
-                <th className="text-left p-3">Status</th>
-                <th className="text-right p-3">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...Array(5)].map((_, index) => (
-                <tr key={index} className="border-b">
-                  <td className="p-3">#{10000 + index}</td>
-                  <td className="p-3">{new Date().toLocaleDateString()}</td>
-                  <td className="p-3">Fornecedor {index + 1}</td>
-                  <td className="p-3">{5 + index} itens</td>
-                  <td className="p-3">
-                    <span className="px-2 py-1 rounded-full text-xs bg-green-50 text-green-600 border border-green-200">
-                      Concluído
-                    </span>
-                  </td>
-                  <td className="p-3 text-right">
-                    <Button variant="ghost" size="sm">Detalhes</Button>
-                  </td>
+          <div className="responsive-table">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr className="border-b">
+                  <th className="text-left p-3">Ordem</th>
+                  <th className="text-left p-3">Data</th>
+                  {!isMobile && <th className="text-left p-3">Fornecedor</th>}
+                  <th className="text-left p-3">Itens</th>
+                  <th className="text-left p-3">Status</th>
+                  <th className="text-right p-3">Ações</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {[...Array(5)].map((_, index) => (
+                  <tr key={index} className="border-b">
+                    <td className="p-3">#{10000 + index}</td>
+                    <td className="p-3">{new Date().toLocaleDateString()}</td>
+                    {!isMobile && <td className="p-3">Fornecedor {index + 1}</td>}
+                    <td className="p-3">{5 + index} itens</td>
+                    <td className="p-3">
+                      <span className="px-2 py-1 rounded-full text-xs bg-green-50 text-green-600 border border-green-200">
+                        Concluído
+                      </span>
+                    </td>
+                    <td className="p-3 text-right">
+                      <Button variant="ghost" size="sm">Detalhes</Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
         <CardFooter className="border-t pt-4">
-          <Button variant="outline">Ver Todas as Entradas</Button>
+          <Button variant="outline" className={isMobile ? "w-full" : ""}>Ver Todas as Entradas</Button>
         </CardFooter>
       </Card>
     </div>

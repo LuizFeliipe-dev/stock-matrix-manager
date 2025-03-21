@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Box, 
   LayoutDashboard, 
@@ -114,32 +115,23 @@ const SidebarGroup = ({ title, children, defaultOpen = true }: SidebarGroupProps
 };
 
 const Sidebar = ({ className }: SidebarProps) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(!isMobile);
   const { user, logout } = useAuth();
   
   useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      if (!mobile && !isOpen) setIsOpen(true);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isOpen]);
+    setIsOpen(!isMobile);
+  }, [isMobile]);
   
   return (
     <>
-      {isMobile && (
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="fixed top-4 left-4 z-50 p-2 rounded-md bg-background shadow-md"
-          aria-label="Toggle menu"
-        >
-          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
-      )}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed top-4 left-4 z-50 p-2 rounded-md bg-background shadow-md lg:hidden"
+        aria-label="Toggle menu"
+      >
+        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </button>
       
       {isMobile && isOpen && (
         <div 
@@ -153,7 +145,8 @@ const Sidebar = ({ className }: SidebarProps) => {
         "shadow-md border-r border-sidebar-border",
         "transition-transform duration-300 ease-in-out",
         "glass",
-        (isMobile && !isOpen) && "-translate-x-full",
+        !isOpen && "-translate-x-full",
+        "lg:translate-x-0",
         className
       )}>
         <div className="flex flex-col h-full">
