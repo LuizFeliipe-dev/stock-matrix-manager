@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -46,7 +45,6 @@ import {
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Define the supplier schema
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
   code: z.string().min(3, { message: 'Código deve ter pelo menos 3 caracteres' }),
@@ -60,7 +58,6 @@ const supplierFormSchema = z.object({
 
 type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
-// Define the Supplier interface
 interface Supplier {
   id: string;
   code: string;
@@ -74,7 +71,6 @@ interface Supplier {
   lastPurchase: string;
 }
 
-// Initial suppliers data
 const initialSuppliers: Supplier[] = [
   {
     id: '1',
@@ -146,7 +142,6 @@ const Suppliers = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  // Initialize form
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierFormSchema),
     defaultValues: {
@@ -161,10 +156,8 @@ const Suppliers = () => {
     },
   });
 
-  // Handle form submission
   const onSubmit = (data: SupplierFormValues) => {
     if (editingSupplier) {
-      // Update existing supplier
       setSuppliers(suppliers.map(supplier => {
         if (supplier.id === editingSupplier.id) {
           return {
@@ -187,7 +180,6 @@ const Suppliers = () => {
         description: "As informações do fornecedor foram atualizadas com sucesso",
       });
     } else {
-      // Add new supplier
       const newSupplier: Supplier = {
         id: (suppliers.length + 1).toString(),
         code: data.code,
@@ -251,7 +243,6 @@ const Suppliers = () => {
     });
   };
 
-  // Filter suppliers based on search term
   const filteredSuppliers = suppliers.filter(supplier => 
     supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     supplier.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -270,7 +261,7 @@ const Suppliers = () => {
             animate={{ opacity: 1, y: 0 }}
             className="page-transition"
           >
-            <header className={`flex ${isMobile ? 'flex-col space-y-4' : 'justify-between items-center'} mb-8`}>
+            <header className="flex flex-col space-y-4 md:flex-row md:justify-between md:items-center mb-6 md:mb-8">
               <div>
                 <h1 className="text-2xl md:text-3xl font-semibold flex items-center">
                   <Truck className="mr-3 h-6 w-6 md:h-8 md:w-8 text-primary" />
@@ -281,7 +272,7 @@ const Suppliers = () => {
                 </p>
               </div>
               
-              <Button onClick={handleAddSupplier} className={isMobile ? "w-full" : ""}>
+              <Button onClick={handleAddSupplier} className={isMobile ? "w-full mt-4 md:mt-0" : ""}>
                 <Plus className="mr-2 h-5 w-5" />
                 Novo Fornecedor
               </Button>
@@ -301,7 +292,7 @@ const Suppliers = () => {
                 </div>
               </div>
               
-              <div className="responsive-table">
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -312,21 +303,21 @@ const Suppliers = () => {
                       {!isMobile && <TableHead>Telefone</TableHead>}
                       {!isMobile && <TableHead>Localização</TableHead>}
                       <TableHead>Última Compra</TableHead>
-                      <TableHead>Ações</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredSuppliers.map((supplier) => (
                       <TableRow key={supplier.id}>
                         <TableCell className="font-medium">{supplier.code}</TableCell>
-                        <TableCell>{supplier.name}</TableCell>
+                        <TableCell className="max-w-[150px] truncate">{supplier.name}</TableCell>
                         {!isMobile && <TableCell>{supplier.contactName}</TableCell>}
-                        {!isMobile && <TableCell>{supplier.email}</TableCell>}
+                        {!isMobile && <TableCell className="max-w-[150px] truncate">{supplier.email}</TableCell>}
                         {!isMobile && <TableCell>{supplier.phone}</TableCell>}
                         {!isMobile && <TableCell>{`${supplier.city}, ${supplier.state}`}</TableCell>}
                         <TableCell>{supplier.lastPurchase}</TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
+                        <TableCell className="text-right">
+                          <div className="flex space-x-2 justify-end">
                             <Button 
                               variant="ghost" 
                               size="icon"
@@ -350,7 +341,7 @@ const Suppliers = () => {
               </div>
               
               <div className="p-4 border-t flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 w-full md:w-auto text-center md:text-left">
                   Exibindo {filteredSuppliers.length} de {suppliers.length} fornecedores
                 </div>
                 <div className="flex space-x-2">
@@ -365,7 +356,7 @@ const Suppliers = () => {
       </div>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[550px] w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] overflow-y-auto">
+        <DialogContent className="sm:max-w-[550px] w-[calc(100%-2rem)] overflow-y-auto max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>
               {editingSupplier ? 'Editar Fornecedor' : 'Adicionar Novo Fornecedor'}

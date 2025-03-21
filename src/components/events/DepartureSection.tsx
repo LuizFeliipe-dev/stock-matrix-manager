@@ -42,7 +42,7 @@ const DepartureSection = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4 mb-6`}>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <Input
                 placeholder="Número da ordem de saída"
@@ -83,7 +83,7 @@ const DepartureSection = () => {
           </div>
         </CardContent>
         <CardFooter className="border-t pt-4">
-          <div className={`${isMobile ? 'flex flex-col gap-3 w-full' : 'flex justify-between w-full'}`}>
+          <div className="flex flex-col md:flex-row justify-between w-full gap-3 md:gap-0">
             <Button variant="ghost" className="gap-1" size={isMobile ? "sm" : "default"}>
               <Search className="h-4 w-4" />
               Pesquisar Saídas
@@ -101,7 +101,7 @@ const DepartureSection = () => {
           <CardDescription>Últimas 5 saídas registradas no sistema</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="responsive-table">
+          <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr className="border-b">

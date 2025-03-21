@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -180,6 +181,26 @@ html {
     text-align: center;
     justify-content: center;
   }
+  
+  /* Prevent text overflow in tables */
+  td, th {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Better padding for mobile forms */
+  form {
+    padding: 0.5rem;
+  }
+  
+  /* Improve dialog sizing on small screens */
+  .dialog-content {
+    width: calc(100% - 2rem) !important;
+    max-width: 100% !important;
+    margin: 1rem !important;
+  }
 }
 
 /* Typography responsive adjustments */
@@ -205,5 +226,15 @@ h3, .h3 {
   .responsive-table th:first-child,
   .responsive-table td:first-child {
     @apply sticky left-0 bg-white z-10;
+  }
+  
+  /* Improve card padding on mobile */
+  .card {
+    @apply p-3 md:p-6;
+  }
+  
+  /* Adjust button sizes on mobile */
+  .btn-responsive {
+    @apply text-sm py-1 px-3;
   }
 }

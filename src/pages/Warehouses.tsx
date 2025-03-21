@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -43,7 +42,6 @@ import {
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Define the warehouse schema
 const warehouseFormSchema = z.object({
   code: z.string().length(3, { message: 'Código deve ter exatamente 3 dígitos' })
     .regex(/^\d{3}$/, { message: 'Código deve conter apenas números' }),
@@ -58,7 +56,6 @@ const warehouseFormSchema = z.object({
 
 type WarehouseFormValues = z.infer<typeof warehouseFormSchema>;
 
-// Define the Warehouse interface
 interface Warehouse {
   id: string;
   code: string;
@@ -72,7 +69,6 @@ interface Warehouse {
   currentOccupation: number;
 }
 
-// Initial warehouses data
 const initialWarehouses: Warehouse[] = [
   {
     id: '1',
@@ -120,7 +116,6 @@ const Warehouses = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  // Initialize form
   const form = useForm<WarehouseFormValues>({
     resolver: zodResolver(warehouseFormSchema),
     defaultValues: {
@@ -135,10 +130,8 @@ const Warehouses = () => {
     },
   });
 
-  // Handle form submission
   const onSubmit = (data: WarehouseFormValues) => {
     if (editingWarehouse) {
-      // Update existing warehouse
       setWarehouses(warehouses.map(warehouse => {
         if (warehouse.id === editingWarehouse.id) {
           return {
@@ -161,7 +154,6 @@ const Warehouses = () => {
         description: "As informações do armazém foram atualizadas com sucesso",
       });
     } else {
-      // Add new warehouse
       const newWarehouse: Warehouse = {
         id: (warehouses.length + 1).toString(),
         code: data.code,
@@ -225,7 +217,6 @@ const Warehouses = () => {
     });
   };
 
-  // Filter warehouses based on search term
   const filteredWarehouses = warehouses.filter(warehouse => 
     warehouse.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     warehouse.code.includes(searchTerm) ||
@@ -233,7 +224,6 @@ const Warehouses = () => {
     warehouse.manager.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Calculate capacity percentage
   const getCapacityPercentage = (current: number, total: number) => {
     return Math.round((current / total) * 100);
   };
@@ -249,7 +239,7 @@ const Warehouses = () => {
             animate={{ opacity: 1, y: 0 }}
             className="page-transition"
           >
-            <header className={`flex ${isMobile ? 'flex-col space-y-4' : 'justify-between items-center'} mb-8`}>
+            <header className="flex flex-col space-y-4 md:flex-row md:justify-between md:items-center mb-6 md:mb-8">
               <div>
                 <h1 className="text-2xl md:text-3xl font-semibold flex items-center">
                   <Warehouse className="mr-3 h-6 w-6 md:h-8 md:w-8 text-primary" />
@@ -260,7 +250,7 @@ const Warehouses = () => {
                 </p>
               </div>
               
-              <Button onClick={handleAddWarehouse} className={isMobile ? "w-full" : ""}>
+              <Button onClick={handleAddWarehouse} className={isMobile ? "w-full mt-4 md:mt-0" : ""}>
                 <Plus className="mr-2 h-5 w-5" />
                 Novo Armazém
               </Button>
@@ -280,7 +270,7 @@ const Warehouses = () => {
                 </div>
               </div>
               
-              <div className="responsive-table">
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -290,20 +280,20 @@ const Warehouses = () => {
                       {!isMobile && <TableHead>Gerente</TableHead>}
                       {!isMobile && <TableHead>Área Total (m²)</TableHead>}
                       <TableHead>Ocupação</TableHead>
-                      <TableHead>Ações</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredWarehouses.map((warehouse) => (
                       <TableRow key={warehouse.id}>
                         <TableCell className="font-medium">{warehouse.code}</TableCell>
-                        <TableCell>{warehouse.name}</TableCell>
+                        <TableCell className="max-w-[150px] truncate">{warehouse.name}</TableCell>
                         {!isMobile && <TableCell>{`${warehouse.city}, ${warehouse.state}`}</TableCell>}
                         {!isMobile && <TableCell>{warehouse.manager}</TableCell>}
                         {!isMobile && <TableCell>{warehouse.totalArea.toLocaleString()} m²</TableCell>}
                         <TableCell>
                           <div className="flex items-center space-x-2">
-                            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="w-full max-w-[100px] h-2 bg-gray-200 rounded-full overflow-hidden">
                               <div 
                                 className={`h-full rounded-full ${
                                   getCapacityPercentage(warehouse.currentOccupation, warehouse.totalCapacity) > 80
@@ -315,13 +305,13 @@ const Warehouses = () => {
                                 style={{ width: `${getCapacityPercentage(warehouse.currentOccupation, warehouse.totalCapacity)}%` }}
                               ></div>
                             </div>
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-gray-500 whitespace-nowrap">
                               {getCapacityPercentage(warehouse.currentOccupation, warehouse.totalCapacity)}%
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
+                        <TableCell className="text-right">
+                          <div className="flex space-x-2 justify-end">
                             <Button 
                               variant="ghost" 
                               size="icon"
@@ -345,7 +335,7 @@ const Warehouses = () => {
               </div>
               
               <div className="p-4 border-t flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 w-full md:w-auto text-center md:text-left">
                   Exibindo {filteredWarehouses.length} de {warehouses.length} armazéns
                 </div>
                 <div className="flex space-x-2">
@@ -360,7 +350,7 @@ const Warehouses = () => {
       </div>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[550px] w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] overflow-y-auto">
+        <DialogContent className="sm:max-w-[550px] w-[calc(100%-2rem)] overflow-y-auto max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>
               {editingWarehouse ? 'Editar Armazém' : 'Adicionar Novo Armazém'}
