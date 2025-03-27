@@ -14,9 +14,11 @@ interface ItemsPageContentProps {
   setSearchTerm: (value: string) => void;
   filterGroup: string;
   setFilterGroup: (value: string) => void;
+  statusFilter: string;
+  setStatusFilter: (value: string) => void;
   handleAddItem: () => void;
   handleEditItem: (item: Item) => void;
-  handleDeleteItem: (itemId: number) => void;
+  handleToggleItemStatus: (item: Item) => void;
 }
 
 const ItemsPageContent = ({
@@ -26,9 +28,11 @@ const ItemsPageContent = ({
   setSearchTerm,
   filterGroup,
   setFilterGroup,
+  statusFilter,
+  setStatusFilter,
   handleAddItem,
   handleEditItem,
-  handleDeleteItem
+  handleToggleItemStatus
 }: ItemsPageContentProps) => {
   const isMobile = useIsMobile();
   
@@ -46,13 +50,15 @@ const ItemsPageContent = ({
           setSearchTerm={setSearchTerm}
           filterGroup={filterGroup}
           setFilterGroup={setFilterGroup}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
           groups={groups}
         />
         
         <ItemsTable 
           items={filteredItems}
           onEdit={handleEditItem}
-          onDelete={handleDeleteItem}
+          onToggleStatus={handleToggleItemStatus}
           filteredCount={filteredItems.length}
           totalCount={items.length}
         />

@@ -1,94 +1,74 @@
 
 import { useState } from 'react';
-import { BalanceSummary } from '@/types/warehouse';
 
-// Initial mock data
-const initialBalanceSummary: BalanceSummary[] = [
-  {
-    warehouseId: '1',
-    warehouseName: 'Armazém Principal',
-    currentValue: 125000.00,
-    inputValue: 35000.00,
-    outputValue: 18500.00,
-    month: 'Janeiro',
-    year: 2023,
-  },
-  {
-    warehouseId: '1',
-    warehouseName: 'Armazém Principal',
-    currentValue: 141500.00,
-    inputValue: 28000.00,
-    outputValue: 12000.00,
-    month: 'Fevereiro',
-    year: 2023,
-  },
-  {
-    warehouseId: '2',
-    warehouseName: 'Armazém Secundário',
-    currentValue: 87500.00,
-    inputValue: 22000.00,
-    outputValue: 9800.00,
-    month: 'Janeiro',
-    year: 2023,
-  },
-  {
-    warehouseId: '2',
-    warehouseName: 'Armazém Secundário',
-    currentValue: 99700.00,
-    inputValue: 18500.00,
-    outputValue: 7300.00,
-    month: 'Fevereiro',
-    year: 2023,
-  },
-];
+interface BalanceItem {
+  id: number;
+  name: string;
+  quantity: number;
+  price: number;
+  totalValue: number;
+}
+
+interface Transaction {
+  id: number;
+  date: string;
+  type: 'entry' | 'departure' | 'adjustment';
+  itemName: string;
+  quantity: number;
+  value: number;
+}
 
 export const useBalance = () => {
-  const [balanceSummaries, setBalanceSummaries] = useState<BalanceSummary[]>(initialBalanceSummary);
-  const [selectedWarehouse, setSelectedWarehouse] = useState<string>('all');
-  const [selectedYear, setSelectedYear] = useState<number>(2023);
+  // Mock data for balance items
+  const [balanceItems] = useState<BalanceItem[]>([
+    { id: 1, name: 'Notebook Dell XPS', quantity: 15, price: 8500, totalValue: 127500 },
+    { id: 2, name: 'Monitor UltraWide 34"', quantity: 25, price: 3200, totalValue: 80000 },
+    { id: 3, name: 'iPhone 15 Pro Max', quantity: 10, price: 7800, totalValue: 78000 },
+    { id: 4, name: 'Cadeira Ergonômica', quantity: 30, price: 2100, totalValue: 63000 },
+    { id: 5, name: 'MacBook Pro M2', quantity: 5, price: 12000, totalValue: 60000 },
+    { id: 6, name: 'Mesa de Escritório', quantity: 20, price: 2500, totalValue: 50000 },
+    { id: 7, name: 'Teclado Mecânico', quantity: 40, price: 950, totalValue: 38000 },
+    { id: 8, name: 'Mouse Gamer', quantity: 50, price: 450, totalValue: 22500 },
+    { id: 9, name: 'Headset Wireless', quantity: 35, price: 600, totalValue: 21000 },
+    { id: 10, name: 'Dock Station', quantity: 25, price: 800, totalValue: 20000 },
+  ]);
 
-  const filteredBalanceSummaries = balanceSummaries.filter(summary => {
-    const matchesWarehouse = selectedWarehouse === 'all' ? true : summary.warehouseId === selectedWarehouse;
-    const matchesYear = summary.year === selectedYear;
-    return matchesWarehouse && matchesYear;
-  });
-
-  // Get unique warehouse IDs and names for filtering
-  const warehouses = Array.from(
-    new Set(balanceSummaries.map(summary => summary.warehouseId))
-  ).map(id => {
-    const summary = balanceSummaries.find(s => s.warehouseId === id);
-    return {
-      id,
-      name: summary ? summary.warehouseName : 'Unknown',
-    };
-  });
-
-  // Get unique years for filtering
-  const years = Array.from(
-    new Set(balanceSummaries.map(summary => summary.year))
-  ).sort((a, b) => b - a);
+  // Mock data for recent transactions
+  const [recentTransactions] = useState<Transaction[]>([
+    { id: 1, date: '2023-08-20', type: 'entry', itemName: 'Notebook Dell XPS', quantity: 5, value: 42500 },
+    { id: 2, date: '2023-08-19', type: 'departure', itemName: 'Monitor UltraWide 34"', quantity: 2, value: 6400 },
+    { id: 3, date: '2023-08-18', type: 'adjustment', itemName: 'iPhone 15 Pro Max', quantity: 1, value: 7800 },
+    { id: 4, date: '2023-08-17', type: 'entry', itemName: 'Cadeira Ergonômica', quantity: 10, value: 21000 },
+    { id: 5, date: '2023-08-16', type: 'departure', itemName: 'MacBook Pro M2', quantity: 1, value: 12000 },
+    { id: 6, date: '2023-08-15', type: 'entry', itemName: 'Teclado Mecânico', quantity: 15, value: 14250 },
+    { id: 7, date: '2023-08-14', type: 'adjustment', itemName: 'Mouse Gamer', quantity: -5, value: -2250 },
+    { id: 8, date: '2023-08-13', type: 'departure', itemName: 'Headset Wireless', quantity: 3, value: 1800 },
+  ]);
 
   // Calculate totals
-  const totals = filteredBalanceSummaries.reduce(
-    (acc, summary) => {
-      return {
-        currentValue: acc.currentValue + summary.currentValue,
-        inputValue: acc.inputValue + summary.inputValue,
-        outputValue: acc.outputValue + summary.outputValue,
-      };
-    },
-    { currentValue: 0, inputValue: 0, outputValue: 0 }
-  );
+  const totalBalance = balanceItems.reduce((acc, item) => acc + item.totalValue, 0);
+  const entriesTotal = recentTransactions
+    .filter(t => t.type === 'entry')
+    .reduce((acc, t) => acc + t.value, 0);
+  const departuresTotal = recentTransactions
+    .filter(t => t.type === 'departure')
+    .reduce((acc, t) => acc + t.value, 0);
+  const adjustmentsCount = recentTransactions.filter(t => t.type === 'adjustment').length;
+  const adjustmentsValue = recentTransactions
+    .filter(t => t.type === 'adjustment')
+    .reduce((acc, t) => acc + t.value, 0);
+
+  // Sort items by total value to get top items
+  const topValueItems = [...balanceItems].sort((a, b) => b.totalValue - a.totalValue);
 
   return {
-    balanceSummaries: filteredBalanceSummaries,
-    warehouses,
-    years,
-    selectedWarehouse,
-    setSelectedWarehouse,
-    selectedYear,
-    setSelectedYear,
-    totals,
+    balanceItems,
+    totalBalance,
+    entriesTotal,
+    departuresTotal,
+    adjustmentsCount,
+    adjustmentsValue,
+    recentTransactions,
+    topValueItems
   };
 };

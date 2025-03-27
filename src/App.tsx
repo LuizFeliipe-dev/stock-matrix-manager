@@ -25,8 +25,10 @@ import InventorySection from "./components/events/InventorySection";
 import Stats3DView from "./components/Stats3DView";
 import LocationsPage from "./pages/Locations";
 import RacksPage from "./pages/Racks";
-import CorridorsPage from "./pages/Corridors";
 import BalancePage from "./pages/Balance";
+import ShelfTypes from "./pages/ShelfTypes";
+import Zones from "./pages/Zones";
+import Permissions from "./pages/Permissions";
 
 // Create proper pages for Entry, Inventory, and Location View
 const EntryPage = () => (
@@ -119,7 +121,6 @@ const App = () => (
               <Route path="/warehouses" element={<Warehouses />} />
               <Route path="/locations" element={<LocationsPage />} />
               <Route path="/racks" element={<RacksPage />} />
-              <Route path="/corridors" element={<CorridorsPage />} />
               <Route path="/users" element={<Users />} />
               <Route path="/events" element={<Events />} />
               <Route path="/entry" element={<EntryPage />} />
@@ -129,6 +130,9 @@ const App = () => (
               <Route path="/statistics" element={<StatisticsPage />} />
               <Route path="/location-view" element={<LocationViewPage />} />
               <Route path="/balance" element={<BalancePage />} />
+              <Route path="/shelf-types" element={<ShelfTypes />} />
+              <Route path="/zones" element={<Zones />} />
+              <Route path="/permissions" element={<Permissions />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>

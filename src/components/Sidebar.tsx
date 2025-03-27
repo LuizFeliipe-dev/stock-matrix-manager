@@ -22,7 +22,10 @@ import {
   ChevronUp,
   Grid3X3,
   Layers,
-  LayoutGrid
+  LayoutGrid,
+  Target,
+  KeyRound,
+  RulerSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -163,15 +166,16 @@ const Sidebar = ({ className }: SidebarProps) => {
             <SidebarGroup title="Cadastros">
               <SidebarItem icon={Package} title="Itens" to="/items" />
               <SidebarItem icon={Truck} title="Fornecedores" to="/suppliers" />
-              <SidebarItem icon={Box} title="Grupos" to="/groups" />
+              <SidebarItem icon={Box} title="Categorias" to="/groups" />
               <SidebarItem icon={Warehouse} title="Armazéns" to="/warehouses" />
               <SidebarItem icon={Users} title="Usuários" to="/users" permission="manager" />
+              <SidebarItem icon={KeyRound} title="Permissões" to="/permissions" permission="manager" />
             </SidebarGroup>
             
             <SidebarGroup title="Localizações">
-              <SidebarItem icon={LayoutGrid} title="Corredores" to="/corridors" />
+              <SidebarItem icon={Target} title="Zonas" to="/zones" />
+              <SidebarItem icon={RulerSquare} title="Tipos de Prateleiras" to="/shelf-types" />
               <SidebarItem icon={Grid3X3} title="Racks/Prateleiras" to="/racks" />
-              <SidebarItem icon={Layers} title="Níveis" to="/locations" />
             </SidebarGroup>
             
             <SidebarGroup title="Eventos">

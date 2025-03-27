@@ -1,28 +1,20 @@
 
+import { z } from 'zod';
+import { itemFormSchema } from '@/components/items/form/ItemFormSchema';
+
+export type ItemFormValues = z.infer<typeof itemFormSchema>;
+
 export interface Item {
   id: number;
   code: string;
   name: string;
-  description: string;
-  groupId: string;
+  description?: string;
   group: string;
-  supplierId: string;
+  groupName?: string;
   supplier: string;
-  initialStock: number;
+  supplierName?: string;
   stock: number;
   minStock: number;
   price: number;
-  location: string;
-}
-
-export interface ItemFormValues {
-  code: string;
-  name: string;
-  description?: string;
-  group: string;
-  supplier: string;
-  initialStock: number;
-  minStock: number;
-  price: number;
-  location?: string;
+  active: boolean;
 }

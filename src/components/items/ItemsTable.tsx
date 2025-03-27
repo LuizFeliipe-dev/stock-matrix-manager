@@ -1,90 +1,114 @@
 
-import React from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Item } from '@/types/item';
+import { Item } from "@/types/item";
+import { Button } from "@/components/ui/button";
+import { Edit, ToggleLeft } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ItemsTableProps {
   items: Item[];
   onEdit: (item: Item) => void;
-  onDelete: (itemId: number) => void;
+  onToggleStatus: (item: Item) => void;
   filteredCount: number;
   totalCount: number;
 }
 
-const ItemsTable = ({ 
-  items, 
-  onEdit, 
-  onDelete, 
-  filteredCount, 
-  totalCount 
+const ItemsTable = ({
+  items,
+  onEdit,
+  onToggleStatus,
+  filteredCount,
+  totalCount,
 }: ItemsTableProps) => {
+  const isMobile = useIsMobile();
+
   return (
     <>
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 text-gray-700 text-left">
-              <th className="py-3 px-6 font-medium">Código</th>
-              <th className="py-3 px-6 font-medium">Nome</th>
-              <th className="py-3 px-6 font-medium">Grupo</th>
-              <th className="py-3 px-6 font-medium">Fornecedor</th>
-              <th className="py-3 px-6 font-medium">Estoque</th>
-              <th className="py-3 px-6 font-medium">Preço</th>
-              <th className="py-3 px-6 font-medium">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {items.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                <td className="py-3 px-6">{item.code}</td>
-                <td className="py-3 px-6 font-medium">{item.name}</td>
-                <td className="py-3 px-6">{item.group}</td>
-                <td className="py-3 px-6">{item.supplier}</td>
-                <td className="py-3 px-6">
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    item.stock > item.minStock 
-                      ? 'bg-green-50 text-green-600 border border-green-200' 
-                      : item.stock > 0 
-                        ? 'bg-amber-50 text-amber-600 border border-amber-200' 
-                        : 'bg-red-50 text-red-600 border border-red-200'
-                  }`}>
-                    {item.stock} unidades
-                  </span>
-                </td>
-                <td className="py-3 px-6">
-                  R$ {item.price.toFixed(2)}
-                </td>
-                <td className="py-3 px-6">
-                  <div className="flex space-x-2">
-                    <button 
-                      className="p-1 rounded-full hover:bg-gray-200 transition-colors"
-                      onClick={() => onEdit(item)}
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[100px]">Código</TableHead>
+              <TableHead>Nome</TableHead>
+              {!isMobile && <TableHead>Grupo</TableHead>}
+              {!isMobile && <TableHead>Fornecedor</TableHead>}
+              <TableHead>Estoque</TableHead>
+              <TableHead>Preço</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={isMobile ? 5 : 7}
+                  className="h-24 text-center"
+                >
+                  Nenhum item encontrado.
+                </TableCell>
+              </TableRow>
+            ) : (
+              items.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">{item.code}</TableCell>
+                  <TableCell className="max-w-[200px] truncate">
+                    {item.name}
+                  </TableCell>
+                  {!isMobile && <TableCell>{item.group}</TableCell>}
+                  {!isMobile && <TableCell>{item.supplier}</TableCell>}
+                  <TableCell>{item.stock}</TableCell>
+                  <TableCell>
+                    {typeof item.price === "number"
+                      ? `R$ ${item.price.toFixed(2)}`
+                      : item.price}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        item.active
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
                     >
-                      <Pencil className="h-4 w-4 text-gray-500" />
-                    </button>
-                    <button 
-                      className="p-1 rounded-full hover:bg-gray-200 transition-colors"
-                      onClick={() => onDelete(item.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-gray-500" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                      {item.active ? "Ativo" : "Inativo"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onEdit(item)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onToggleStatus(item)}
+                      >
+                        <ToggleLeft className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
-      
-      <div className="p-4 border-t flex justify-between items-center">
-        <div className="text-sm text-gray-500">
+
+      <div className="p-4 border-t flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
           Exibindo {filteredCount} de {totalCount} itens
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm">Anterior</Button>
-          <Button variant="default" size="sm">1</Button>
-          <Button variant="outline" size="sm">Próxima</Button>
         </div>
       </div>
     </>

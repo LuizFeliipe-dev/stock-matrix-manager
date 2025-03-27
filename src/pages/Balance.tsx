@@ -1,18 +1,20 @@
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
+import { 
+  ArrowUpCircle, 
+  ArrowDownCircle, 
+  Package, 
+  DollarSign,
+  AlertTriangle,
+  BarChart, 
+  CalendarRange
+} from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useBalance } from '@/hooks/useBalance';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Table,
   TableBody,
@@ -20,46 +22,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { 
-  Bar, 
-  BarChart as RechartsBarChart, 
-  CartesianGrid, 
-  Legend, 
-  ResponsiveContainer as RechartsContainer, 
-  Tooltip as RechartsTooltip, 
-  XAxis, 
-  YAxis 
-} from 'recharts';
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(value);
-};
-
-const BalancePage = () => {
+const Balance = () => {
   const { 
-    balanceSummaries, 
-    warehouses, 
-    years, 
-    selectedWarehouse, 
-    setSelectedWarehouse, 
-    selectedYear, 
-    setSelectedYear,
-    totals
+    totalBalance, 
+    entriesTotal, 
+    departuresTotal, 
+    adjustmentsCount,
+    adjustmentsValue,
+    recentTransactions, 
+    topValueItems 
   } = useBalance();
   
   const isMobile = useIsMobile();
-
-  // Prepare data for the chart
-  const chartData = balanceSummaries.map(summary => ({
-    name: summary.month,
-    entrada: summary.inputValue,
-    saída: summary.outputValue,
-    saldo: summary.currentValue
-  }));
+  const [dateFilter, setDateFilter] = useState('month');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -70,142 +48,181 @@ const BalancePage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="page-transition"
         >
-          <h1 className="text-2xl font-bold mb-6">Resumo de Saldo</h1>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold">Resumo de Saldo</h1>
+              <p className="text-muted-foreground">
+                Visão consolidada dos valores de estoque e movimentações
+              </p>
+            </div>
+            
+            <div className="mt-4 md:mt-0">
+              <Tabs defaultValue={dateFilter} onValueChange={setDateFilter} className="w-full md:w-auto">
+                <TabsList className="grid grid-cols-3 w-full md:w-auto">
+                  <TabsTrigger value="week">Semana</TabsTrigger>
+                  <TabsTrigger value="month">Mês</TabsTrigger>
+                  <TabsTrigger value="year">Ano</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Valor Total
+              <CardHeader className="pb-2">
+                <CardDescription>Saldo Total em Estoque</CardDescription>
+                <CardTitle className="text-2xl flex items-center">
+                  <DollarSign className="mr-2 h-5 w-5 text-primary" />
+                  R$ {totalBalance.toLocaleString('pt-BR')}
                 </CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(totals.currentValue)}</div>
+                <p className="text-xs text-muted-foreground">
+                  Valor total de todos os itens em estoque
+                </p>
               </CardContent>
             </Card>
+            
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total de Entrada
+              <CardHeader className="pb-2">
+                <CardDescription>Entradas</CardDescription>
+                <CardTitle className="text-2xl flex items-center">
+                  <ArrowUpCircle className="mr-2 h-5 w-5" />
+                  R$ {entriesTotal.toLocaleString('pt-BR')}
                 </CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-500">{formatCurrency(totals.inputValue)}</div>
+                <p className="text-xs text-muted-foreground">
+                  Total de entradas no período
+                </p>
               </CardContent>
             </Card>
+            
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total de Saída
+              <CardHeader className="pb-2">
+                <CardDescription>Saídas</CardDescription>
+                <CardTitle className="text-2xl flex items-center">
+                  <ArrowDownCircle className="mr-2 h-5 w-5" />
+                  R$ {departuresTotal.toLocaleString('pt-BR')}
                 </CardTitle>
-                <TrendingDown className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-500">{formatCurrency(totals.outputValue)}</div>
+                <p className="text-xs text-muted-foreground">
+                  Total de saídas no período
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Ajustes de Estoque</CardDescription>
+                <CardTitle className="text-2xl flex items-center">
+                  <AlertTriangle className="mr-2 h-5 w-5" />
+                  {adjustmentsCount}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center">
+                <p className="text-xs text-muted-foreground mr-2">
+                  Valor dos ajustes:
+                </p>
+                <span className="font-medium">
+                  R$ {adjustmentsValue.toLocaleString('pt-BR')}
+                </span>
               </CardContent>
             </Card>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <div className="lg:col-span-2">
-              <Card className="h-full">
-                <CardHeader>
-                  <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-center justify-between'}`}>
-                    <CardTitle className="text-lg">Movimentação Mensal</CardTitle>
-                    <div className="flex flex-wrap gap-2">
-                      <Select 
-                        value={selectedWarehouse} 
-                        onValueChange={setSelectedWarehouse}
-                      >
-                        <SelectTrigger className={isMobile ? "w-full" : "w-[180px]"}>
-                          <SelectValue placeholder="Selecione o armazém" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Todos os armazéns</SelectItem>
-                          {warehouses.map(warehouse => (
-                            <SelectItem key={warehouse.id} value={warehouse.id}>
-                              {warehouse.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select 
-                        value={selectedYear.toString()} 
-                        onValueChange={value => setSelectedYear(Number(value))}
-                      >
-                        <SelectTrigger className={isMobile ? "w-full" : "w-[120px]"}>
-                          <SelectValue placeholder="Ano" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {years.map(year => (
-                            <SelectItem key={year} value={year.toString()}>
-                              {year}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[300px]">
-                    <RechartsContainer width="100%" height="100%">
-                      <RechartsBarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <RechartsTooltip formatter={value => formatCurrency(Number(value))} />
-                        <Legend />
-                        <Bar dataKey="entrada" name="Entrada" fill="#4ade80" />
-                        <Bar dataKey="saída" name="Saída" fill="#f87171" />
-                      </RechartsBarChart>
-                    </RechartsContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div>
-              <Card className="h-full">
-                <CardHeader>
-                  <CardTitle className="text-lg">Detalhes por Armazém</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="responsive-table">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Armazém</TableHead>
-                          <TableHead>Mês</TableHead>
-                          <TableHead className="text-right">Valor</TableHead>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="col-span-1">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <BarChart className="mr-2 h-5 w-5" />
+                  Itens de Maior Valor em Estoque
+                </CardTitle>
+                <CardDescription>
+                  Top 10 itens com maior impacto financeiro
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Item</TableHead>
+                        <TableHead>Quantidade</TableHead>
+                        <TableHead className="text-right">Valor Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {topValueItems.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{item.name}</TableCell>
+                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell className="text-right">
+                            R$ {item.totalValue.toLocaleString('pt-BR')}
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {balanceSummaries.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
-                              Nenhum dado encontrado.
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          balanceSummaries.map((summary, index) => (
-                            <TableRow key={index}>
-                              <TableCell className="max-w-[120px] truncate">{summary.warehouseName}</TableCell>
-                              <TableCell>{summary.month}</TableCell>
-                              <TableCell className="text-right font-medium">
-                                {formatCurrency(summary.currentValue)}
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="col-span-1">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <CalendarRange className="mr-2 h-5 w-5" />
+                  Movimentações Recentes
+                </CardTitle>
+                <CardDescription>
+                  Últimas transações realizadas
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Item</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recentTransactions.map((transaction) => (
+                        <TableRow key={transaction.id}>
+                          <TableCell className="whitespace-nowrap">
+                            {new Date(transaction.date).toLocaleDateString('pt-BR')}
+                          </TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center">
+                              {transaction.type === 'entry' ? (
+                                <ArrowUpCircle className="mr-1 h-4 w-4" />
+                              ) : transaction.type === 'departure' ? (
+                                <ArrowDownCircle className="mr-1 h-4 w-4" />
+                              ) : (
+                                <AlertTriangle className="mr-1 h-4 w-4" />
+                              )}
+                              {transaction.type === 'entry' 
+                                ? 'Entrada' 
+                                : transaction.type === 'departure' 
+                                ? 'Saída' 
+                                : 'Ajuste'}
+                            </span>
+                          </TableCell>
+                          <TableCell>{transaction.itemName}</TableCell>
+                          <TableCell className="text-right">
+                            R$ {transaction.value.toLocaleString('pt-BR')}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </motion.div>
       </ResponsiveContainer>
@@ -213,4 +230,4 @@ const BalancePage = () => {
   );
 };
 
-export default BalancePage;
+export default Balance;
