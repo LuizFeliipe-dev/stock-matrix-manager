@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Search, Plus, Edit, Trash2 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
@@ -98,15 +97,15 @@ const RacksPage = () => {
                           <TableCell>{rack.corridorId}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Button variant="outline" size="icon">
-                                <Edit className="h-4 w-4" />
+                              <Button variant="ghost" size="sm">
+                                <Edit className="h-4 w-4 text-blue-500" />
                               </Button>
                               <Button
-                                variant="destructive"
-                                size="icon"
+                                variant="ghost" 
+                                size="sm"
                                 onClick={() => handleDelete(rack.id)}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4 text-red-500" />
                               </Button>
                             </div>
                           </TableCell>

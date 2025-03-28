@@ -1,25 +1,28 @@
+
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { motion } from 'framer-motion';
-import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { 
-  Ruler, 
+  Layers, 
   Plus, 
   Search, 
   Edit, 
   Trash2,
+  Check,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
 import {
   Table,
   TableBody,
@@ -31,11 +34,11 @@ import {
 
 const shelfTypeFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
-  height: z.coerce.number().min(0.1, { message: 'Altura deve ser maior que zero' }),
-  width: z.coerce.number().min(0.1, { message: 'Largura deve ser maior que zero' }),
-  depth: z.coerce.number().min(0.1, { message: 'Profundidade deve ser maior que zero' }),
-  maxWeight: z.coerce.number().min(0.1, { message: 'Peso máximo deve ser maior que zero' }),
-  canStackAbove: z.boolean().default(false),
+  height: z.coerce.number().positive({ message: 'A altura deve ser maior que 0' }),
+  width: z.coerce.number().positive({ message: 'A largura deve ser maior que 0' }),
+  depth: z.coerce.number().positive({ message: 'A profundidade deve ser maior que 0' }),
+  maxWeight: z.coerce.number().positive({ message: 'O peso máximo deve ser maior que 0' }),
+  canStack: z.boolean().default(false),
 });
 
 type ShelfTypeFormValues = z.infer<typeof shelfTypeFormSchema>;
@@ -47,37 +50,37 @@ interface ShelfType {
   width: number;
   depth: number;
   maxWeight: number;
-  canStackAbove: boolean;
+  canStack: boolean;
 }
 
 // Mock data
 const initialShelfTypes: ShelfType[] = [
   {
     id: 1,
-    name: 'Prateleira Padrão',
-    height: 2.0,
-    width: 1.2,
-    depth: 0.6,
-    maxWeight: 400,
-    canStackAbove: true,
+    name: 'Prateleira Standard',
+    height: 200,
+    width: 100,
+    depth: 60,
+    maxWeight: 500,
+    canStack: true
   },
   {
     id: 2,
     name: 'Prateleira Reforçada',
-    height: 2.5,
-    width: 1.5,
-    depth: 0.8,
-    maxWeight: 800,
-    canStackAbove: false,
+    height: 220,
+    width: 120,
+    depth: 80,
+    maxWeight: 1200,
+    canStack: false
   },
   {
     id: 3,
-    name: 'Prateleira Pequena',
-    height: 1.5,
-    width: 0.8,
-    depth: 0.4,
-    maxWeight: 200,
-    canStackAbove: true,
+    name: 'Prateleira Compacta',
+    height: 150,
+    width: 80,
+    depth: 40,
+    maxWeight: 250,
+    canStack: true
   },
 ];
 
@@ -97,7 +100,7 @@ const ShelfTypes = () => {
       width: 0,
       depth: 0,
       maxWeight: 0,
-      canStackAbove: false,
+      canStack: false,
     }
   });
 
@@ -109,7 +112,7 @@ const ShelfTypes = () => {
       width: 0,
       depth: 0,
       maxWeight: 0,
-      canStackAbove: false,
+      canStack: false,
     });
     setOpenDialog(true);
   };
@@ -122,13 +125,13 @@ const ShelfTypes = () => {
       width: shelfType.width,
       depth: shelfType.depth,
       maxWeight: shelfType.maxWeight,
-      canStackAbove: shelfType.canStackAbove,
+      canStack: shelfType.canStack,
     });
     setOpenDialog(true);
   };
 
   const handleDeleteShelfType = (id: number) => {
-    setShelfTypes(shelfTypes.filter(t => t.id !== id));
+    setShelfTypes(shelfTypes.filter(st => st.id !== id));
     toast({
       title: "Tipo de prateleira excluído",
       description: "O tipo de prateleira foi removido com sucesso",
@@ -137,19 +140,19 @@ const ShelfTypes = () => {
 
   const onSubmit = (data: ShelfTypeFormValues) => {
     if (editingShelfType) {
-      setShelfTypes(shelfTypes.map(t => {
-        if (t.id === editingShelfType.id) {
+      setShelfTypes(shelfTypes.map(st => {
+        if (st.id === editingShelfType.id) {
           return {
-            ...t,
+            ...st,
             name: data.name,
             height: data.height,
             width: data.width,
             depth: data.depth,
             maxWeight: data.maxWeight,
-            canStackAbove: data.canStackAbove,
+            canStack: data.canStack,
           };
         }
-        return t;
+        return st;
       }));
       toast({
         title: "Tipo de prateleira atualizado",
@@ -157,13 +160,13 @@ const ShelfTypes = () => {
       });
     } else {
       const newShelfType: ShelfType = {
-        id: Math.max(0, ...shelfTypes.map(t => t.id)) + 1,
+        id: Math.max(0, ...shelfTypes.map(st => st.id)) + 1,
         name: data.name,
         height: data.height,
         width: data.width,
         depth: data.depth,
         maxWeight: data.maxWeight,
-        canStackAbove: data.canStackAbove,
+        canStack: data.canStack,
       };
       setShelfTypes([...shelfTypes, newShelfType]);
       toast({
@@ -174,8 +177,8 @@ const ShelfTypes = () => {
     setOpenDialog(false);
   };
 
-  const filteredShelfTypes = shelfTypes.filter(type => 
-    type.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredShelfTypes = shelfTypes.filter(shelfType => 
+    shelfType.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -191,17 +194,17 @@ const ShelfTypes = () => {
             <header className="flex flex-wrap gap-4 justify-between items-center mb-6">
               <div>
                 <h1 className="text-2xl font-bold flex items-center">
-                  <Ruler className="mr-3 h-6 w-6 text-primary" />
+                  <Layers className="mr-3 h-6 w-6 text-primary" />
                   Tipos de Prateleiras
                 </h1>
                 <p className="text-gray-500 mt-1">
-                  Gerencie as configurações para tipos de prateleiras
+                  Gerencie os tipos de prateleiras utilizados nos armazéns
                 </p>
               </div>
               
               <Button onClick={handleAddShelfType}>
                 <Plus className="mr-2 h-4 w-4" />
-                Novo Tipo
+                Novo Tipo de Prateleira
               </Button>
             </header>
             
@@ -223,16 +226,16 @@ const ShelfTypes = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Nome</TableHead>
-                      <TableHead>Dimensões (m)</TableHead>
+                      <TableHead>Dimensões (cm)</TableHead>
                       <TableHead>Peso Máx. (kg)</TableHead>
-                      <TableHead>Empilhável</TableHead>
+                      {!isMobile && <TableHead>Empilhável</TableHead>}
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredShelfTypes.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+                        <TableCell colSpan={isMobile ? 4 : 5} className="text-center py-6 text-muted-foreground">
                           Nenhum tipo de prateleira encontrado.
                         </TableCell>
                       </TableRow>
@@ -240,32 +243,38 @@ const ShelfTypes = () => {
                       filteredShelfTypes.map((shelfType) => (
                         <TableRow key={shelfType.id}>
                           <TableCell className="font-medium">{shelfType.name}</TableCell>
-                          <TableCell>{`${shelfType.height} × ${shelfType.width} × ${shelfType.depth}`}</TableCell>
+                          <TableCell>{shelfType.height} × {shelfType.width} × {shelfType.depth}</TableCell>
                           <TableCell>{shelfType.maxWeight}</TableCell>
-                          <TableCell>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              shelfType.canStackAbove
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}>
-                              {shelfType.canStackAbove ? 'Sim' : 'Não'}
-                            </span>
-                          </TableCell>
+                          {!isMobile && (
+                            <TableCell>
+                              {shelfType.canStack ? (
+                                <span className="inline-flex items-center text-green-600">
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Sim
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center text-red-600">
+                                  <X className="h-4 w-4 mr-1" />
+                                  Não
+                                </span>
+                              )}
+                            </TableCell>
+                          )}
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               <Button
-                                variant="outline"
-                                size="icon"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => handleEditShelfType(shelfType)}
                               >
-                                <Edit className="h-4 w-4" />
+                                <Edit className="h-4 w-4 text-blue-500" />
                               </Button>
                               <Button
-                                variant="destructive"
-                                size="icon"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => handleDeleteShelfType(shelfType.id)}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4 text-red-500" />
                               </Button>
                             </div>
                           </TableCell>
@@ -281,7 +290,7 @@ const ShelfTypes = () => {
       </div>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>{editingShelfType ? 'Editar Tipo de Prateleira' : 'Adicionar Novo Tipo de Prateleira'}</DialogTitle>
             <DialogDescription>
@@ -307,15 +316,21 @@ const ShelfTypes = () => {
                 )}
               />
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
                   name="height"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Altura (m)</FormLabel>
+                      <FormLabel>Altura (cm)</FormLabel>
                       <FormControl>
-                        <Input placeholder="2.0" type="number" step="0.1" {...field} />
+                        <Input 
+                          type="number" 
+                          min="0" 
+                          step="0.1"
+                          placeholder="200" 
+                          {...field} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -327,25 +342,15 @@ const ShelfTypes = () => {
                   name="width"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Largura (m)</FormLabel>
+                      <FormLabel>Largura (cm)</FormLabel>
                       <FormControl>
-                        <Input placeholder="1.2" type="number" step="0.1" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="depth"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Profundidade (m)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="0.6" type="number" step="0.1" {...field} />
+                        <Input 
+                          type="number" 
+                          min="0" 
+                          step="0.1"
+                          placeholder="100" 
+                          {...field} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -354,12 +359,18 @@ const ShelfTypes = () => {
                 
                 <FormField
                   control={form.control}
-                  name="maxWeight"
+                  name="depth"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Peso máximo (kg)</FormLabel>
+                      <FormLabel>Profundidade (cm)</FormLabel>
                       <FormControl>
-                        <Input placeholder="400" type="number" {...field} />
+                        <Input 
+                          type="number" 
+                          min="0" 
+                          step="0.1"
+                          placeholder="60" 
+                          {...field} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -369,13 +380,33 @@ const ShelfTypes = () => {
               
               <FormField
                 control={form.control}
-                name="canStackAbove"
+                name="maxWeight"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Peso Máximo (kg)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        step="0.1"
+                        placeholder="500" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="canStack"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">Empilhável</FormLabel>
                       <FormDescription>
-                        Pode ter outras prateleiras em cima
+                        Pode ter outras prateleiras em cima?
                       </FormDescription>
                     </div>
                     <FormControl>
@@ -390,7 +421,7 @@ const ShelfTypes = () => {
               
               <DialogFooter>
                 <Button type="submit">
-                  {editingShelfType ? 'Salvar Alterações' : 'Cadastrar Tipo'}
+                  {editingShelfType ? 'Salvar Alterações' : 'Adicionar Tipo de Prateleira'}
                 </Button>
               </DialogFooter>
             </form>

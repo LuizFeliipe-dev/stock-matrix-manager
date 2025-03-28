@@ -15,8 +15,6 @@ import {
   Search, 
   Edit, 
   Trash2,
-  CheckCircle,
-  XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -223,18 +221,18 @@ const Zones = () => {
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               <Button
-                                variant="outline"
-                                size="icon"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => handleEditZone(zone)}
                               >
-                                <Edit className="h-4 w-4" />
+                                <Edit className="h-4 w-4 text-blue-500" />
                               </Button>
                               <Button
-                                variant="destructive"
-                                size="icon"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => handleDeleteZone(zone.id)}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4 text-red-500" />
                               </Button>
                             </div>
                           </TableCell>

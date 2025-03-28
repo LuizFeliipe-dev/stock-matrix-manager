@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -12,11 +13,10 @@ import {
   FolderRoot, 
   Plus, 
   Search, 
-  Pencil, 
+  Edit, 
   Trash2,
-  Settings, 
-  BarChart4,
-  HashIcon
+  ChevronRight,
+  ChevronDown
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -36,8 +36,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -46,13 +52,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const groupFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
   code: z.string().min(2, { message: 'Código deve ter pelo menos 2 caracteres' }),
   description: z.string().optional(),
-  taxRate: z.coerce.number().min(0, { message: 'Taxa não pode ser negativa' }).max(100, { message: 'Taxa não pode ser maior que 100%' }),
-  minStock: z.coerce.number().min(0, { message: 'Estoque mínimo não pode ser negativo' }),
+  parentId: z.string().optional(),
+  zoneId: z.string().optional(),
 });
 
 type GroupFormValues = z.infer<typeof groupFormSchema>;
@@ -62,28 +69,56 @@ interface Group {
   name: string;
   code: string;
   description: string;
-  taxRate: number;
-  minStock: number;
+  parentId?: string;
+  zoneId?: string;
   itemCount: number;
+  children?: Group[];
 }
 
+interface Zone {
+  id: string;
+  name: string;
+}
+
+// Mock zones data
+const zones: Zone[] = [
+  { id: '1', name: 'Zona A - Recebimento' },
+  { id: '2', name: 'Zona B - Expedição' },
+  { id: '3', name: 'Zona C - Estoque' },
+];
+
+// Mock initial data
 const initialGroups: Group[] = [
   {
     id: '1',
     name: 'Eletrônicos',
     code: 'ELE',
     description: 'Produtos eletrônicos como computadores, celulares e acessórios',
-    taxRate: 12.5,
-    minStock: 5,
     itemCount: 38,
+    children: [
+      {
+        id: '1.1',
+        name: 'Computadores',
+        code: 'ELE-COMP',
+        description: 'Desktops e laptops',
+        parentId: '1',
+        itemCount: 15,
+      },
+      {
+        id: '1.2',
+        name: 'Celulares',
+        code: 'ELE-CEL',
+        description: 'Smartphones e acessórios',
+        parentId: '1',
+        itemCount: 23,
+      }
+    ]
   },
   {
     id: '2',
     name: 'Móveis',
     code: 'MOV',
     description: 'Mobiliário para escritório e residência',
-    taxRate: 8.5,
-    minStock: 3,
     itemCount: 24,
   },
   {
@@ -91,26 +126,56 @@ const initialGroups: Group[] = [
     name: 'Alimentos',
     code: 'ALI',
     description: 'Produtos alimentícios não perecíveis',
-    taxRate: 5.0,
-    minStock: 10,
     itemCount: 56,
+    zoneId: '3',
   },
   {
     id: '4',
     name: 'Acessórios',
     code: 'ACE',
     description: 'Acessórios diversos para computadores e outros dispositivos',
-    taxRate: 10.0,
-    minStock: 8,
     itemCount: 42,
+    children: [
+      {
+        id: '4.1',
+        name: 'Mouses',
+        code: 'ACE-MOU',
+        description: 'Mouses e touchpads',
+        parentId: '4',
+        itemCount: 18,
+      },
+      {
+        id: '4.2',
+        name: 'Teclados',
+        code: 'ACE-TEC',
+        description: 'Teclados mecânicos e de membrana',
+        parentId: '4',
+        itemCount: 24,
+      }
+    ]
   },
 ];
+
+// Helper function to get all groups in flat format
+const getAllGroups = (groups: Group[]): Group[] => {
+  let allGroups: Group[] = [];
+  
+  groups.forEach(group => {
+    allGroups.push(group);
+    if (group.children && group.children.length > 0) {
+      allGroups = [...allGroups, ...group.children];
+    }
+  });
+  
+  return allGroups;
+};
 
 const Groups = () => {
   const [groups, setGroups] = useState<Group[]>(initialGroups);
   const [openDialog, setOpenDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
@@ -120,43 +185,77 @@ const Groups = () => {
       name: '',
       code: '',
       description: '',
-      taxRate: 0,
-      minStock: 0,
+      parentId: '',
+      zoneId: '',
     },
   });
 
   const onSubmit = (data: GroupFormValues) => {
     if (editingGroup) {
-      setGroups(groups.map(group => {
-        if (group.id === editingGroup.id) {
-          return {
-            ...group,
-            name: data.name,
-            code: data.code,
-            description: data.description || '',
-            taxRate: data.taxRate,
-            minStock: data.minStock,
-          };
-        }
-        return group;
-      }));
+      // Update existing group
+      const updateNestedGroups = (groupsList: Group[]): Group[] => {
+        return groupsList.map(group => {
+          if (group.id === editingGroup.id) {
+            return {
+              ...group,
+              name: data.name,
+              code: data.code,
+              description: data.description || '',
+              parentId: data.parentId || undefined,
+              zoneId: data.zoneId || undefined,
+            };
+          } else if (group.children) {
+            return {
+              ...group,
+              children: updateNestedGroups(group.children),
+            };
+          }
+          return group;
+        });
+      };
+
+      setGroups(updateNestedGroups(groups));
 
       toast({
         title: "Categoria atualizada",
         description: "As informações da categoria foram atualizadas com sucesso",
       });
     } else {
+      // Add new group
       const newGroup: Group = {
-        id: (groups.length + 1).toString(),
+        id: Date.now().toString(),
         name: data.name,
         code: data.code,
         description: data.description || '',
-        taxRate: data.taxRate,
-        minStock: data.minStock,
+        parentId: data.parentId || undefined,
+        zoneId: data.zoneId || undefined,
         itemCount: 0,
       };
 
-      setGroups([...groups, newGroup]);
+      if (data.parentId) {
+        // If parent is specified, add to children
+        const updateParentWithNewChild = (groupsList: Group[]): Group[] => {
+          return groupsList.map(group => {
+            if (group.id === data.parentId) {
+              return {
+                ...group,
+                children: [...(group.children || []), newGroup]
+              };
+            } else if (group.children) {
+              return {
+                ...group,
+                children: updateParentWithNewChild(group.children)
+              };
+            }
+            return group;
+          });
+        };
+
+        setGroups(updateParentWithNewChild(groups));
+      } else {
+        // Add as top-level group
+        setGroups([...groups, newGroup]);
+      }
 
       toast({
         title: "Categoria adicionada",
@@ -174,8 +273,8 @@ const Groups = () => {
       name: '',
       code: '',
       description: '',
-      taxRate: 0,
-      minStock: 0,
+      parentId: '',
+      zoneId: '',
     });
     setOpenDialog(true);
   };
@@ -186,25 +285,119 @@ const Groups = () => {
       name: group.name,
       code: group.code,
       description: group.description,
-      taxRate: group.taxRate,
-      minStock: group.minStock,
+      parentId: group.parentId || '',
+      zoneId: group.zoneId || '',
     });
     setOpenDialog(true);
   };
 
   const handleDeleteGroup = (groupId: string) => {
-    setGroups(groups.filter(group => group.id !== groupId));
+    // Remove the group (and children) from the array
+    const removeGroup = (groupsList: Group[]): Group[] => {
+      return groupsList.filter(group => {
+        if (group.id === groupId) {
+          return false;
+        } else if (group.children) {
+          group.children = removeGroup(group.children);
+        }
+        return true;
+      });
+    };
+
+    setGroups(removeGroup(groups));
+    
     toast({
       title: "Categoria excluída",
       description: "A categoria foi removida com sucesso",
     });
   };
 
-  const filteredGroups = groups.filter(group => 
-    group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    group.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    group.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const toggleExpanded = (groupId: string) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [groupId]: !prev[groupId]
+    }));
+  };
+
+  const filteredGroups = searchTerm.length > 0 
+    ? getAllGroups(groups).filter(group => 
+        group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        group.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        group.description.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : groups;
+
+  const getZoneName = (zoneId?: string) => {
+    if (!zoneId) return '-';
+    const zone = zones.find(z => z.id === zoneId);
+    return zone ? zone.name : '-';
+  };
+
+  // Recursive component for tree view
+  const GroupRow = ({ group, level = 0 }: { group: Group, level?: number }) => {
+    const hasChildren = group.children && group.children.length > 0;
+    const isExpanded = expandedGroups[group.id] || false;
+    
+    return (
+      <>
+        <TableRow key={group.id} className={level > 0 ? 'bg-gray-50' : ''}>
+          <TableCell className="font-medium">
+            <div className="flex items-center" style={{ paddingLeft: `${level * 20}px` }}>
+              {hasChildren ? (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="p-1 mr-1" 
+                  onClick={() => toggleExpanded(group.id)}
+                >
+                  {isExpanded ? 
+                    <ChevronDown className="h-4 w-4" /> : 
+                    <ChevronRight className="h-4 w-4" />
+                  }
+                </Button>
+              ) : (
+                <span className="w-6"></span>
+              )}
+              {group.code}
+            </div>
+          </TableCell>
+          <TableCell>{group.name}</TableCell>
+          {!isMobile && <TableCell className="max-w-xs truncate">{group.description}</TableCell>}
+          <TableCell>{getZoneName(group.zoneId)}</TableCell>
+          <TableCell>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {group.itemCount}
+            </span>
+          </TableCell>
+          <TableCell className="text-right">
+            <div className="flex justify-end space-x-2">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => handleEditGroup(group)}
+              >
+                <Edit className="h-4 w-4 text-blue-500" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => handleDeleteGroup(group.id)}
+              >
+                <Trash2 className="h-4 w-4 text-red-500" />
+              </Button>
+            </div>
+          </TableCell>
+        </TableRow>
+        {hasChildren && isExpanded && (
+          <>
+            {group.children!.map((childGroup) => (
+              <GroupRow key={childGroup.id} group={childGroup} level={level + 1} />
+            ))}
+          </>
+        )}
+      </>
+    );
+  };
 
   return (
     <AuthRequired>
@@ -255,57 +448,63 @@ const Groups = () => {
                       <TableHead>Código</TableHead>
                       <TableHead>Nome</TableHead>
                       {!isMobile && <TableHead>Descrição</TableHead>}
-                      {!isMobile && <TableHead>Taxa (%)</TableHead>}
-                      <TableHead>Est. Mín.</TableHead>
+                      <TableHead>Zona</TableHead>
                       <TableHead>Itens</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredGroups.map((group) => (
-                      <TableRow key={group.id}>
-                        <TableCell className="font-medium">{group.code}</TableCell>
-                        <TableCell>{group.name}</TableCell>
-                        {!isMobile && <TableCell className="max-w-xs truncate">{group.description}</TableCell>}
-                        {!isMobile && <TableCell>{group.taxRate.toFixed(1)}%</TableCell>}
-                        <TableCell>{group.minStock}</TableCell>
-                        <TableCell>
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {group.itemCount}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end space-x-2">
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => handleEditGroup(group)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => handleDeleteGroup(group.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                    {searchTerm.length > 0 ? (
+                      // Flat list for search results
+                      filteredGroups.map((group) => (
+                        <TableRow key={group.id}>
+                          <TableCell className="font-medium">{group.code}</TableCell>
+                          <TableCell>{group.name}</TableCell>
+                          {!isMobile && <TableCell className="max-w-xs truncate">{group.description}</TableCell>}
+                          <TableCell>{getZoneName(group.zoneId)}</TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {group.itemCount}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end space-x-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleEditGroup(group)}
+                              >
+                                <Edit className="h-4 w-4 text-blue-500" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleDeleteGroup(group.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      // Tree view for normal display
+                      groups.map((group) => <GroupRow key={group.id} group={group} />)
+                    )}
+                    {filteredGroups.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                          Nenhuma categoria encontrada.
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </div>
               
               <div className="p-4 border-t flex flex-wrap justify-between items-center gap-3">
                 <div className="text-sm text-gray-500">
-                  Exibindo {filteredGroups.length} de {groups.length} categorias
-                </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">Anterior</Button>
-                  <Button variant="default" size="sm">1</Button>
-                  <Button variant="outline" size="sm">Próxima</Button>
+                  Exibindo {filteredGroups.length} {searchTerm ? 'de ' + getAllGroups(groups).length : ''} categorias
                 </div>
               </div>
             </div>
@@ -379,22 +578,30 @@ const Groups = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="taxRate"
+                  name="parentId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Taxa (%)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          min="0" 
-                          max="100" 
-                          step="0.1" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Taxa aplicada aos itens desta categoria
-                      </FormDescription>
+                      <FormLabel>Categoria Pai</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma categoria pai (opcional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">Nenhuma (categoria principal)</SelectItem>
+                          {getAllGroups(groups)
+                            .filter(g => g.id !== editingGroup?.id) // Can't make itself its own parent
+                            .map((group) => (
+                              <SelectItem key={group.id} value={group.id}>
+                                {group.name} ({group.code})
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -402,20 +609,28 @@ const Groups = () => {
                 
                 <FormField
                   control={form.control}
-                  name="minStock"
+                  name="zoneId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Estoque Mínimo</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          min="0" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Estoque mínimo padrão para os itens desta categoria
-                      </FormDescription>
+                      <FormLabel>Zona</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma zona (opcional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">Nenhuma</SelectItem>
+                          {zones.map((zone) => (
+                            <SelectItem key={zone.id} value={zone.id}>
+                              {zone.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
