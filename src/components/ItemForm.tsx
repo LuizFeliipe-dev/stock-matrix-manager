@@ -31,10 +31,9 @@ const ItemForm = ({
       description: '',
       group: '',
       supplier: '',
-      initialStock: 0,
       minStock: 0,
       price: 0,
-      location: '',
+      active: true,
     }
   });
 
@@ -85,15 +84,7 @@ const ItemForm = ({
           />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <InputField
-            form={form}
-            name="initialStock"
-            label="Estoque Inicial"
-            type="number"
-            min="0"
-          />
-          
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField
             form={form}
             name="minStock"
@@ -111,13 +102,6 @@ const ItemForm = ({
             step="0.01"
           />
         </div>
-        
-        <InputField
-          form={form}
-          name="location"
-          label="Localização no Armazém"
-          placeholder="A-01-02"
-        />
         
         <Button type="submit" className="w-full">
           <Save className="mr-2 h-4 w-4" />
