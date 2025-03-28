@@ -4,22 +4,15 @@ import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { motion } from 'framer-motion';
-import { useToast } from '@/hooks/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { KeyRound, Plus, Edit, Trash2 } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { 
-  KeyRound, 
-  Plus, 
-  Search, 
-  Edit, 
-  Trash2,
-} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Table,
@@ -30,57 +23,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const permissionFormSchema = z.object({
-  code: z.string().min(2, { message: 'Código deve ter pelo menos 2 caracteres' }),
-  role: z.enum(['read', 'write'], { 
-    required_error: 'Selecione uma função'
-  }),
-});
-
-type PermissionFormValues = z.infer<typeof permissionFormSchema>;
-
 interface Permission {
   id: number;
   code: string;
   role: 'read' | 'write';
 }
 
-// Mock data
+const permissionFormSchema = z.object({
+  code: z.string().min(2, { message: 'Código deve ter pelo menos 2 caracteres' }),
+  role: z.enum(['read', 'write'], { required_error: 'Selecione uma função' }),
+});
+
+type PermissionFormValues = z.infer<typeof permissionFormSchema>;
+
 const initialPermissions: Permission[] = [
-  {
-    id: 1,
-    code: 'USUARIO',
-    role: 'read',
-  },
-  {
-    id: 2,
-    code: 'USUARIO',
-    role: 'write',
-  },
-  {
-    id: 3,
-    code: 'ITEM',
-    role: 'read',
-  },
-  {
-    id: 4,
-    code: 'ITEM',
-    role: 'write',
-  },
-  {
-    id: 5,
-    code: 'FORNECEDOR',
-    role: 'read',
-  },
+  { id: 1, code: 'ITEM', role: 'read' },
+  { id: 2, code: 'ITEM', role: 'write' },
+  { id: 3, code: 'SUPPLIER', role: 'read' },
+  { id: 4, code: 'SUPPLIER', role: 'write' },
+  { id: 5, code: 'WAREHOUSE', role: 'read' },
+  { id: 6, code: 'USER', role: 'read' },
+  { id: 7, code: 'USER', role: 'write' },
 ];
 
 const Permissions = () => {
   const [permissions, setPermissions] = useState<Permission[]>(initialPermissions);
-  const [searchTerm, setSearchTerm] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingPermission, setEditingPermission] = useState<Permission | null>(null);
   const { toast } = useToast();
-  const isMobile = useIsMobile();
 
   const form = useForm<PermissionFormValues>({
     resolver: zodResolver(permissionFormSchema),
@@ -117,33 +87,18 @@ const Permissions = () => {
   };
 
   const onSubmit = (data: PermissionFormValues) => {
-    // Check if a permission with the same code and role already exists
-    const exists = permissions.some(
-      p => p.code === data.code && 
-      p.role === data.role &&
-      (editingPermission ? p.id !== editingPermission.id : true)
-    );
-
-    if (exists) {
-      toast({
-        title: "Permissão duplicada",
-        description: "Já existe uma permissão com este código e função",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (editingPermission) {
       setPermissions(permissions.map(p => {
         if (p.id === editingPermission.id) {
           return {
             ...p,
-            code: data.code,
+            code: data.code.toUpperCase(),
             role: data.role,
           };
         }
         return p;
       }));
+      
       toast({
         title: "Permissão atualizada",
         description: "A permissão foi atualizada com sucesso",
@@ -151,21 +106,20 @@ const Permissions = () => {
     } else {
       const newPermission: Permission = {
         id: Math.max(0, ...permissions.map(p => p.id)) + 1,
-        code: data.code,
+        code: data.code.toUpperCase(),
         role: data.role,
       };
+      
       setPermissions([...permissions, newPermission]);
+      
       toast({
         title: "Permissão adicionada",
         description: "Nova permissão foi adicionada com sucesso",
       });
     }
+    
     setOpenDialog(false);
   };
-
-  const filteredPermissions = permissions.filter(permission => 
-    permission.code.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <AuthRequired>
@@ -177,14 +131,14 @@ const Permissions = () => {
             animate={{ opacity: 1, y: 0 }}
             className="page-transition"
           >
-            <header className="flex flex-wrap gap-4 justify-between items-center mb-6">
+            <header className="flex justify-between items-center mb-6">
               <div>
                 <h1 className="text-2xl font-bold flex items-center">
                   <KeyRound className="mr-3 h-6 w-6 text-primary" />
                   Permissões
                 </h1>
-                <p className="text-gray-500 mt-1">
-                  Gerencie as permissões do sistema
+                <p className="text-muted-foreground mt-1">
+                  Gerencie os níveis de permissão do sistema
                 </p>
               </div>
               
@@ -195,18 +149,6 @@ const Permissions = () => {
             </header>
             
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
-              <div className="p-4 border-b">
-                <div className="relative max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="Buscar por código..."
-                    className="pl-9"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
-              
               <div className="responsive-table">
                 <Table>
                   <TableHeader>
@@ -217,37 +159,37 @@ const Permissions = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredPermissions.length === 0 ? (
+                    {permissions.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
                           Nenhuma permissão encontrada.
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredPermissions.map((permission) => (
+                      permissions.map((permission) => (
                         <TableRow key={permission.id}>
                           <TableCell className="font-medium">{permission.code}</TableCell>
                           <TableCell>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              permission.role === 'read'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-green-100 text-green-800'
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              permission.role === 'read' 
+                                ? 'bg-blue-100 text-blue-800' 
+                                : 'bg-purple-100 text-purple-800'
                             }`}>
                               {permission.role === 'read' ? 'Leitura' : 'Escrita'}
                             </span>
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
+                            <div className="flex justify-end space-x-2">
                               <Button
-                                variant="outline"
-                                size="icon"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => handleEditPermission(permission)}
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
                               <Button
-                                variant="destructive"
-                                size="icon"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => handleDeletePermission(permission.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -266,13 +208,13 @@ const Permissions = () => {
       </div>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{editingPermission ? 'Editar Permissão' : 'Adicionar Nova Permissão'}</DialogTitle>
             <DialogDescription>
               {editingPermission 
-                ? 'Edite as informações da permissão abaixo.' 
-                : 'Preencha os campos abaixo para adicionar uma nova permissão.'}
+                ? 'Edite os detalhes da permissão abaixo.' 
+                : 'Preencha os campos para adicionar uma nova permissão.'}
             </DialogDescription>
           </DialogHeader>
           
@@ -285,7 +227,7 @@ const Permissions = () => {
                   <FormItem>
                     <FormLabel>Código</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: USUARIO, ITEM, etc." {...field} />
+                      <Input placeholder="ITEM, USER, etc." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -298,7 +240,7 @@ const Permissions = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Função</FormLabel>
-                    <Select onValueChange={field.onChange as (value: string) => void} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione uma função" />
@@ -316,7 +258,7 @@ const Permissions = () => {
               
               <DialogFooter>
                 <Button type="submit">
-                  {editingPermission ? 'Salvar Alterações' : 'Cadastrar Permissão'}
+                  {editingPermission ? 'Salvar Alterações' : 'Adicionar Permissão'}
                 </Button>
               </DialogFooter>
             </form>

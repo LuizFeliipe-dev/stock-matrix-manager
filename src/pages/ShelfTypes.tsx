@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -10,17 +9,16 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { 
-  Box, 
+  Ruler, 
   Plus, 
   Search, 
   Edit, 
   Trash2,
-  RulerSquare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import {
   Table,
@@ -193,7 +191,7 @@ const ShelfTypes = () => {
             <header className="flex flex-wrap gap-4 justify-between items-center mb-6">
               <div>
                 <h1 className="text-2xl font-bold flex items-center">
-                  <RulerSquare className="mr-3 h-6 w-6 text-primary" />
+                  <Ruler className="mr-3 h-6 w-6 text-primary" />
                   Tipos de Prateleiras
                 </h1>
                 <p className="text-gray-500 mt-1">

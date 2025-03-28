@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  ArrowUpCircle, 
-  ArrowDownCircle, 
+  ArrowDown, 
+  ArrowUp, 
   Package, 
   DollarSign,
   AlertTriangle,
@@ -72,7 +72,7 @@ const Balance = () => {
               <CardHeader className="pb-2">
                 <CardDescription>Saldo Total em Estoque</CardDescription>
                 <CardTitle className="text-2xl flex items-center">
-                  <DollarSign className="mr-2 h-5 w-5 text-primary" />
+                  <DollarSign className="mr-2 h-5 w-5 text-muted-foreground" />
                   R$ {totalBalance.toLocaleString('pt-BR')}
                 </CardTitle>
               </CardHeader>
@@ -87,7 +87,7 @@ const Balance = () => {
               <CardHeader className="pb-2">
                 <CardDescription>Entradas</CardDescription>
                 <CardTitle className="text-2xl flex items-center">
-                  <ArrowUpCircle className="mr-2 h-5 w-5" />
+                  <ArrowUp className="mr-2 h-5 w-5 text-muted-foreground" />
                   R$ {entriesTotal.toLocaleString('pt-BR')}
                 </CardTitle>
               </CardHeader>
@@ -102,7 +102,7 @@ const Balance = () => {
               <CardHeader className="pb-2">
                 <CardDescription>Saídas</CardDescription>
                 <CardTitle className="text-2xl flex items-center">
-                  <ArrowDownCircle className="mr-2 h-5 w-5" />
+                  <ArrowDown className="mr-2 h-5 w-5 text-muted-foreground" />
                   R$ {departuresTotal.toLocaleString('pt-BR')}
                 </CardTitle>
               </CardHeader>
@@ -117,7 +117,7 @@ const Balance = () => {
               <CardHeader className="pb-2">
                 <CardDescription>Ajustes de Estoque</CardDescription>
                 <CardTitle className="text-2xl flex items-center">
-                  <AlertTriangle className="mr-2 h-5 w-5" />
+                  <AlertTriangle className="mr-2 h-5 w-5 text-muted-foreground" />
                   {adjustmentsCount}
                 </CardTitle>
               </CardHeader>
@@ -199,9 +199,9 @@ const Balance = () => {
                           <TableCell>
                             <span className="inline-flex items-center">
                               {transaction.type === 'entry' ? (
-                                <ArrowUpCircle className="mr-1 h-4 w-4" />
+                                <ArrowUp className="mr-1 h-4 w-4" />
                               ) : transaction.type === 'departure' ? (
-                                <ArrowDownCircle className="mr-1 h-4 w-4" />
+                                <ArrowDown className="mr-1 h-4 w-4" />
                               ) : (
                                 <AlertTriangle className="mr-1 h-4 w-4" />
                               )}

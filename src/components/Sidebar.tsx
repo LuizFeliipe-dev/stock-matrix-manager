@@ -25,7 +25,7 @@ import {
   LayoutGrid,
   Target,
   KeyRound,
-  RulerSquare
+  Ruler
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -174,7 +174,7 @@ const Sidebar = ({ className }: SidebarProps) => {
             
             <SidebarGroup title="Localizações">
               <SidebarItem icon={Target} title="Zonas" to="/zones" />
-              <SidebarItem icon={RulerSquare} title="Tipos de Prateleiras" to="/shelf-types" />
+              <SidebarItem icon={Ruler} title="Tipos de Prateleiras" to="/shelf-types" />
               <SidebarItem icon={Grid3X3} title="Racks/Prateleiras" to="/racks" />
             </SidebarGroup>
             

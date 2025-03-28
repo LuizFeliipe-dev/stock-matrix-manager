@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ItemsTableProps {
@@ -62,8 +63,8 @@ const ItemsTable = ({
                   <TableCell className="max-w-[200px] truncate">
                     {item.name}
                   </TableCell>
-                  {!isMobile && <TableCell>{item.group}</TableCell>}
-                  {!isMobile && <TableCell>{item.supplier}</TableCell>}
+                  {!isMobile && <TableCell>{item.groupName}</TableCell>}
+                  {!isMobile && <TableCell>{item.supplierName}</TableCell>}
                   <TableCell>{item.stock}</TableCell>
                   <TableCell>
                     {typeof item.price === "number"
@@ -71,15 +72,14 @@ const ItemsTable = ({
                       : item.price}
                   </TableCell>
                   <TableCell>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        item.active
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+                    <Badge 
+                      variant={item.active ? "default" : "outline"}
+                      className={item.active 
+                        ? "bg-green-100 hover:bg-green-100 text-green-800 border-green-200" 
+                        : "bg-gray-100 hover:bg-gray-100 text-gray-800 border-gray-200"}
                     >
                       {item.active ? "Ativo" : "Inativo"}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
