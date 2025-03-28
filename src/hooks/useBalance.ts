@@ -69,6 +69,15 @@ export const useBalance = () => {
     { warehouseId: '2', warehouseName: 'Armazém Sul', month: 'Jun/2023', entrada: 130000, saida: 110000 },
   ]);
 
+  // Get unique warehouses for the filter
+  const warehouses = Array.from(new Set(warehouseData.map(item => item.warehouseId))).map(warehouseId => {
+    const warehouseInfo = warehouseData.find(item => item.warehouseId === warehouseId);
+    return {
+      id: warehouseId,
+      name: warehouseInfo?.warehouseName || ''
+    };
+  });
+
   // Calculate totals
   const totalBalance = balanceItems.reduce((acc, item) => acc + item.totalValue, 0);
   const entriesTotal = recentTransactions
@@ -94,6 +103,7 @@ export const useBalance = () => {
     adjustmentsValue,
     recentTransactions,
     topValueItems,
-    warehouseData
+    warehouseData,
+    warehouses
   };
 };

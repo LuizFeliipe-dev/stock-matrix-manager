@@ -8,7 +8,8 @@ import {
   DollarSign,
   AlertTriangle,
   BarChart, 
-  CalendarRange
+  CalendarRange,
+  Warehouse
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
@@ -24,6 +25,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -45,11 +53,18 @@ const Balance = () => {
     adjustmentsValue,
     recentTransactions, 
     topValueItems,
-    warehouseData 
+    warehouseData,
+    warehouses 
   } = useBalance();
   
   const isMobile = useIsMobile();
   const [dateFilter, setDateFilter] = useState('month');
+  const [warehouseFilter, setWarehouseFilter] = useState('all');
+
+  // Filter warehouse data based on selected warehouse
+  const filteredWarehouseData = warehouseFilter === 'all' 
+    ? warehouseData 
+    : warehouseData.filter(item => item.warehouseId === warehouseFilter);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -238,11 +253,31 @@ const Balance = () => {
           </div>
           
           <Card>
-            <CardHeader>
-              <CardTitle>Entradas e Saídas por Mês (por Armazém)</CardTitle>
-              <CardDescription>
-                Comparativo de valores de entrada e saída por mês
-              </CardDescription>
+            <CardHeader className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+              <div>
+                <CardTitle>Entradas e Saídas por Mês (por Armazém)</CardTitle>
+                <CardDescription>
+                  Comparativo de valores de entrada e saída por mês
+                </CardDescription>
+              </div>
+              <div className="w-full sm:w-64">
+                <Select value={warehouseFilter} onValueChange={setWarehouseFilter}>
+                  <SelectTrigger className="w-full">
+                    <div className="flex items-center">
+                      <Warehouse className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <SelectValue placeholder="Todos os armazéns" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os armazéns</SelectItem>
+                    {warehouses.map((warehouse) => (
+                      <SelectItem key={warehouse.id} value={warehouse.id}>
+                        {warehouse.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="h-[400px]">
@@ -254,7 +289,7 @@ const Balance = () => {
                 >
                   <RechartsResponsiveContainer width="100%" height="100%">
                     <RechartsBarChart
-                      data={warehouseData}
+                      data={filteredWarehouseData}
                       margin={{
                         top: 20,
                         right: 30,
