@@ -18,6 +18,14 @@ interface Transaction {
   value: number;
 }
 
+interface WarehouseData {
+  warehouseId: string;
+  warehouseName: string;
+  month: string;
+  entrada: number;
+  saida: number;
+}
+
 export const useBalance = () => {
   // Mock data for balance items
   const [balanceItems] = useState<BalanceItem[]>([
@@ -45,6 +53,22 @@ export const useBalance = () => {
     { id: 8, date: '2023-08-13', type: 'departure', itemName: 'Headset Wireless', quantity: 3, value: 1800 },
   ]);
 
+  // Mock data for warehouse monthly data
+  const [warehouseData] = useState<WarehouseData[]>([
+    { warehouseId: '1', warehouseName: 'Armazém Central', month: 'Jan/2023', entrada: 120000, saida: 95000 },
+    { warehouseId: '1', warehouseName: 'Armazém Central', month: 'Fev/2023', entrada: 145000, saida: 110000 },
+    { warehouseId: '1', warehouseName: 'Armazém Central', month: 'Mar/2023', entrada: 135000, saida: 105000 },
+    { warehouseId: '1', warehouseName: 'Armazém Central', month: 'Abr/2023', entrada: 160000, saida: 130000 },
+    { warehouseId: '1', warehouseName: 'Armazém Central', month: 'Mai/2023', entrada: 180000, saida: 145000 },
+    { warehouseId: '1', warehouseName: 'Armazém Central', month: 'Jun/2023', entrada: 200000, saida: 165000 },
+    { warehouseId: '2', warehouseName: 'Armazém Sul', month: 'Jan/2023', entrada: 85000, saida: 65000 },
+    { warehouseId: '2', warehouseName: 'Armazém Sul', month: 'Fev/2023', entrada: 95000, saida: 75000 },
+    { warehouseId: '2', warehouseName: 'Armazém Sul', month: 'Mar/2023', entrada: 110000, saida: 90000 },
+    { warehouseId: '2', warehouseName: 'Armazém Sul', month: 'Abr/2023', entrada: 105000, saida: 80000 },
+    { warehouseId: '2', warehouseName: 'Armazém Sul', month: 'Mai/2023', entrada: 120000, saida: 95000 },
+    { warehouseId: '2', warehouseName: 'Armazém Sul', month: 'Jun/2023', entrada: 130000, saida: 110000 },
+  ]);
+
   // Calculate totals
   const totalBalance = balanceItems.reduce((acc, item) => acc + item.totalValue, 0);
   const entriesTotal = recentTransactions
@@ -69,6 +93,7 @@ export const useBalance = () => {
     adjustmentsCount,
     adjustmentsValue,
     recentTransactions,
-    topValueItems
+    topValueItems,
+    warehouseData
   };
 };

@@ -1,13 +1,15 @@
 
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const itemFormSchema = z.object({
-  code: z.string().min(3, { message: 'Código deve ter pelo menos 3 caracteres' }),
-  name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
+  code: z.string().min(1, 'Código é obrigatório'),
+  name: z.string().min(1, 'Nome é obrigatório'),
   description: z.string().optional(),
-  group: z.string().min(1, { message: 'Selecione um grupo' }),
-  supplier: z.string().min(1, { message: 'Selecione um fornecedor' }),
-  minStock: z.coerce.number().min(0, { message: 'Estoque mínimo não pode ser negativo' }),
-  price: z.coerce.number().min(0, { message: 'Preço não pode ser negativo' }),
+  group: z.string().min(1, 'Grupo é obrigatório'),
+  supplier: z.string().min(1, 'Fornecedor é obrigatório'),
+  minStock: z.number().min(0, 'Estoque mínimo deve ser maior ou igual a 0'),
+  price: z.number().min(0, 'Preço deve ser maior ou igual a 0'),
   active: z.boolean().default(true),
 });
+
+export type ItemFormValues = z.infer<typeof itemFormSchema>;

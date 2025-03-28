@@ -9,6 +9,7 @@ import { itemFormSchema } from './items/form/ItemFormSchema';
 import InputField from './items/form/InputField';
 import TextAreaField from './items/form/TextAreaField';
 import SelectField from './items/form/SelectField';
+import { Switch } from '@/components/ui/switch';
 
 interface ItemFormProps {
   initialData?: ItemFormValues | null;
@@ -101,6 +102,17 @@ const ItemForm = ({
             min="0"
             step="0.01"
           />
+        </div>
+        
+        <div className="flex items-center space-x-2 mb-4">
+          <Switch 
+            id="active" 
+            checked={form.watch("active")} 
+            onCheckedChange={(checked) => form.setValue("active", checked)}
+          />
+          <label htmlFor="active" className="cursor-pointer">
+            Item Ativo
+          </label>
         </div>
         
         <Button type="submit" className="w-full">

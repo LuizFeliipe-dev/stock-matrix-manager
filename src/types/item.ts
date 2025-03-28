@@ -10,9 +10,9 @@ export interface Item {
   name: string;
   description?: string;
   group: string;
-  groupName?: string;
+  groupName: string;
   supplier: string;
-  supplierName?: string;
+  supplierName: string;
   stock: number;
   minStock: number;
   price: number;

@@ -24,6 +24,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  BarChart as RechartsBarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer as RechartsResponsiveContainer,
+} from "recharts";
+import { ChartContainer, ChartTooltipContent, ChartTooltip } from "@/components/ui/chart";
 
 const Balance = () => {
   const { 
@@ -33,7 +44,8 @@ const Balance = () => {
     adjustmentsCount,
     adjustmentsValue,
     recentTransactions, 
-    topValueItems 
+    topValueItems,
+    warehouseData 
   } = useBalance();
   
   const isMobile = useIsMobile();
@@ -87,7 +99,7 @@ const Balance = () => {
               <CardHeader className="pb-2">
                 <CardDescription>Entradas</CardDescription>
                 <CardTitle className="text-2xl flex items-center">
-                  <ArrowUp className="mr-2 h-5 w-5 text-muted-foreground" />
+                  <ArrowDown className="mr-2 h-5 w-5 text-muted-foreground" />
                   R$ {entriesTotal.toLocaleString('pt-BR')}
                 </CardTitle>
               </CardHeader>
@@ -102,7 +114,7 @@ const Balance = () => {
               <CardHeader className="pb-2">
                 <CardDescription>Saídas</CardDescription>
                 <CardTitle className="text-2xl flex items-center">
-                  <ArrowDown className="mr-2 h-5 w-5 text-muted-foreground" />
+                  <ArrowUp className="mr-2 h-5 w-5 text-muted-foreground" />
                   R$ {departuresTotal.toLocaleString('pt-BR')}
                 </CardTitle>
               </CardHeader>
@@ -132,7 +144,7 @@ const Balance = () => {
             </Card>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <Card className="col-span-1">
               <CardHeader>
                 <CardTitle className="flex items-center">
@@ -199,9 +211,9 @@ const Balance = () => {
                           <TableCell>
                             <span className="inline-flex items-center">
                               {transaction.type === 'entry' ? (
-                                <ArrowUp className="mr-1 h-4 w-4" />
-                              ) : transaction.type === 'departure' ? (
                                 <ArrowDown className="mr-1 h-4 w-4" />
+                              ) : transaction.type === 'departure' ? (
+                                <ArrowUp className="mr-1 h-4 w-4" />
                               ) : (
                                 <AlertTriangle className="mr-1 h-4 w-4" />
                               )}
@@ -224,6 +236,60 @@ const Balance = () => {
               </CardContent>
             </Card>
           </div>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Entradas e Saídas por Mês (por Armazém)</CardTitle>
+              <CardDescription>
+                Comparativo de valores de entrada e saída por mês
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[400px]">
+                <ChartContainer
+                  config={{
+                    entrada: { label: "Entrada" },
+                    saida: { label: "Saída" },
+                  }}
+                >
+                  <RechartsResponsiveContainer width="100%" height="100%">
+                    <RechartsBarChart
+                      data={warehouseData}
+                      margin={{
+                        top: 20,
+                        right: 30,
+                        left: 20,
+                        bottom: 70,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="month" 
+                        angle={-45}
+                        textAnchor="end"
+                        height={70}
+                      />
+                      <YAxis 
+                        tickFormatter={(value) => 
+                          `R$ ${value.toLocaleString('pt-BR')}`
+                        }
+                      />
+                      <ChartTooltip 
+                        content={<ChartTooltipContent />}
+                        formatter={(value: number) => [
+                          `R$ ${value.toLocaleString('pt-BR')}`,
+                          ""
+                        ]}
+                      />
+                      <Legend />
+                      <Bar dataKey="entrada" fill="#4f46e5" name="Entrada" />
+                      <Bar dataKey="saida" fill="#f97316" name="Saída" />
+                    </RechartsBarChart>
+                  </RechartsResponsiveContainer>
+                </ChartContainer>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
       </ResponsiveContainer>
     </div>
