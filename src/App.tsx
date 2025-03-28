@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "./components/Sidebar";
 
 // Pages
-import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Items from "./pages/Items";
@@ -101,45 +100,49 @@ const LocationViewPage = () => (
 const TasksPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Lista de Tarefas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const StatisticsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Estatísticas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/items" element={<Items />} />
-              <Route path="/suppliers" element={<Suppliers />} />
-              <Route path="/groups" element={<Groups />} />
-              <Route path="/warehouses" element={<Warehouses />} />
-              <Route path="/locations" element={<LocationsPage />} />
-              <Route path="/racks" element={<RacksPage />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/entry" element={<EntryPage />} />
-              <Route path="/inventory" element={<InventoryPage />} />
-              <Route path="/departure" element={<DeparturePage />} />
-              <Route path="/tasks" element={<TasksPage />} />
-              <Route path="/statistics" element={<StatisticsPage />} />
-              <Route path="/location-view" element={<LocationViewPage />} />
-              <Route path="/balance" element={<BalancePage />} />
-              <Route path="/shelf-types" element={<ShelfTypes />} />
-              <Route path="/zones" element={<Zones />} />
-              <Route path="/permissions" element={<Permissions />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AnimatePresence>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+// Create QueryClient inside the component to ensure proper React context
+const App = () => {
+  // Create a client inside the component
+  const queryClient = new QueryClient();
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/items" element={<Items />} />
+                <Route path="/suppliers" element={<Suppliers />} />
+                <Route path="/groups" element={<Groups />} />
+                <Route path="/warehouses" element={<Warehouses />} />
+                <Route path="/locations" element={<LocationsPage />} />
+                <Route path="/racks" element={<RacksPage />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/entry" element={<EntryPage />} />
+                <Route path="/inventory" element={<InventoryPage />} />
+                <Route path="/departure" element={<DeparturePage />} />
+                <Route path="/tasks" element={<TasksPage />} />
+                <Route path="/statistics" element={<StatisticsPage />} />
+                <Route path="/location-view" element={<LocationViewPage />} />
+                <Route path="/balance" element={<BalancePage />} />
+                <Route path="/shelf-types" element={<ShelfTypes />} />
+                <Route path="/zones" element={<Zones />} />
+                <Route path="/permissions" element={<Permissions />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AnimatePresence>
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
