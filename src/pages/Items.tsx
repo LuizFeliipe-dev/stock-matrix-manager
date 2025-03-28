@@ -28,7 +28,7 @@ const Items = () => {
     onSubmitItem
   } = useItems();
 
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const { toast } = useToast();
@@ -53,7 +53,7 @@ const Items = () => {
 
   // Apply status filter in addition to the existing filters
   const applyStatusFilter = (items: Item[]) => {
-    if (!statusFilter) return items;
+    if (statusFilter === 'all') return items;
     
     return items.filter(item => {
       if (statusFilter === 'active') return item.active;

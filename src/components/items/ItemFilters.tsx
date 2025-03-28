@@ -53,7 +53,7 @@ const ItemFilters = ({
             <SelectValue placeholder="Todos os grupos" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os grupos</SelectItem>
+            <SelectItem value="all">Todos os grupos</SelectItem>
             {groups.map((group) => (
               <SelectItem key={group.id} value={group.id}>
                 {group.name}
@@ -67,7 +67,7 @@ const ItemFilters = ({
             <SelectValue placeholder="Todos os status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os status</SelectItem>
+            <SelectItem value="all">Todos os status</SelectItem>
             <SelectItem value="active">Ativos</SelectItem>
             <SelectItem value="inactive">Inativos</SelectItem>
           </SelectContent>

@@ -190,7 +190,7 @@ const Suppliers = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const { toast } = useToast();
@@ -425,7 +425,7 @@ const Suppliers = () => {
                         <SelectValue placeholder="Todos os status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todos os status</SelectItem>
+                        <SelectItem value="all">Todos os status</SelectItem>
                         <SelectItem value="active">Ativos</SelectItem>
                         <SelectItem value="inactive">Inativos</SelectItem>
                       </SelectContent>
