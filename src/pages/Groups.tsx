@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -201,8 +200,8 @@ const Groups = () => {
               name: data.name,
               code: data.code,
               description: data.description || '',
-              parentId: data.parentId || undefined,
-              zoneId: data.zoneId || undefined,
+              parentId: data.parentId === 'none' ? undefined : data.parentId,
+              zoneId: data.zoneId === 'none' ? undefined : data.zoneId,
             };
           } else if (group.children) {
             return {
@@ -227,12 +226,12 @@ const Groups = () => {
         name: data.name,
         code: data.code,
         description: data.description || '',
-        parentId: data.parentId || undefined,
-        zoneId: data.zoneId || undefined,
+        parentId: data.parentId === 'none' ? undefined : data.parentId,
+        zoneId: data.zoneId === 'none' ? undefined : data.zoneId,
         itemCount: 0,
       };
 
-      if (data.parentId) {
+      if (data.parentId && data.parentId !== 'none') {
         // If parent is specified, add to children
         const updateParentWithNewChild = (groupsList: Group[]): Group[] => {
           return groupsList.map(group => {
@@ -273,8 +272,8 @@ const Groups = () => {
       name: '',
       code: '',
       description: '',
-      parentId: '',
-      zoneId: '',
+      parentId: 'none',
+      zoneId: 'none',
     });
     setOpenDialog(true);
   };
@@ -285,8 +284,8 @@ const Groups = () => {
       name: group.name,
       code: group.code,
       description: group.description,
-      parentId: group.parentId || '',
-      zoneId: group.zoneId || '',
+      parentId: group.parentId || 'none',
+      zoneId: group.zoneId || 'none',
     });
     setOpenDialog(true);
   };
@@ -592,7 +591,7 @@ const Groups = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">Nenhuma (categoria principal)</SelectItem>
+                          <SelectItem value="none">Nenhuma (categoria principal)</SelectItem>
                           {getAllGroups(groups)
                             .filter(g => g.id !== editingGroup?.id) // Can't make itself its own parent
                             .map((group) => (
@@ -623,7 +622,7 @@ const Groups = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">Nenhuma</SelectItem>
+                          <SelectItem value="none">Nenhuma</SelectItem>
                           {zones.map((zone) => (
                             <SelectItem key={zone.id} value={zone.id}>
                               {zone.name}
