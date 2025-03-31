@@ -333,9 +333,10 @@ const Groups = () => {
   };
 
   // Recursive component for tree view
-  const GroupRow = ({ group, level = 0 }: { group: Group, level?: number }) => {
+  const GroupRow = ({ group, level = 0, handleEditGroup, handleDeleteGroup, expandedGroups, toggleExpanded }) => {
     const hasChildren = group.children && group.children.length > 0;
     const isExpanded = expandedGroups[group.id] || false;
+    const isMobile = useIsMobile();
     
     return (
       <>
@@ -371,18 +372,20 @@ const Groups = () => {
           <TableCell className="text-right">
             <div className="flex justify-end space-x-2">
               <Button 
-                variant="ghost" 
-                size="sm"
+                variant="icon" 
                 onClick={() => handleEditGroup(group)}
+                className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                title="Editar"
               >
-                <Edit className="h-4 w-4 text-blue-500" />
+                <Edit className="h-4 w-4" />
               </Button>
               <Button 
-                variant="ghost" 
-                size="sm"
+                variant="icon"
                 onClick={() => handleDeleteGroup(group.id)}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                title="Excluir"
               >
-                <Trash2 className="h-4 w-4 text-red-500" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           </TableCell>
@@ -390,7 +393,15 @@ const Groups = () => {
         {hasChildren && isExpanded && (
           <>
             {group.children!.map((childGroup) => (
-              <GroupRow key={childGroup.id} group={childGroup} level={level + 1} />
+              <GroupRow 
+                key={childGroup.id} 
+                group={childGroup} 
+                level={level + 1} 
+                handleEditGroup={handleEditGroup}
+                handleDeleteGroup={handleDeleteGroup}
+                expandedGroups={expandedGroups}
+                toggleExpanded={toggleExpanded}
+              />
             ))}
           </>
         )}
@@ -469,18 +480,20 @@ const Groups = () => {
                           <TableCell className="text-right">
                             <div className="flex justify-end space-x-2">
                               <Button 
-                                variant="ghost" 
-                                size="sm"
+                                variant="icon"
                                 onClick={() => handleEditGroup(group)}
+                                className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                title="Editar"
                               >
-                                <Edit className="h-4 w-4 text-blue-500" />
+                                <Edit className="h-4 w-4" />
                               </Button>
                               <Button 
-                                variant="ghost" 
-                                size="sm"
+                                variant="icon"
                                 onClick={() => handleDeleteGroup(group.id)}
+                                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                                title="Excluir"
                               >
-                                <Trash2 className="h-4 w-4 text-red-500" />
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
@@ -488,7 +501,16 @@ const Groups = () => {
                       ))
                     ) : (
                       // Tree view for normal display
-                      groups.map((group) => <GroupRow key={group.id} group={group} />)
+                      groups.map((group) => (
+                        <GroupRow 
+                          key={group.id} 
+                          group={group} 
+                          handleEditGroup={handleEditGroup} 
+                          handleDeleteGroup={handleDeleteGroup}
+                          expandedGroups={expandedGroups}
+                          toggleExpanded={toggleExpanded}
+                        />
+                      ))
                     )}
                     {filteredGroups.length === 0 && (
                       <TableRow>

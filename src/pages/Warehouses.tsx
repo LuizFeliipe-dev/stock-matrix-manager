@@ -14,7 +14,8 @@ import {
   MapPin,
   Check,
   X as XIcon,
-  Power
+  Power,
+  Edit
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -375,20 +376,20 @@ const Warehouses = () => {
                           <TableCell className="text-right">
                             <div className="flex space-x-2 justify-end">
                               <Button 
-                                variant="ghost" 
-                                size="icon"
+                                variant="icon" 
                                 onClick={() => handleEditWarehouse(warehouse)}
+                                className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
                                 title="Editar"
                               >
-                                <Pencil className="h-4 w-4 text-blue-500" />
+                                <Edit className="h-4 w-4" />
                               </Button>
                               <Button 
-                                variant="ghost" 
-                                size="icon"
+                                variant="icon"
                                 onClick={() => handleToggleWarehouseStatus(warehouse)}
+                                className="text-amber-500 hover:text-amber-600 hover:bg-amber-50"
                                 title={warehouse.isActive ? "Inativar" : "Ativar"}
                               >
-                                <Power className={`h-4 w-4 ${warehouse.isActive ? "text-red-500" : "text-green-500"}`} />
+                                <Power className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>

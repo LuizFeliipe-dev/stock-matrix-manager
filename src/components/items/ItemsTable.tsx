@@ -84,16 +84,18 @@ const ItemsTable = ({
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant="icon"
                         onClick={() => onEdit(item)}
+                        className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                        title="Editar"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant="icon"
                         onClick={() => onToggleStatus(item)}
+                        className="text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+                        title={item.active ? "Desativar" : "Ativar"}
                       >
                         <ToggleLeft className="h-4 w-4" />
                       </Button>

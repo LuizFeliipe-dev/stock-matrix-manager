@@ -98,15 +98,20 @@ const CorridorsPage = () => {
                           <TableCell>{corridor.warehouseId}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Button variant="ghost" size="sm">
-                                <Edit className="h-4 w-4 text-blue-500" />
+                              <Button 
+                                variant="icon" 
+                                className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                title="Editar"
+                              >
+                                <Edit className="h-4 w-4" />
                               </Button>
                               <Button
-                                variant="ghost" 
-                                size="sm"
+                                variant="icon"
                                 onClick={() => handleDelete(corridor.id)}
+                                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                                title="Excluir"
                               >
-                                <Trash2 className="h-4 w-4 text-red-500" />
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
