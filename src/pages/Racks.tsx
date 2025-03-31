@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Plus, Edit, Trash2 } from 'lucide-react';
@@ -24,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Rack } from '@/types/warehouse';
 
 // Mock data para tipos de prateleiras e zonas
 interface ShelfType {
