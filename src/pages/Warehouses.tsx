@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -62,6 +61,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 
 const warehouseFormSchema = z.object({
   code: z.string().length(3, { message: 'Código deve ter exatamente 3 dígitos' })
@@ -94,7 +94,6 @@ interface User {
   email: string;
 }
 
-// Mock data de usuários para simular o select de gerentes
 const mockUsers: User[] = [
   { id: '1', name: 'Carlos Gomes', email: 'carlos@exemplo.com' },
   { id: '2', name: 'Ana Souza', email: 'ana@exemplo.com' },
@@ -111,7 +110,7 @@ const initialWarehouses: Warehouse[] = [
     address: 'Av. Industrial, 1000',
     city: 'São Paulo',
     state: 'SP',
-    manager: '1', // ID do Carlos Gomes
+    manager: '1',
     totalArea: 5000,
     isActive: true,
   },
@@ -122,7 +121,7 @@ const initialWarehouses: Warehouse[] = [
     address: 'Rua das Indústrias, 500',
     city: 'Porto Alegre',
     state: 'RS',
-    manager: '2', // ID da Ana Souza
+    manager: '2',
     totalArea: 3000,
     isActive: true,
   },
@@ -133,7 +132,7 @@ const initialWarehouses: Warehouse[] = [
     address: 'Rodovia BR-101, km 30',
     city: 'Recife',
     state: 'PE',
-    manager: '3', // ID do João Ferreira
+    manager: '3',
     totalArea: 4000,
     isActive: false,
   },
@@ -268,14 +267,12 @@ const Warehouses = () => {
   };
 
   const filteredWarehouses = warehouses.filter(warehouse => {
-    // Filtro de texto
     const matchesSearchTerm = 
       warehouse.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       warehouse.code.includes(searchTerm) ||
       warehouse.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
       getManagerName(warehouse.manager).toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Filtro de status
     const matchesStatus = 
       statusFilter === "all" || 
       (statusFilter === "active" && warehouse.isActive) ||
@@ -535,30 +532,18 @@ const Warehouses = () => {
                 control={form.control}
                 name="isActive"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          type="button"
-                          variant={field.value ? "default" : "outline"}
-                          size="sm"
-                          className={field.value ? "bg-green-600" : ""}
-                          onClick={() => field.onChange(true)}
-                        >
-                          <Check className="mr-2 h-4 w-4" />
-                          Ativo
-                        </Button>
-                        <Button
-                          type="button"
-                          variant={!field.value ? "default" : "outline"}
-                          size="sm"
-                          className={!field.value ? "bg-gray-500" : ""}
-                          onClick={() => field.onChange(false)}
-                        >
-                          <XIcon className="mr-2 h-4 w-4" />
-                          Inativo
-                        </Button>
+                  <FormItem className="flex flex-row items-center justify-between rounded-md border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel>Status do Armazém</FormLabel>
+                      <div className="text-sm text-muted-foreground">
+                        {field.value ? "Armazém ativo no sistema" : "Armazém inativo no sistema"}
                       </div>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
                   </FormItem>
                 )}

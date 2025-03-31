@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserPermission } from '../types/auth';
+import { UserPermission, UserPermissionModule, UserPermissionAction, UserPermissionOption } from '../types/auth';
 
 interface UserData {
   id: string;
@@ -89,6 +89,21 @@ const mockUsers: UserData[] = [
     permission: 'second',
     lastAccess: '2023-08-15 10:30' 
   },
+];
+
+const permissionOptions: UserPermissionOption[] = [
+  { module: 'USUARIO', action: 'Leitura', value: 'initial' },
+  { module: 'USUARIO', action: 'Escrita', value: 'second' },
+  { module: 'USUARIO', action: 'Administrador', value: 'manager' },
+  { module: 'ARMAZEM', action: 'Leitura', value: 'initial' },
+  { module: 'ARMAZEM', action: 'Escrita', value: 'second' },
+  { module: 'ARMAZEM', action: 'Administrador', value: 'manager' },
+  { module: 'INVENTARIO', action: 'Leitura', value: 'initial' },
+  { module: 'INVENTARIO', action: 'Escrita', value: 'second' },
+  { module: 'INVENTARIO', action: 'Administrador', value: 'manager' },
+  { module: 'RELATORIO', action: 'Leitura', value: 'initial' },
+  { module: 'RELATORIO', action: 'Escrita', value: 'second' },
+  { module: 'RELATORIO', action: 'Administrador', value: 'manager' },
 ];
 
 const userFormSchema = z.object({
@@ -205,6 +220,32 @@ const Users = () => {
     user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.department.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const getPermissionOptionText = (value: UserPermission): string => {
+    const option = permissionOptions.find(opt => opt.value === value);
+    if (option) {
+      return `${option.module} - ${option.action}`;
+    }
+    return 'Desconhecido';
+  };
+
+  const getPermissionName = (value: string): string => {
+    const option = permissionOptions.find(opt => opt.value === value);
+    if (option) {
+      return `${option.module} - ${option.action}`;
+    }
+    
+    switch (value) {
+      case 'initial':
+        return 'Básico (Visualização)';
+      case 'second':
+        return 'Intermediário (Edição)';
+      case 'manager':
+        return 'Administrador (Total)';
+      default:
+        return 'Desconhecido';
+    }
+  };
 
   return (
     <AuthRequired>
@@ -436,9 +477,11 @@ const Users = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="initial">Básico (Visualização)</SelectItem>
-                        <SelectItem value="second">Intermediário (Edição)</SelectItem>
-                        <SelectItem value="manager">Administrador (Total)</SelectItem>
+                        {permissionOptions.map((option, index) => (
+                          <SelectItem key={index} value={option.value}>
+                            {`${option.module} - ${option.action}`}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
