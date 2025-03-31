@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -11,8 +12,10 @@ import {
   Plus, 
   Search, 
   Pencil, 
-  Trash2,
-  MapPin
+  MapPin,
+  Check,
+  X as XIcon,
+  Power
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -41,6 +44,24 @@ import {
 } from "@/components/ui/table";
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 
 const warehouseFormSchema = z.object({
   code: z.string().length(3, { message: 'Código deve ter exatamente 3 dígitos' })
@@ -49,9 +70,8 @@ const warehouseFormSchema = z.object({
   address: z.string().min(5, { message: 'Endereço deve ter pelo menos 5 caracteres' }),
   city: z.string().min(2, { message: 'Cidade deve ter pelo menos 2 caracteres' }),
   state: z.string().length(2, { message: 'Estado deve ter 2 caracteres' }),
-  manager: z.string().min(2, { message: 'Nome do gerente deve ter pelo menos 2 caracteres' }),
-  totalArea: z.coerce.number().min(1, { message: 'Área deve ser maior que 0' }),
-  totalCapacity: z.coerce.number().min(1, { message: 'Capacidade deve ser maior que 0' }),
+  manager: z.string().min(1, { message: 'Selecione um gerente' }),
+  isActive: z.boolean().default(true),
 });
 
 type WarehouseFormValues = z.infer<typeof warehouseFormSchema>;
@@ -65,9 +85,23 @@ interface Warehouse {
   state: string;
   manager: string;
   totalArea: number;
-  totalCapacity: number;
-  currentOccupation: number;
+  isActive: boolean;
 }
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+// Mock data de usuários para simular o select de gerentes
+const mockUsers: User[] = [
+  { id: '1', name: 'Carlos Gomes', email: 'carlos@exemplo.com' },
+  { id: '2', name: 'Ana Souza', email: 'ana@exemplo.com' },
+  { id: '3', name: 'João Ferreira', email: 'joao@exemplo.com' },
+  { id: '4', name: 'Maria Silva', email: 'maria@exemplo.com' },
+  { id: '5', name: 'Pedro Santos', email: 'pedro@exemplo.com' },
+];
 
 const initialWarehouses: Warehouse[] = [
   {
@@ -77,10 +111,9 @@ const initialWarehouses: Warehouse[] = [
     address: 'Av. Industrial, 1000',
     city: 'São Paulo',
     state: 'SP',
-    manager: 'Carlos Gomes',
+    manager: '1', // ID do Carlos Gomes
     totalArea: 5000,
-    totalCapacity: 10000,
-    currentOccupation: 6500,
+    isActive: true,
   },
   {
     id: '2',
@@ -89,10 +122,9 @@ const initialWarehouses: Warehouse[] = [
     address: 'Rua das Indústrias, 500',
     city: 'Porto Alegre',
     state: 'RS',
-    manager: 'Ana Souza',
+    manager: '2', // ID da Ana Souza
     totalArea: 3000,
-    totalCapacity: 6000,
-    currentOccupation: 2800,
+    isActive: true,
   },
   {
     id: '3',
@@ -101,10 +133,9 @@ const initialWarehouses: Warehouse[] = [
     address: 'Rodovia BR-101, km 30',
     city: 'Recife',
     state: 'PE',
-    manager: 'João Ferreira',
+    manager: '3', // ID do João Ferreira
     totalArea: 4000,
-    totalCapacity: 8000,
-    currentOccupation: 5200,
+    isActive: false,
   },
 ];
 
@@ -112,7 +143,10 @@ const Warehouses = () => {
   const [warehouses, setWarehouses] = useState<Warehouse[]>(initialWarehouses);
   const [openDialog, setOpenDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState("all");
   const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
+  const [warehouseToToggle, setWarehouseToToggle] = useState<Warehouse | null>(null);
+  const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
@@ -125,8 +159,7 @@ const Warehouses = () => {
       city: '',
       state: '',
       manager: '',
-      totalArea: 0,
-      totalCapacity: 0,
+      isActive: true,
     },
   });
 
@@ -142,8 +175,7 @@ const Warehouses = () => {
             city: data.city,
             state: data.state,
             manager: data.manager,
-            totalArea: data.totalArea,
-            totalCapacity: data.totalCapacity,
+            isActive: data.isActive
           };
         }
         return warehouse;
@@ -162,9 +194,8 @@ const Warehouses = () => {
         city: data.city,
         state: data.state,
         manager: data.manager,
-        totalArea: data.totalArea,
-        totalCapacity: data.totalCapacity,
-        currentOccupation: 0,
+        totalArea: 0,
+        isActive: data.isActive,
       };
 
       setWarehouses([...warehouses, newWarehouse]);
@@ -188,8 +219,7 @@ const Warehouses = () => {
       city: '',
       state: '',
       manager: '',
-      totalArea: 0,
-      totalCapacity: 0,
+      isActive: true,
     });
     setOpenDialog(true);
   };
@@ -203,30 +233,56 @@ const Warehouses = () => {
       city: warehouse.city,
       state: warehouse.state,
       manager: warehouse.manager,
-      totalArea: warehouse.totalArea,
-      totalCapacity: warehouse.totalCapacity,
+      isActive: warehouse.isActive,
     });
     setOpenDialog(true);
   };
 
-  const handleDeleteWarehouse = (warehouseId: string) => {
-    setWarehouses(warehouses.filter(warehouse => warehouse.id !== warehouseId));
-    toast({
-      title: "Armazém excluído",
-      description: "O armazém foi removido com sucesso",
-    });
+  const handleToggleWarehouseStatus = (warehouse: Warehouse) => {
+    setWarehouseToToggle(warehouse);
+    setOpenStatusDialog(true);
   };
 
-  const filteredWarehouses = warehouses.filter(warehouse => 
-    warehouse.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    warehouse.code.includes(searchTerm) ||
-    warehouse.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    warehouse.manager.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const confirmToggleStatus = () => {
+    if (warehouseToToggle) {
+      setWarehouses(warehouses.map(wh => {
+        if (wh.id === warehouseToToggle.id) {
+          const newStatus = !wh.isActive;
+          return { ...wh, isActive: newStatus };
+        }
+        return wh;
+      }));
 
-  const getCapacityPercentage = (current: number, total: number) => {
-    return Math.round((current / total) * 100);
+      toast({
+        title: warehouseToToggle.isActive ? "Armazém inativado" : "Armazém ativado",
+        description: `O armazém foi ${warehouseToToggle.isActive ? "inativado" : "ativado"} com sucesso`,
+      });
+    }
+    setOpenStatusDialog(false);
+    setWarehouseToToggle(null);
   };
+
+  const getManagerName = (managerId: string) => {
+    const manager = mockUsers.find(user => user.id === managerId);
+    return manager ? manager.name : 'Não definido';
+  };
+
+  const filteredWarehouses = warehouses.filter(warehouse => {
+    // Filtro de texto
+    const matchesSearchTerm = 
+      warehouse.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      warehouse.code.includes(searchTerm) ||
+      warehouse.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getManagerName(warehouse.manager).toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Filtro de status
+    const matchesStatus = 
+      statusFilter === "all" || 
+      (statusFilter === "active" && warehouse.isActive) ||
+      (statusFilter === "inactive" && !warehouse.isActive);
+    
+    return matchesSearchTerm && matchesStatus;
+  });
 
   return (
     <AuthRequired>
@@ -258,15 +314,28 @@ const Warehouses = () => {
             
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
               <div className="p-4 md:p-6 border-b">
-                <div className="relative w-full max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <Input
-                    type="text"
-                    placeholder="Buscar armazéns..."
-                    className="pl-10"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="relative w-full md:max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <Input
+                      type="text"
+                      placeholder="Buscar armazéns..."
+                      className="pl-10"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full md:w-[180px]">
+                      <SelectValue placeholder="Filtrar por status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="active">Ativos</SelectItem>
+                      <SelectItem value="inactive">Inativos</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               
@@ -278,58 +347,57 @@ const Warehouses = () => {
                       <TableHead>Nome</TableHead>
                       {!isMobile && <TableHead>Localização</TableHead>}
                       {!isMobile && <TableHead>Gerente</TableHead>}
-                      {!isMobile && <TableHead>Área Total (m²)</TableHead>}
-                      <TableHead>Ocupação</TableHead>
+                      {!isMobile && <TableHead>Área Total (m³)</TableHead>}
+                      <TableHead>Status</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredWarehouses.map((warehouse) => (
-                      <TableRow key={warehouse.id}>
-                        <TableCell className="font-medium">{warehouse.code}</TableCell>
-                        <TableCell className="max-w-[150px] truncate">{warehouse.name}</TableCell>
-                        {!isMobile && <TableCell>{`${warehouse.city}, ${warehouse.state}`}</TableCell>}
-                        {!isMobile && <TableCell>{warehouse.manager}</TableCell>}
-                        {!isMobile && <TableCell>{warehouse.totalArea.toLocaleString()} m²</TableCell>}
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-full max-w-[100px] h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full rounded-full ${
-                                  getCapacityPercentage(warehouse.currentOccupation, warehouse.totalCapacity) > 80
-                                    ? 'bg-red-500'
-                                    : getCapacityPercentage(warehouse.currentOccupation, warehouse.totalCapacity) > 50
-                                      ? 'bg-amber-500'
-                                      : 'bg-green-500'
-                                }`}
-                                style={{ width: `${getCapacityPercentage(warehouse.currentOccupation, warehouse.totalCapacity)}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-sm text-gray-500 whitespace-nowrap">
-                              {getCapacityPercentage(warehouse.currentOccupation, warehouse.totalCapacity)}%
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex space-x-2 justify-end">
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => handleEditWarehouse(warehouse)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => handleDeleteWarehouse(warehouse.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                    {filteredWarehouses.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={isMobile ? 4 : 7} className="text-center py-6 text-muted-foreground">
+                          Nenhum armazém encontrado.
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      filteredWarehouses.map((warehouse) => (
+                        <TableRow key={warehouse.id} className={!warehouse.isActive ? "bg-gray-50" : ""}>
+                          <TableCell className="font-medium">{warehouse.code}</TableCell>
+                          <TableCell className="max-w-[150px] truncate">{warehouse.name}</TableCell>
+                          {!isMobile && <TableCell>{`${warehouse.city}, ${warehouse.state}`}</TableCell>}
+                          {!isMobile && <TableCell>{getManagerName(warehouse.manager)}</TableCell>}
+                          {!isMobile && <TableCell>{warehouse.totalArea.toLocaleString()} m³</TableCell>}
+                          <TableCell>
+                            <Badge 
+                              variant={warehouse.isActive ? "default" : "outline"}
+                              className={warehouse.isActive ? "bg-green-100 text-green-800 hover:bg-green-100" : "bg-gray-100 text-gray-800 hover:bg-gray-100"}
+                            >
+                              {warehouse.isActive ? "Ativo" : "Inativo"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex space-x-2 justify-end">
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => handleEditWarehouse(warehouse)}
+                                title="Editar"
+                              >
+                                <Pencil className="h-4 w-4 text-blue-500" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => handleToggleWarehouseStatus(warehouse)}
+                                title={warehouse.isActive ? "Inativar" : "Ativar"}
+                              >
+                                <Power className={`h-4 w-4 ${warehouse.isActive ? "text-red-500" : "text-green-500"}`} />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -444,43 +512,57 @@ const Warehouses = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Gerente Responsável</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome do gerente" {...field} />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um gerente" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {mockUsers.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="totalArea"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Área Total (m²)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min="0" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="totalCapacity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Capacidade Total (unidades)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min="0" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          type="button"
+                          variant={field.value ? "default" : "outline"}
+                          size="sm"
+                          className={field.value ? "bg-green-600" : ""}
+                          onClick={() => field.onChange(true)}
+                        >
+                          <Check className="mr-2 h-4 w-4" />
+                          Ativo
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={!field.value ? "default" : "outline"}
+                          size="sm"
+                          className={!field.value ? "bg-gray-500" : ""}
+                          onClick={() => field.onChange(false)}
+                        >
+                          <XIcon className="mr-2 h-4 w-4" />
+                          Inativo
+                        </Button>
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
               
               <div className="flex justify-end space-x-2 pt-4">
                 <Button 
@@ -498,6 +580,27 @@ const Warehouses = () => {
           </Form>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={openStatusDialog} onOpenChange={setOpenStatusDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {warehouseToToggle?.isActive ? 'Inativar Armazém' : 'Ativar Armazém'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {warehouseToToggle?.isActive
+                ? `Tem certeza que deseja inativar o armazém "${warehouseToToggle?.name}"?`
+                : `Tem certeza que deseja ativar o armazém "${warehouseToToggle?.name}"?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmToggleStatus}>
+              {warehouseToToggle?.isActive ? 'Inativar' : 'Ativar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AuthRequired>
   );
 };

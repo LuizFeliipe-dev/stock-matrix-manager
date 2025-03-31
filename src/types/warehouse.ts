@@ -13,6 +13,10 @@ export interface Rack {
   name: string;
   description?: string;
   corridorId: string;
+  shelfTypeId?: string;
+  zoneId?: string;
+  verticalShelves?: number;
+  horizontalShelves?: number;
 }
 
 export interface Corridor {
@@ -31,4 +35,20 @@ export interface BalanceSummary {
   outputValue: number;
   month: string;
   year: number;
+}
+
+export interface ShelfType {
+  id: string;
+  name: string;
+  height: number;
+  width: number;
+  depth: number;
+  maxWeight: number;
+  isStackable: boolean;
+}
+
+export interface Zone {
+  id: string;
+  name: string;
+  rackIds: string[];
 }

@@ -10,6 +10,10 @@ const initialRacks: Rack[] = [
     name: 'Prateleira A',
     description: 'Prateleira para produtos eletrônicos',
     corridorId: '1',
+    shelfTypeId: '1',
+    zoneId: '1',
+    verticalShelves: 3,
+    horizontalShelves: 5,
   },
   {
     id: 2,
@@ -17,6 +21,10 @@ const initialRacks: Rack[] = [
     name: 'Prateleira B',
     description: 'Prateleira para produtos alimentícios',
     corridorId: '1',
+    shelfTypeId: '2',
+    zoneId: '1',
+    verticalShelves: 2,
+    horizontalShelves: 4,
   },
   {
     id: 3,
@@ -24,6 +32,10 @@ const initialRacks: Rack[] = [
     name: 'Prateleira C',
     description: 'Prateleira para produtos de higiene',
     corridorId: '2',
+    shelfTypeId: '3',
+    zoneId: '2',
+    verticalShelves: 4,
+    horizontalShelves: 3,
   },
   {
     id: 4,
@@ -31,6 +43,10 @@ const initialRacks: Rack[] = [
     name: 'Prateleira D',
     description: 'Prateleira para produtos de limpeza',
     corridorId: '2',
+    shelfTypeId: '1',
+    zoneId: '2',
+    verticalShelves: 2,
+    horizontalShelves: 6,
   },
   {
     id: 5,
@@ -38,6 +54,10 @@ const initialRacks: Rack[] = [
     name: 'Prateleira E',
     description: 'Prateleira para produtos diversos',
     corridorId: '3',
+    shelfTypeId: '2',
+    zoneId: '3',
+    verticalShelves: 3,
+    horizontalShelves: 4,
   },
 ];
 
