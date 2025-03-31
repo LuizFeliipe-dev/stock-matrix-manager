@@ -91,7 +91,7 @@ const CorridorsPage = () => {
                       </TableRow>
                     ) : (
                       filteredCorridors.map((corridor) => (
-                        <TableRow key={corridor.id}>
+                        <TableRow key={corridor.id} className="hover:bg-gray-50 transition-colors">
                           <TableCell className="font-medium">{corridor.code}</TableCell>
                           <TableCell>{corridor.name}</TableCell>
                           {!isMobile && <TableCell>{corridor.description}</TableCell>}
@@ -99,16 +99,16 @@ const CorridorsPage = () => {
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               <Button 
-                                variant="icon" 
-                                className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                variant="ghost" 
+                                size="icon"
                                 title="Editar"
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
                               <Button
-                                variant="icon"
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => handleDelete(corridor.id)}
-                                className="text-red-500 hover:text-red-600 hover:bg-red-50"
                                 title="Excluir"
                               >
                                 <Trash2 className="h-4 w-4" />

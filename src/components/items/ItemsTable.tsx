@@ -58,7 +58,7 @@ const ItemsTable = ({
               </TableRow>
             ) : (
               items.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow key={item.id} className="hover:bg-gray-50 transition-colors">
                   <TableCell className="font-medium">{item.code}</TableCell>
                   <TableCell className="max-w-[200px] truncate">
                     {item.name}
@@ -83,18 +83,18 @@ const ItemsTable = ({
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button
-                        variant="icon"
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
                         onClick={() => onEdit(item)}
-                        className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
                         title="Editar"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="icon"
+                        variant="ghost" 
+                        size="icon"
                         onClick={() => onToggleStatus(item)}
-                        className="text-amber-500 hover:text-amber-600 hover:bg-amber-50"
                         title={item.active ? "Desativar" : "Ativar"}
                       >
                         <ToggleLeft className="h-4 w-4" />
