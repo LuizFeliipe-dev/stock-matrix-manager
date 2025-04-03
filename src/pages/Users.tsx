@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -16,7 +17,8 @@ import {
   Search, 
   UserPlus, 
   Shield, 
-  X 
+  X,
+  KeyRound
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,7 +33,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserPermission, UserPermissionModule, UserPermissionAction, UserPermissionOption } from '../types/auth';
+import { UserPermission } from '../types/auth';
+import UserPermissionsModal, { UserPermission as UserPermissionItem } from '../components/users/UserPermissionsModal';
 
 interface UserData {
   id: string;
@@ -41,6 +44,7 @@ interface UserData {
   department: string;
   permission: string;
   lastAccess: string;
+  permissions?: UserPermissionItem[];
 }
 
 const mockUsers: UserData[] = [
@@ -51,7 +55,13 @@ const mockUsers: UserData[] = [
     role: 'Operador',
     department: 'Logística',
     permission: 'initial',
-    lastAccess: '2023-08-15 14:30' 
+    lastAccess: '2023-08-15 14:30',
+    permissions: [
+      { module: 'USUARIO', read: true, write: false },
+      { module: 'ARMAZEM', read: true, write: false },
+      { module: 'INVENTARIO', read: true, write: false },
+      { module: 'RELATORIO', read: true, write: false }
+    ]
   },
   { 
     id: '2', 
@@ -60,7 +70,13 @@ const mockUsers: UserData[] = [
     role: 'Supervisor',
     department: 'Operações',
     permission: 'second',
-    lastAccess: '2023-08-16 09:45' 
+    lastAccess: '2023-08-16 09:45',
+    permissions: [
+      { module: 'USUARIO', read: true, write: true },
+      { module: 'ARMAZEM', read: true, write: true },
+      { module: 'INVENTARIO', read: true, write: false },
+      { module: 'RELATORIO', read: true, write: false }
+    ]
   },
   { 
     id: '3', 
@@ -69,7 +85,13 @@ const mockUsers: UserData[] = [
     role: 'Administrador',
     department: 'Diretoria',
     permission: 'manager',
-    lastAccess: '2023-08-16 11:20' 
+    lastAccess: '2023-08-16 11:20',
+    permissions: [
+      { module: 'USUARIO', read: true, write: true },
+      { module: 'ARMAZEM', read: true, write: true },
+      { module: 'INVENTARIO', read: true, write: true },
+      { module: 'RELATORIO', read: true, write: true }
+    ]
   },
   { 
     id: '4', 
@@ -78,7 +100,13 @@ const mockUsers: UserData[] = [
     role: 'Operador',
     department: 'Estoque',
     permission: 'initial',
-    lastAccess: '2023-08-14 16:05' 
+    lastAccess: '2023-08-14 16:05',
+    permissions: [
+      { module: 'USUARIO', read: false, write: false },
+      { module: 'ARMAZEM', read: true, write: false },
+      { module: 'INVENTARIO', read: true, write: false },
+      { module: 'RELATORIO', read: true, write: false }
+    ]
   },
   { 
     id: '5', 
@@ -87,23 +115,14 @@ const mockUsers: UserData[] = [
     role: 'Supervisor',
     department: 'Expedição',
     permission: 'second',
-    lastAccess: '2023-08-15 10:30' 
+    lastAccess: '2023-08-15 10:30',
+    permissions: [
+      { module: 'USUARIO', read: true, write: false },
+      { module: 'ARMAZEM', read: true, write: true },
+      { module: 'INVENTARIO', read: true, write: true },
+      { module: 'RELATORIO', read: true, write: false }
+    ]
   },
-];
-
-const permissionOptions: UserPermissionOption[] = [
-  { module: 'USUARIO', action: 'Leitura', value: 'initial' },
-  { module: 'USUARIO', action: 'Escrita', value: 'second' },
-  { module: 'USUARIO', action: 'Administrador', value: 'manager' },
-  { module: 'ARMAZEM', action: 'Leitura', value: 'initial' },
-  { module: 'ARMAZEM', action: 'Escrita', value: 'second' },
-  { module: 'ARMAZEM', action: 'Administrador', value: 'manager' },
-  { module: 'INVENTARIO', action: 'Leitura', value: 'initial' },
-  { module: 'INVENTARIO', action: 'Escrita', value: 'second' },
-  { module: 'INVENTARIO', action: 'Administrador', value: 'manager' },
-  { module: 'RELATORIO', action: 'Leitura', value: 'initial' },
-  { module: 'RELATORIO', action: 'Escrita', value: 'second' },
-  { module: 'RELATORIO', action: 'Administrador', value: 'manager' },
 ];
 
 const userFormSchema = z.object({
@@ -123,6 +142,8 @@ const Users = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingUser, setEditingUser] = useState<(UserFormValues & { id: string }) | null>(null);
+  const [permissionsModalOpen, setPermissionsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
@@ -176,6 +197,30 @@ const Users = () => {
     });
   };
 
+  const handleOpenPermissions = (user: UserData) => {
+    setSelectedUser(user);
+    setPermissionsModalOpen(true);
+  };
+
+  const handleSavePermissions = (permissions: UserPermissionItem[]) => {
+    if (selectedUser) {
+      setUsers(users.map(user => {
+        if (user.id === selectedUser.id) {
+          return {
+            ...user,
+            permissions
+          };
+        }
+        return user;
+      }));
+      
+      toast({
+        title: "Permissões atualizadas",
+        description: "As permissões do usuário foram atualizadas com sucesso",
+      });
+    }
+  };
+
   const onSubmit = (data: UserFormValues) => {
     if (editingUser) {
       setUsers(users.map(user => {
@@ -203,7 +248,13 @@ const Users = () => {
         role: data.role,
         department: data.department,
         permission: data.permission,
-        lastAccess: 'Nunca acessou'
+        lastAccess: 'Nunca acessou',
+        permissions: [
+          { module: 'USUARIO', read: false, write: false },
+          { module: 'ARMAZEM', read: false, write: false },
+          { module: 'INVENTARIO', read: false, write: false },
+          { module: 'RELATORIO', read: false, write: false }
+        ]
       };
       setUsers([...users, newUser]);
       toast({
@@ -220,32 +271,6 @@ const Users = () => {
     user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.department.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getPermissionOptionText = (value: UserPermission): string => {
-    const option = permissionOptions.find(opt => opt.value === value);
-    if (option) {
-      return `${option.module} - ${option.action}`;
-    }
-    return 'Desconhecido';
-  };
-
-  const getPermissionName = (value: string): string => {
-    const option = permissionOptions.find(opt => opt.value === value);
-    if (option) {
-      return `${option.module} - ${option.action}`;
-    }
-    
-    switch (value) {
-      case 'initial':
-        return 'Básico (Visualização)';
-      case 'second':
-        return 'Intermediário (Edição)';
-      case 'manager':
-        return 'Administrador (Total)';
-      default:
-        return 'Desconhecido';
-    }
-  };
 
   return (
     <AuthRequired>
@@ -345,6 +370,14 @@ const Users = () => {
                               <Button 
                                 variant="ghost" 
                                 size="icon"
+                                onClick={() => handleOpenPermissions(user)}
+                                title="Gerenciar permissões"
+                              >
+                                <KeyRound className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
                                 onClick={() => handleDeleteUser(user.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -373,6 +406,7 @@ const Users = () => {
         </ResponsiveContainer>
       </div>
 
+      {/* User Form Dialog */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -477,11 +511,9 @@ const Users = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {permissionOptions.map((option, index) => (
-                          <SelectItem key={index} value={option.value}>
-                            {`${option.module} - ${option.action}`}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="initial">Básico (Visualização)</SelectItem>
+                        <SelectItem value="second">Intermediário (Edição)</SelectItem>
+                        <SelectItem value="manager">Administrador (Total)</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -499,6 +531,17 @@ const Users = () => {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Permissions Modal */}
+      {selectedUser && (
+        <UserPermissionsModal
+          open={permissionsModalOpen}
+          onOpenChange={setPermissionsModalOpen}
+          userName={selectedUser.name}
+          initialPermissions={selectedUser.permissions}
+          onSave={handleSavePermissions}
+        />
+      )}
     </AuthRequired>
   );
 };

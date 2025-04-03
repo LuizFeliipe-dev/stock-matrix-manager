@@ -27,7 +27,6 @@ import RacksPage from "./pages/Racks";
 import BalancePage from "./pages/Balance";
 import ShelfTypes from "./pages/ShelfTypes";
 import Zones from "./pages/Zones";
-import Permissions from "./pages/Permissions";
 
 // Create proper pages for Entry, Inventory, and Location View
 const EntryPage = () => (
@@ -134,7 +133,6 @@ const App = () => {
                 <Route path="/balance" element={<BalancePage />} />
                 <Route path="/shelf-types" element={<ShelfTypes />} />
                 <Route path="/zones" element={<Zones />} />
-                <Route path="/permissions" element={<Permissions />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AnimatePresence>
