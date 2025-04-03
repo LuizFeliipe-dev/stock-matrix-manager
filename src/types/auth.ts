@@ -16,3 +16,9 @@ export interface User {
   email: string;
   permission: UserPermission;
 }
+
+export interface PermissionData {
+  module: UserPermissionModule;
+  read: boolean;
+  write: boolean;
+}

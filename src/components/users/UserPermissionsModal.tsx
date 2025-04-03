@@ -4,20 +4,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { UserPermissionModule, UserPermissionAction } from "@/types/auth";
-
-export interface UserPermission {
-  module: UserPermissionModule;
-  read: boolean;
-  write: boolean;
-}
+import { UserPermissionModule, PermissionData } from "@/types/auth";
 
 interface UserPermissionsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userName: string;
-  initialPermissions?: UserPermission[];
-  onSave: (permissions: UserPermission[]) => void;
+  initialPermissions?: PermissionData[];
+  onSave: (permissions: PermissionData[]) => void;
 }
 
 const defaultModules: UserPermissionModule[] = [
@@ -34,7 +28,7 @@ const UserPermissionsModal = ({
   initialPermissions,
   onSave
 }: UserPermissionsModalProps) => {
-  const [permissions, setPermissions] = useState<UserPermission[]>([]);
+  const [permissions, setPermissions] = useState<PermissionData[]>([]);
 
   useEffect(() => {
     if (open) {

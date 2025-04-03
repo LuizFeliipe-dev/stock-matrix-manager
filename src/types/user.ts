@@ -1,5 +1,5 @@
 
-import { UserPermission } from './auth';
+import { UserPermission, PermissionData } from './auth';
 
 export interface UserFormValues {
   name: string;
@@ -17,9 +17,5 @@ export interface UserData {
   department: string;
   permission: string;
   lastAccess: string;
-  permissions?: {
-    module: string;
-    read: boolean;
-    write: boolean;
-  }[];
+  permissions?: PermissionData[];
 }

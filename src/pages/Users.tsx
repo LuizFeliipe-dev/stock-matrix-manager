@@ -6,14 +6,14 @@ import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { UserData, UserFormValues } from '@/types/user';
-import { UserPermission } from '@/types/auth';
+import { UserPermission, PermissionData } from '@/types/auth';
 
 // Components
 import UserHeader from '@/components/users/UserHeader';
 import UserSearch from '@/components/users/UserSearch';
 import UserTable from '@/components/users/UserTable';
 import UserFormDialog from '@/components/users/UserFormDialog';
-import UserPermissionsModal, { UserPermission as UserPermissionItem } from '@/components/users/UserPermissionsModal';
+import UserPermissionsModal from '@/components/users/UserPermissionsModal';
 
 // Mock data
 const mockUsers: UserData[] = [
@@ -133,7 +133,7 @@ const Users = () => {
     setPermissionsModalOpen(true);
   };
 
-  const handleSavePermissions = (permissions: UserPermissionItem[]) => {
+  const handleSavePermissions = (permissions: PermissionData[]) => {
     if (selectedUser) {
       setUsers(users.map(user => {
         if (user.id === selectedUser.id) {
