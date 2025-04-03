@@ -1,6 +1,5 @@
 
 import { UserPermission } from './auth';
-import { UserPermissionItem } from '@/components/users/UserPermissionsModal';
 
 export interface UserFormValues {
   name: string;
@@ -18,5 +17,9 @@ export interface UserData {
   department: string;
   permission: string;
   lastAccess: string;
-  permissions?: UserPermissionItem[];
+  permissions?: {
+    module: string;
+    read: boolean;
+    write: boolean;
+  }[];
 }
