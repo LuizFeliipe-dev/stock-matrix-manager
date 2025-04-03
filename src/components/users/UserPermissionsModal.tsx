@@ -118,7 +118,6 @@ const UserPermissionsModal = ({
                     id={`write-${permission.module}`}
                     checked={permission.write}
                     onCheckedChange={(checked) => handleWriteChange(index, checked as boolean)}
-                    disabled={!permission.read}
                   />
                 </div>
               </div>
