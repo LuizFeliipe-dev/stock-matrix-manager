@@ -1,10 +1,10 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { UserPermissionModule, PermissionData } from "@/types/auth";
+import PermissionsTable from "./permissions/PermissionsTable";
 
 interface UserPermissionsModalProps {
   open: boolean;
@@ -28,51 +28,14 @@ const UserPermissionsModal = ({
   initialPermissions,
   onSave
 }: UserPermissionsModalProps) => {
-  const [permissions, setPermissions] = useState<PermissionData[]>([]);
+  const [currentPermissions, setCurrentPermissions] = useState<PermissionData[]>([]);
 
-  useEffect(() => {
-    if (open) {
-      // Initialize permissions with defaults or provided data
-      if (initialPermissions && initialPermissions.length > 0) {
-        setPermissions(initialPermissions);
-      } else {
-        setPermissions(defaultModules.map(module => ({
-          module,
-          read: false,
-          write: false
-        })));
-      }
-    }
-  }, [open, initialPermissions]);
-
-  const handleReadChange = (moduleIndex: number, checked: boolean) => {
-    setPermissions(prev => {
-      const updated = [...prev];
-      updated[moduleIndex] = {
-        ...updated[moduleIndex],
-        read: checked,
-        // If read is unchecked, write must also be unchecked
-        write: checked ? updated[moduleIndex].write : false
-      };
-      return updated;
-    });
-  };
-
-  const handleWriteChange = (moduleIndex: number, checked: boolean) => {
-    setPermissions(prev => {
-      const updated = [...prev];
-      updated[moduleIndex] = {
-        ...updated[moduleIndex],
-        // If write is checked, read must also be checked
-        read: checked ? true : updated[moduleIndex].read,
-        write: checked
-      };
-      return updated;
-    });
+  const handlePermissionsChange = (permissions: PermissionData[]) => {
+    setCurrentPermissions(permissions);
   };
 
   const handleSave = () => {
-    onSave(permissions);
+    onSave(currentPermissions);
     onOpenChange(false);
   };
 
@@ -89,35 +52,11 @@ const UserPermissionsModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-4">
-          <div className="grid grid-cols-3 font-medium text-sm mb-2 px-4 py-2 bg-gray-50 rounded-lg">
-            <div>Módulo</div>
-            <div className="text-center">Leitura</div>
-            <div className="text-center">Escrita</div>
-          </div>
-
-          <div className="space-y-3 mt-3">
-            {permissions.map((permission, index) => (
-              <div key={permission.module} className="grid grid-cols-3 items-center px-4 py-3 border rounded-md">
-                <div className="font-medium">{permission.module}</div>
-                <div className="flex justify-center">
-                  <Checkbox 
-                    id={`read-${permission.module}`}
-                    checked={permission.read}
-                    onCheckedChange={(checked) => handleReadChange(index, checked as boolean)}
-                  />
-                </div>
-                <div className="flex justify-center">
-                  <Checkbox 
-                    id={`write-${permission.module}`}
-                    checked={permission.write}
-                    onCheckedChange={(checked) => handleWriteChange(index, checked as boolean)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <PermissionsTable
+          initialPermissions={initialPermissions}
+          defaultModules={defaultModules}
+          onChange={handlePermissionsChange}
+        />
 
         <DialogFooter className="mt-6">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
