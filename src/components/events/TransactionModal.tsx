@@ -1,10 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useLocations } from '@/hooks/useLocations';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -17,6 +19,27 @@ const TransactionModal = ({ isOpen, onClose, orderNumber }: TransactionModalProp
   const [sourceShelf, setSourceShelf] = useState('');
   const [destinationShelf, setDestinationShelf] = useState('');
   const { toast } = useToast();
+  const { locations } = useLocations();
+
+  // Filtra prateleiras para não mostrar a selecionada como origem nas opções de destino
+  const availableDestinationShelves = locations.filter(loc => loc.id.toString() !== sourceShelf);
+  
+  // Filtra prateleiras para não mostrar a selecionada como destino nas opções de origem
+  const availableSourceShelves = locations.filter(loc => loc.id.toString() !== destinationShelf);
+  
+  // Reset destination shelf if it matches the selected source shelf
+  useEffect(() => {
+    if (sourceShelf && sourceShelf === destinationShelf) {
+      setDestinationShelf('');
+    }
+  }, [sourceShelf]);
+
+  // Reset source shelf if it matches the selected destination shelf
+  useEffect(() => {
+    if (destinationShelf && sourceShelf === destinationShelf) {
+      setSourceShelf('');
+    }
+  }, [destinationShelf]);
 
   const handleSubmit = () => {
     // Validação básica
@@ -61,22 +84,40 @@ const TransactionModal = ({ isOpen, onClose, orderNumber }: TransactionModalProp
 
           <div className="space-y-2">
             <Label htmlFor="source-shelf">Prateleira de Origem *</Label>
-            <Input
-              id="source-shelf"
+            <Select
               value={sourceShelf}
-              onChange={(e) => setSourceShelf(e.target.value)}
-              placeholder="Digite o ID da prateleira de origem"
-            />
+              onValueChange={setSourceShelf}
+            >
+              <SelectTrigger id="source-shelf">
+                <SelectValue placeholder="Selecione a prateleira de origem" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableSourceShelves.map((location) => (
+                  <SelectItem key={location.id} value={location.id.toString()}>
+                    {location.code} - {location.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="destination-shelf">Prateleira de Destino *</Label>
-            <Input
-              id="destination-shelf"
+            <Select
               value={destinationShelf}
-              onChange={(e) => setDestinationShelf(e.target.value)}
-              placeholder="Digite o ID da prateleira de destino"
-            />
+              onValueChange={setDestinationShelf}
+            >
+              <SelectTrigger id="destination-shelf">
+                <SelectValue placeholder="Selecione a prateleira de destino" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableDestinationShelves.map((location) => (
+                  <SelectItem key={location.id} value={location.id.toString()}>
+                    {location.code} - {location.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

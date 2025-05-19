@@ -1,11 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { suppliers } from '@/hooks/useItems';
+import { suppliers, useItems } from '@/hooks/useItems';
+import { useLocations } from '@/hooks/useLocations';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Minus, Trash2 } from 'lucide-react';
 
@@ -22,6 +23,7 @@ interface ProductItem {
   length: number;
   maxStack: number;
   packageType: PackageType;
+  shelfId: string;
 }
 
 interface EntryModalProps {
@@ -42,10 +44,13 @@ const EntryModal = ({ isOpen, onClose, orderNumber }: EntryModalProps) => {
       height: 0,
       length: 0,
       maxStack: 1,
-      packageType: 'Box'
+      packageType: 'Box',
+      shelfId: ''
     }
   ]);
   const { toast } = useToast();
+  const { items } = useItems();
+  const { locations } = useLocations();
 
   const handleAddProduct = () => {
     setProducts([
@@ -58,7 +63,8 @@ const EntryModal = ({ isOpen, onClose, orderNumber }: EntryModalProps) => {
         height: 0,
         length: 0,
         maxStack: 1,
-        packageType: 'Box'
+        packageType: 'Box',
+        shelfId: ''
       }
     ]);
   };
@@ -91,7 +97,8 @@ const EntryModal = ({ isOpen, onClose, orderNumber }: EntryModalProps) => {
     const isValid = products.every(product => 
       product.itemId && product.quantity > 0 && 
       product.width > 0 && product.height > 0 && 
-      product.length > 0 && product.maxStack > 0
+      product.length > 0 && product.maxStack > 0 &&
+      product.shelfId
     );
 
     if (!isValid) {
@@ -187,13 +194,22 @@ const EntryModal = ({ isOpen, onClose, orderNumber }: EntryModalProps) => {
                 </div>
                 
                 <div className="space-y-1">
-                  <Label htmlFor={`product-${product.id}-id`}>ID do Item *</Label>
-                  <Input
-                    id={`product-${product.id}-id`}
-                    placeholder="ID do item"
-                    value={product.itemId}
-                    onChange={(e) => handleProductChange(product.id, 'itemId', e.target.value)}
-                  />
+                  <Label htmlFor={`product-${product.id}-id`}>Item *</Label>
+                  <Select 
+                    value={product.itemId} 
+                    onValueChange={(value) => handleProductChange(product.id, 'itemId', value)}
+                  >
+                    <SelectTrigger id={`product-${product.id}-id`}>
+                      <SelectValue placeholder="Selecione um item" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {items.map((item) => (
+                        <SelectItem key={item.id} value={item.id.toString()}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 <div className="space-y-1">
@@ -264,6 +280,29 @@ const EntryModal = ({ isOpen, onClose, orderNumber }: EntryModalProps) => {
                 </div>
                 
                 <div className="space-y-1">
+                  <Label htmlFor={`product-${product.id}-shelf`}>Prateleira *</Label>
+                  <Select 
+                    value={product.shelfId} 
+                    onValueChange={(value) => handleProductChange(
+                      product.id, 
+                      'shelfId', 
+                      value
+                    )}
+                  >
+                    <SelectTrigger id={`product-${product.id}-shelf`}>
+                      <SelectValue placeholder="Selecione uma prateleira" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {locations.map((location) => (
+                        <SelectItem key={location.id} value={location.id.toString()}>
+                          {location.code} - {location.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1">
                   <Label htmlFor={`product-${product.id}-stack`}>Empilhamento Máx *</Label>
                   <Input
                     id={`product-${product.id}-stack`}
@@ -278,7 +317,7 @@ const EntryModal = ({ isOpen, onClose, orderNumber }: EntryModalProps) => {
                   />
                 </div>
                 
-                <div className="md:col-span-4 grid grid-cols-3 gap-3">
+                <div className="md:col-span-3 grid grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <Label htmlFor={`product-${product.id}-width`}>Largura (cm) *</Label>
                     <Input
