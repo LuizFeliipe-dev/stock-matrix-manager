@@ -18,7 +18,7 @@ import Warehouses from "./pages/Warehouses";
 import Groups from "./pages/Groups";
 import Events from "./pages/Events";
 import NotFound from "./pages/NotFound";
-import DepartureSection from "./components/events/DepartureSection";
+import TransactionSection from "./components/events/TransactionSection";
 import EntrySection from "./components/events/EntrySection";
 import InventorySection from "./components/events/InventorySection";
 import Stats3DView from "./components/Stats3DView";
@@ -61,7 +61,7 @@ const InventoryPage = () => (
   </div>
 );
 
-const DeparturePage = () => (
+const TransactionPage = () => (
   <div className="min-h-screen flex">
     <Sidebar />
     <main className="flex-1 ml-64 p-8">
@@ -70,8 +70,8 @@ const DeparturePage = () => (
         animate={{ opacity: 1, y: 0 }}
         className="page-transition"
       >
-        <h1 className="text-2xl font-bold mb-6">Saída de Produtos</h1>
-        <DepartureSection />
+        <h1 className="text-2xl font-bold mb-6">Transação de Produtos</h1>
+        <TransactionSection />
       </motion.div>
     </main>
   </div>
@@ -126,7 +126,7 @@ const App = () => {
                 <Route path="/events" element={<Events />} />
                 <Route path="/entry" element={<EntryPage />} />
                 <Route path="/inventory" element={<InventoryPage />} />
-                <Route path="/departure" element={<DeparturePage />} />
+                <Route path="/transaction" element={<TransactionPage />} />
                 <Route path="/tasks" element={<TasksPage />} />
                 <Route path="/statistics" element={<StatisticsPage />} />
                 <Route path="/location-view" element={<LocationViewPage />} />

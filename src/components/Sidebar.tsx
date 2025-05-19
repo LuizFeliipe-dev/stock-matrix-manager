@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
@@ -24,7 +23,8 @@ import {
   Layers,
   LayoutGrid,
   Target,
-  Ruler
+  Ruler,
+  ArrowLeftRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -179,7 +179,7 @@ const Sidebar = ({ className }: SidebarProps) => {
             <SidebarGroup title="Eventos">
               <SidebarItem icon={ArrowRightToLine} title="Entrada" to="/entry" />
               <SidebarItem icon={Clipboard} title="Inventário" to="/inventory" />
-              <SidebarItem icon={Box} title="Saída" to="/departure" />
+              <SidebarItem icon={ArrowLeftRight} title="Transação" to="/transaction" />
             </SidebarGroup>
             
             <SidebarGroup title="Exibições">
