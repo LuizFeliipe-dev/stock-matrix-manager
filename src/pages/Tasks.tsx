@@ -112,18 +112,8 @@ const Tasks = () => {
                   </div>
                   
                   <div className="space-y-1">
-                    <Label>Data</Label>
-                    <div className="font-medium">{selectedEntry.date}</div>
-                  </div>
-                  
-                  <div className="space-y-1">
                     <Label>Itens</Label>
                     <div className="font-medium">{selectedEntry.items}</div>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <Label>Prioridade</Label>
-                    <div className="font-medium">{selectedEntry.priority}</div>
                   </div>
                   
                   <div className="space-y-2">
