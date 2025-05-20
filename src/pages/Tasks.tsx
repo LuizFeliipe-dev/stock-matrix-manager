@@ -43,6 +43,12 @@ const Tasks = () => {
     }
   };
 
+  // Create a handler that explicitly handles the type conversion
+  const handleStatusChange = (value: string) => {
+    // Explicitly cast the value to the Entry['status'] type
+    setSelectedStatus(value as Entry['status']);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Sidebar />
@@ -120,7 +126,7 @@ const Tasks = () => {
                 <Label htmlFor="status">Status</Label>
                 <Select 
                   value={selectedStatus} 
-                  onValueChange={setSelectedStatus}
+                  onValueChange={handleStatusChange}
                 >
                   <SelectTrigger id="status">
                     <SelectValue placeholder="Selecione um status" />
