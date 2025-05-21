@@ -10,6 +10,7 @@ import Sidebar from "./components/Sidebar";
 
 // Pages
 import Login from "./pages/Login";
+import Auth from "./pages/auth";
 import Dashboard from "./pages/Dashboard";
 import Items from "./pages/Items";
 import Users from "./pages/Users";
@@ -115,6 +116,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/items" element={<Items />} />
                 <Route path="/suppliers" element={<Suppliers />} />
