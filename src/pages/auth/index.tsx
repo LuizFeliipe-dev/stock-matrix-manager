@@ -14,8 +14,8 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get the return URL from location state or default to '/'
-  const from = location.state?.from?.pathname || '/';
+  // Get the return URL from location state or default to '/dashboard'
+  const from = location.state?.from?.pathname || '/dashboard';
   
   useEffect(() => {
     // If already authenticated, redirect to the from page
