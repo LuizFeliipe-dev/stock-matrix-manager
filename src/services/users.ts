@@ -1,5 +1,5 @@
 
-import { User } from '../lib/auth';
+import { UserData } from '@/types/user';
 
 const API_BASE_URL = 'https://33kg2j8r-3000.brs.devtunnels.ms';
 
@@ -11,7 +11,7 @@ const getAuthHeader = () => {
 
 export const userService = {
   // Get all users
-  getAll: async (): Promise<User[]> => {
+  getAll: async (): Promise<UserData[]> => {
     try {
       const response = await fetch(`${API_BASE_URL}/user`, {
         headers: {
@@ -33,7 +33,7 @@ export const userService = {
   },
 
   // Get user by ID
-  getById: async (id: string): Promise<User> => {
+  getById: async (id: string): Promise<UserData> => {
     try {
       const response = await fetch(`${API_BASE_URL}/user/${id}`, {
         headers: {
@@ -55,7 +55,7 @@ export const userService = {
   },
 
   // Create new user
-  create: async (userData: Partial<User>): Promise<User> => {
+  create: async (userData: Partial<UserData>): Promise<UserData> => {
     try {
       const response = await fetch(`${API_BASE_URL}/user`, {
         method: 'POST',
@@ -79,7 +79,7 @@ export const userService = {
   },
 
   // Update user
-  update: async (id: string, userData: Partial<User>): Promise<User> => {
+  update: async (id: string, userData: Partial<UserData>): Promise<UserData> => {
     try {
       const response = await fetch(`${API_BASE_URL}/user/${id}`, {
         method: 'PUT',

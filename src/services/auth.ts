@@ -1,6 +1,8 @@
 
 const API_BASE_URL = 'https://33kg2j8r-3000.brs.devtunnels.ms';
 
+import { User } from '../types/auth';
+
 interface LoginResponse {
   user: User;
   token: string;
