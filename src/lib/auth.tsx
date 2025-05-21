@@ -98,14 +98,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = async () => {
-    try {
-      await authService.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setUser(null);
-    }
+  const logout = () => {
+    authService.logout();
+    setUser(null);
+    // No navegating here, this should be handled in the UI components
   };
 
   const hasPermission = (requiredPermission: UserPermission): boolean => {

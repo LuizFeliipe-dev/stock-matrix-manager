@@ -1,6 +1,4 @@
 
-import { User } from '../lib/auth';
-
 const API_BASE_URL = 'https://33kg2j8r-3000.brs.devtunnels.ms';
 
 interface LoginResponse {
@@ -36,24 +34,8 @@ export const authService = {
     }
   },
 
-  logout: async (): Promise<void> => {
-    try {
-      const token = localStorage.getItem('malldre_token');
-      
-      if (token) {
-        await fetch(`${API_BASE_URL}/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      }
-      
-      localStorage.removeItem('malldre_token');
-      localStorage.removeItem('malldre_user');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  logout: (): void => {
+    localStorage.removeItem('malldre_token');
+    localStorage.removeItem('malldre_user');
   },
 };
