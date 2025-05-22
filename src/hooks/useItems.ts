@@ -90,7 +90,6 @@ export const useItems = () => {
 
   const handleEditItem = (item: Item) => {
     const itemForm: ItemFormValues = {
-      id: item.id,
       code: item.code,
       name: item.name,
       description: item.description || '',
@@ -102,7 +101,8 @@ export const useItems = () => {
       active: item.active,
     };
     
-    setEditingItem(itemForm);
+    // Store the item ID separately to use during update
+    setEditingItem({ ...itemForm, id: item.id });
     setOpenDialog(true);
   };
 
@@ -140,7 +140,7 @@ export const useItems = () => {
             group: data.group,
             supplier: data.supplier,
             minStock: data.minStock,
-            stock: data.stock,
+            stock: data.stock || 0, // Ensure stock is provided
             price: data.price,
             active: data.active,
           });
@@ -154,7 +154,7 @@ export const useItems = () => {
         } else {
           // Create new item
           // Include all required fields for the Item type
-          const newItemData: Omit<Item, 'id'> = {
+          const newItemData = {
             code: data.code,
             name: data.name,
             description: data.description,
