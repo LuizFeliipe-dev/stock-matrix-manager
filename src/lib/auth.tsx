@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { authService } from '../services/auth';
 
@@ -52,13 +53,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // Check if user and token are stored in localStorage
-    const storedUser = localStorage.getItem('malldre_user');
-    const token = localStorage.getItem('malldre_token');
-    
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+    try {
+      const storedUser = localStorage.getItem('malldre_user');
+      const token = localStorage.getItem('malldre_token');
+      
+      if (storedUser && token) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error('Error parsing stored user data:', error);
+      // Limpa os dados inválidos
+      localStorage.removeItem('malldre_user');
+      localStorage.removeItem('malldre_token');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {

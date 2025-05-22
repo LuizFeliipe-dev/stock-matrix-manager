@@ -25,11 +25,28 @@ export const authService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha na autenticação');
+        // Verifica se a resposta contém dados JSON antes de tentar analisá-la
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Falha na autenticação');
+        } else {
+          throw new Error(`Falha na autenticação: ${response.status}`);
+        }
+      }
+
+      // Verifica se a resposta contém dados JSON antes de tentar analisá-la
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Resposta inválida do servidor');
       }
 
       const data = await response.json();
+
+      // Verifica se os dados necessários existem na resposta
+      if (!data.token || !data.user) {
+        throw new Error('Resposta incompleta do servidor');
+      }
 
       // Salvar token para uso em futuras requisições
       localStorage.setItem('malldre_token', data.token);

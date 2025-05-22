@@ -21,8 +21,18 @@ export const userService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha ao obter usuários');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Falha ao obter usuários');
+        } else {
+          throw new Error(`Falha ao obter usuários: ${response.status}`);
+        }
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return []; // Retorna uma lista vazia se a resposta não for JSON
       }
 
       return await response.json();
@@ -43,8 +53,13 @@ export const userService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha ao obter usuário');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Falha ao obter usuário');
+        } else {
+          throw new Error(`Falha ao obter usuário: ${response.status}`);
+        }
       }
 
       return await response.json();
@@ -67,8 +82,13 @@ export const userService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha ao criar usuário');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Falha ao criar usuário');
+        } else {
+          throw new Error(`Falha ao criar usuário: ${response.status}`);
+        }
       }
 
       return await response.json();
@@ -91,8 +111,13 @@ export const userService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha ao atualizar usuário');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Falha ao atualizar usuário');
+        } else {
+          throw new Error(`Falha ao atualizar usuário: ${response.status}`);
+        }
       }
 
       return await response.json();
