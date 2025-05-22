@@ -8,14 +8,11 @@ interface LoginResponse {
   token: string;
 }
 
-interface LoginRequest {
-  email: string;
-  password: string;
-}
-
 export const authService = {
   login: async (email: string, password: string): Promise<LoginResponse> => {
     try {
+      console.log('Login attempt with:', { email });
+      
       const response = await fetch(`${API_BASE_URL}/auth`, {
         method: 'POST',
         headers: {
@@ -24,51 +21,59 @@ export const authService = {
         body: JSON.stringify({ email, password }),
       });
 
-      // Log the status to help debug
       console.log('Login response status:', response.status);
-
-      if (!response.ok) {
-        // Verifica se a resposta contém dados JSON antes de tentar analisá-la
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Falha na autenticação');
-        } else {
-          throw new Error(`Falha na autenticação: ${response.status}`);
-        }
-      }
-
-      // Verifica se a resposta contém dados JSON antes de tentar analisá-la
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.error('Resposta não é do tipo JSON');
-        throw new Error('Resposta inválida do servidor');
-      }
-
-      // Log the raw response for debugging
-      const rawText = await response.text();
-      console.log('Raw response:', rawText);
       
-      // Attempt to parse the JSON after logging the raw text
+      // Get the response text first
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+      
+      // Try to parse as JSON if possible
       let data;
       try {
-        data = JSON.parse(rawText);
+        // Only try to parse if there's actual content
+        if (responseText && responseText.trim()) {
+          data = JSON.parse(responseText);
+        } else {
+          throw new Error('Empty response from server');
+        }
       } catch (parseError) {
         console.error('JSON parse error:', parseError);
-        throw new Error('Erro ao analisar resposta do servidor');
+        throw new Error('Erro ao processar resposta do servidor');
       }
-
-      // Verifica se os dados necessários existem na resposta
-      if (!data.token || !data.user) {
-        console.error('Dados incompletos:', data);
-        throw new Error('Resposta incompleta do servidor');
+      
+      // Check if response was not OK
+      if (!response.ok) {
+        const errorMessage = data?.message || `Falha na autenticação: ${response.status}`;
+        console.error('Authentication failed:', errorMessage);
+        throw new Error(errorMessage);
       }
-
-      // Salvar token para uso em futuras requisições
-      localStorage.setItem('malldre_token', data.token);
-      localStorage.setItem('malldre_user', JSON.stringify(data.user));
-
-      return data;
+      
+      // Validate the data structure
+      if (!data || !data.token) {
+        console.error('Invalid response structure:', data);
+        throw new Error('Resposta inválida do servidor (token ausente)');
+      }
+      
+      // Create user object from response
+      const userData = data.user || {};
+      
+      const result = {
+        token: data.token,
+        user: {
+          id: userData.id || '',
+          name: userData.name || 'Usuário',
+          email: email,
+          permission: userData.permission || 'initial'
+        }
+      };
+      
+      // Save token and user data
+      localStorage.setItem('malldre_token', result.token);
+      localStorage.setItem('malldre_user', JSON.stringify(result.user));
+      
+      console.log('Login successful:', { token: result.token, user: result.user });
+      
+      return result;
     } catch (error) {
       console.error('Login error:', error);
       throw error;

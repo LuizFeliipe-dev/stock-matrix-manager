@@ -5,6 +5,10 @@ import { useAuth } from '../../lib/auth';
 import { motion } from 'framer-motion';
 import { Box } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +18,7 @@ const Auth = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   
   // Get the return URL from location state or default to '/dashboard'
   const from = location.state?.from?.pathname || '/dashboard';
@@ -33,8 +38,11 @@ const Auth = () => {
     try {
       await login(email, password);
       console.log('Login successful, redirecting to:', from);
-      // Autenticação bem-sucedida, navegação acontecerá no useEffect
-      navigate(from, { replace: true });
+      toast({
+        title: "Login realizado com sucesso",
+        description: "Redirecionando para o dashboard...",
+      });
+      // Redirecionamento acontecerá no useEffect quando isAuthenticated mudar
     } catch (err) {
       console.error('Login failed:', err);
       setError(err instanceof Error ? err.message : 'Email ou senha inválidos');
@@ -81,52 +89,52 @@ const Auth = () => {
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div>
-                  <label
+                  <Label
                     htmlFor="email"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
                     Email
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                    className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                     placeholder="seu.email@exemplo.com"
                     required
                   />
                 </div>
 
                 <div>
-                  <label
+                  <Label
                     htmlFor="password"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
                     Senha
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="password"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                    className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                     placeholder="********"
                     required
                   />
                 </div>
 
-                <button
+                <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 px-4 rounded-lg flex items-center justify-center transition-colors"
+                  className="w-full"
                 >
                   {isLoading ? (
                     <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
                   ) : (
                     "Entrar"
                   )}
-                </button>
+                </Button>
               </div>
             </form>
 
