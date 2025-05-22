@@ -161,8 +161,17 @@ const ShelfTypes = () => {
           description: "As informações do tipo de prateleira foram atualizadas com sucesso",
         });
       } else {
-        // Create new shelf type
-        const created = await shelfTypeService.create(data);
+        // Create new shelf type - ensure all required fields are present
+        const newShelfTypeData: Omit<ShelfType, 'id'> = {
+          name: data.name,
+          height: data.height,
+          width: data.width,
+          depth: data.depth,
+          maxWeight: data.maxWeight,
+          canStack: data.canStack
+        };
+        
+        const created = await shelfTypeService.create(newShelfTypeData);
         setShelfTypes([...shelfTypes, created]);
         toast({
           title: "Tipo de prateleira adicionado",

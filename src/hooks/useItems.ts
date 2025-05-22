@@ -27,6 +27,7 @@ export const useItems = () => {
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterGroup, setFilterGroup] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<ItemFormValues | null>(null);
   const { toast } = useToast();
@@ -73,8 +74,14 @@ export const useItems = () => {
       results = results.filter(item => item.group === filterGroup);
     }
     
+    if (statusFilter === 'active') {
+      results = results.filter(item => item.active);
+    } else if (statusFilter === 'inactive') {
+      results = results.filter(item => !item.active);
+    }
+    
     setFilteredItems(results);
-  }, [items, searchTerm, filterGroup]);
+  }, [items, searchTerm, filterGroup, statusFilter]);
 
   const handleAddItem = () => {
     setEditingItem(null);
@@ -86,7 +93,7 @@ export const useItems = () => {
       id: item.id,
       code: item.code,
       name: item.name,
-      description: item.description,
+      description: item.description || '',
       group: item.group,
       supplier: item.supplier,
       stock: item.stock,
@@ -124,11 +131,21 @@ export const useItems = () => {
   const onSubmitItem = useCallback(
     async (data: ItemFormValues) => {
       try {
-        if (editingItem?.id) {
+        if (data.id) {
           // Update existing item
-          const updatedItem = await productService.update(editingItem.id, data);
+          const updatedItem = await productService.update(data.id, {
+            code: data.code,
+            name: data.name,
+            description: data.description,
+            group: data.group,
+            supplier: data.supplier,
+            minStock: data.minStock,
+            stock: data.stock,
+            price: data.price,
+            active: data.active,
+          });
           setItems(prevItems =>
-            prevItems.map(item => (item.id === editingItem.id ? updatedItem : item))
+            prevItems.map(item => (item.id === data.id ? updatedItem : item))
           );
           toast({
             title: "Success",
@@ -136,7 +153,22 @@ export const useItems = () => {
           });
         } else {
           // Create new item
-          const newItem = await productService.create(data);
+          // Include all required fields for the Item type
+          const newItemData: Omit<Item, 'id'> = {
+            code: data.code,
+            name: data.name,
+            description: data.description,
+            group: data.group,
+            supplier: data.supplier,
+            stock: data.stock || 0, // Default to 0 if not provided
+            minStock: data.minStock,
+            price: data.price,
+            active: data.active,
+            groupName: groups.find(g => g.id === data.group)?.name || '',
+            supplierName: suppliers.find(s => s.id === data.supplier)?.name || ''
+          };
+          
+          const newItem = await productService.create(newItemData);
           setItems(prevItems => [...prevItems, newItem]);
           toast({
             title: "Success",
@@ -153,7 +185,7 @@ export const useItems = () => {
         });
       }
     },
-    [editingItem, toast]
+    [toast]
   );
 
   return {
@@ -164,12 +196,15 @@ export const useItems = () => {
     setSearchTerm,
     filterGroup,
     setFilterGroup,
+    statusFilter,
+    setStatusFilter,
     openDialog,
     setOpenDialog,
     editingItem,
     handleAddItem,
     handleEditItem,
     handleDeleteItem,
-    onSubmitItem
+    onSubmitItem,
+    setItems // Export setItems so it can be used in Items.tsx
   };
 };

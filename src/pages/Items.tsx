@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
@@ -21,16 +21,18 @@ const Items = () => {
     setSearchTerm,
     filterGroup,
     setFilterGroup,
+    statusFilter,
+    setStatusFilter,
     openDialog,
     setOpenDialog,
     editingItem,
     handleAddItem,
     handleEditItem,
     handleDeleteItem,
-    onSubmitItem
+    onSubmitItem,
+    setItems
   } = useItems();
 
-  const [statusFilter, setStatusFilter] = useState('all');
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const { toast } = useToast();
@@ -53,8 +55,8 @@ const Items = () => {
           description: `O item ${selectedItem.name} foi ${selectedItem.active ? "inativado" : "ativado"} com sucesso.`,
         });
         
-        // Update the item in the local state
-        useItems().setItems(prevItems => 
+        // Update the item in the local state using the setItems from useItems hook
+        setItems(prevItems => 
           prevItems.map(item => 
             item.id === selectedItem.id ? updatedItem : item
           )
@@ -73,18 +75,8 @@ const Items = () => {
     }
   };
 
-  // Apply status filter in addition to the existing filters
-  const applyStatusFilter = (items: Item[]) => {
-    if (statusFilter === 'all') return items;
-    
-    return items.filter(item => {
-      if (statusFilter === 'active') return item.active;
-      if (statusFilter === 'inactive') return !item.active;
-      return true;
-    });
-  };
-
-  const statusFilteredItems = applyStatusFilter(filteredItems);
+  // Apply status filter
+  const statusFilteredItems = filteredItems;
 
   return (
     <AuthRequired>

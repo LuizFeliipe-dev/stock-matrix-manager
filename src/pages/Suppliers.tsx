@@ -129,7 +129,26 @@ const Suppliers = () => {
   const onSubmit = async (data: SupplierFormValues) => {
     try {
       if (editingSupplier) {
-        const updated = await supplierService.update(editingSupplier.id, data);
+        // Update existing supplier - ensure all required fields for contacts
+        const contactsData: SupplierContact[] = data.contacts.map(contact => ({
+          id: contact.id,
+          name: contact.name, // Required field
+          role: contact.role || '', 
+          email: contact.email, // Required field
+          phone: contact.phone, // Required field
+        }));
+        
+        const supplierData: Partial<Supplier> = {
+          name: data.name,
+          code: data.code,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          active: data.active,
+          contacts: contactsData
+        };
+        
+        const updated = await supplierService.update(editingSupplier.id, supplierData);
         setSuppliers(suppliers.map(supplier => {
           if (supplier.id === editingSupplier.id) {
             return updated;
@@ -142,7 +161,25 @@ const Suppliers = () => {
           description: "As informações do fornecedor foram atualizadas com sucesso",
         });
       } else {
-        const newSupplier = await supplierService.create(data);
+        // Create new supplier - ensure all required fields
+        const contactsData: SupplierContact[] = data.contacts.map(contact => ({
+          name: contact.name, // Required field
+          role: contact.role || '',
+          email: contact.email, // Required field
+          phone: contact.phone, // Required field
+        }));
+        
+        const newSupplierData: Omit<Supplier, 'id'> = {
+          name: data.name,
+          code: data.code,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          active: data.active || true,
+          contacts: contactsData
+        };
+        
+        const newSupplier = await supplierService.create(newSupplierData);
         setSuppliers([...suppliers, newSupplier]);
 
         toast({

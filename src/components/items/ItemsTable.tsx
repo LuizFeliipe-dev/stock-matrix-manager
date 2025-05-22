@@ -1,7 +1,7 @@
 
 import { Item } from "@/types/item";
 import { Button } from "@/components/ui/button";
-import { Edit, ToggleLeft } from "lucide-react";
+import { Edit, ToggleLeft, Loader2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ItemsTableProps {
   items: Item[];
+  isLoading?: boolean; // Added isLoading prop
   onEdit: (item: Item) => void;
   onToggleStatus: (item: Item) => void;
   filteredCount: number;
@@ -23,6 +24,7 @@ interface ItemsTableProps {
 
 const ItemsTable = ({
   items,
+  isLoading = false, // Default to false
   onEdit,
   onToggleStatus,
   filteredCount,
@@ -47,7 +49,19 @@ const ItemsTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.length === 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={isMobile ? 5 : 7}
+                  className="h-24 text-center"
+                >
+                  <div className="flex justify-center items-center space-x-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    <span>Carregando itens...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : items.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={isMobile ? 5 : 7}
