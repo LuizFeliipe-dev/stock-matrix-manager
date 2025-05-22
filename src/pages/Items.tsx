@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
@@ -10,11 +10,13 @@ import { Item } from '@/types/item';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
+import { productService } from '@/services/products';
 
 const Items = () => {
   const {
     items,
     filteredItems,
+    isLoading,
     searchTerm,
     setSearchTerm,
     filterGroup,
@@ -38,16 +40,36 @@ const Items = () => {
     setStatusDialogOpen(true);
   };
 
-  const confirmToggleStatus = () => {
+  const confirmToggleStatus = async () => {
     if (selectedItem) {
-      // In a real app, you would update the item in the database
-      // Here we're just showing the toast notification
-      toast({
-        title: selectedItem.active ? "Item inativado" : "Item ativado",
-        description: `O item ${selectedItem.name} foi ${selectedItem.active ? "inativado" : "ativado"} com sucesso.`,
-      });
-      setStatusDialogOpen(false);
-      setSelectedItem(null);
+      try {
+        const updatedItem = await productService.toggleStatus(
+          selectedItem.id, 
+          !selectedItem.active
+        );
+
+        toast({
+          title: selectedItem.active ? "Item inativado" : "Item ativado",
+          description: `O item ${selectedItem.name} foi ${selectedItem.active ? "inativado" : "ativado"} com sucesso.`,
+        });
+        
+        // Update the item in the local state
+        useItems().setItems(prevItems => 
+          prevItems.map(item => 
+            item.id === selectedItem.id ? updatedItem : item
+          )
+        );
+      } catch (error) {
+        console.error("Error toggling item status:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível alterar o status do item",
+          variant: "destructive"
+        });
+      } finally {
+        setStatusDialogOpen(false);
+        setSelectedItem(null);
+      }
     }
   };
 
@@ -72,6 +94,7 @@ const Items = () => {
           <ItemsPageContent
             filteredItems={statusFilteredItems}
             items={items}
+            isLoading={isLoading}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             filterGroup={filterGroup}
