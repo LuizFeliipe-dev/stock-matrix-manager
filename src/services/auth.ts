@@ -24,6 +24,9 @@ export const authService = {
         body: JSON.stringify({ email, password }),
       });
 
+      // Log the status to help debug
+      console.log('Login response status:', response.status);
+
       if (!response.ok) {
         // Verifica se a resposta contém dados JSON antes de tentar analisá-la
         const contentType = response.headers.get('content-type');
@@ -38,13 +41,26 @@ export const authService = {
       // Verifica se a resposta contém dados JSON antes de tentar analisá-la
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
+        console.error('Resposta não é do tipo JSON');
         throw new Error('Resposta inválida do servidor');
       }
 
-      const data = await response.json();
+      // Log the raw response for debugging
+      const rawText = await response.text();
+      console.log('Raw response:', rawText);
+      
+      // Attempt to parse the JSON after logging the raw text
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        throw new Error('Erro ao analisar resposta do servidor');
+      }
 
       // Verifica se os dados necessários existem na resposta
       if (!data.token || !data.user) {
+        console.error('Dados incompletos:', data);
         throw new Error('Resposta incompleta do servidor');
       }
 

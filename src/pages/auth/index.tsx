@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 import { motion } from 'framer-motion';
 import { Box } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -31,10 +32,12 @@ const Auth = () => {
 
     try {
       await login(email, password);
+      console.log('Login successful, redirecting to:', from);
       // Autenticação bem-sucedida, navegação acontecerá no useEffect
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Falha ao fazer login');
+      console.error('Login failed:', err);
+      setError(err instanceof Error ? err.message : 'Email ou senha inválidos');
     } finally {
       setIsLoading(false);
     }
@@ -67,9 +70,11 @@ const Auth = () => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm border border-red-200"
+                className="mb-6"
               >
-                {error}
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               </motion.div>
             )}
 

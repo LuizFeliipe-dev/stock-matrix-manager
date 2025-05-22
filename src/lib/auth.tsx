@@ -74,12 +74,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     
     try {
+      console.log('Attempting API login...');
       // Tenta usar a API para login
       const response = await authService.login(email, password);
+      console.log('API login successful:', response);
       
       // O token e usuário já são salvos dentro da função authService.login
       setUser(response.user);
       setIsLoading(false);
+      return; // Return early since login was successful
     } catch (error) {
       console.log('API login failed, trying mock login for development');
       
@@ -90,12 +93,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const foundUser = MOCK_USERS.find(u => u.email === email);
           
           if (foundUser && password === '123456') { // Mock password check
+            console.log('Mock login successful');
             setUser(foundUser);
             localStorage.setItem('malldre_user', JSON.stringify(foundUser));
             localStorage.setItem('malldre_token', 'mock-token-for-development');
             setIsLoading(false);
             resolve();
           } else {
+            console.log('Mock login failed');
             setIsLoading(false);
             reject(new Error('Email ou senha inválidos'));
           }
@@ -107,7 +112,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     authService.logout();
     setUser(null);
-    // No navegating here, this should be handled in the UI components
+    // No navigating here, this should be handled in the UI components
   };
 
   const hasPermission = (requiredPermission: UserPermission): boolean => {

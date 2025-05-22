@@ -5,6 +5,7 @@ import { useAuth } from '../lib/auth';
 import { motion } from 'framer-motion';
 import { Box, LogIn } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -29,10 +30,12 @@ const Login = () => {
 
     try {
       await login(email, password);
-      // Login bem-sucedido, redirecionar para o dashboard
+      // Login bem-sucedido, o useEffect com a dependência isAuthenticated irá redirecionar
+      console.log('Login successful, redirecting to dashboard');
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Falha ao fazer login');
+      console.error('Login failed:', err);
+      setError(err instanceof Error ? err.message : 'Email ou senha inválidos');
     } finally {
       setIsLoading(false);
     }
@@ -65,9 +68,11 @@ const Login = () => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm border border-red-200"
+                className="mb-6"
               >
-                {error}
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               </motion.div>
             )}
 
