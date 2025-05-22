@@ -31,7 +31,8 @@ const Auth = () => {
 
     try {
       await login(email, password);
-      // Successfully authenticated, navigation happens in useEffect
+      // Autenticação bem-sucedida, navegação acontecerá no useEffect
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Falha ao fazer login');
     } finally {

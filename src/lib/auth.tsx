@@ -65,22 +65,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     
     try {
-      // Try to use the API first
+      // Tenta usar a API para login
       const response = await authService.login(email, password);
       
-      // Save user and token to localStorage
+      // O token e usuário já são salvos dentro da função authService.login
       setUser(response.user);
-      localStorage.setItem('malldre_user', JSON.stringify(response.user));
-      localStorage.setItem('malldre_token', response.token);
-      
       setIsLoading(false);
     } catch (error) {
       console.log('API login failed, trying mock login for development');
       
-      // Fallback to mock login for development
+      // Fallback para mock login em desenvolvimento
       return new Promise<void>((resolve, reject) => {
         setTimeout(() => {
-          // Find user with matching email
+          // Encontra usuário com email correspondente
           const foundUser = MOCK_USERS.find(u => u.email === email);
           
           if (foundUser && password === '123456') { // Mock password check
@@ -93,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setIsLoading(false);
             reject(new Error('Email ou senha inválidos'));
           }
-        }, 800); // Simulate network delay
+        }, 800); // Simula atraso de rede
       });
     }
   };

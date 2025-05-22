@@ -29,7 +29,13 @@ export const authService = {
         throw new Error(errorData.message || 'Falha na autenticação');
       }
 
-      return await response.json();
+      const data = await response.json();
+
+      // Salvar token para uso em futuras requisições
+      localStorage.setItem('malldre_token', data.token);
+      localStorage.setItem('malldre_user', JSON.stringify(data.user));
+
+      return data;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -39,5 +45,11 @@ export const authService = {
   logout: (): void => {
     localStorage.removeItem('malldre_token');
     localStorage.removeItem('malldre_user');
+  },
+
+  // Método para obter o cabeçalho de autorização
+  getAuthHeader: (): Record<string, string> => {
+    const token = localStorage.getItem('malldre_token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
   },
 };

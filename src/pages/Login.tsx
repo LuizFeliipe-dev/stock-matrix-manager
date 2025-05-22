@@ -29,6 +29,7 @@ const Login = () => {
 
     try {
       await login(email, password);
+      // Login bem-sucedido, redirecionar para o dashboard
       navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Falha ao fazer login');
