@@ -37,7 +37,23 @@ export const supplierService = {
         throw new Error(errorData.message || 'Falha ao obter fornecedores');
       }
 
-      return await response.json();
+      // Get response as text first
+      const responseText = await response.text();
+      
+      // Parse JSON safely
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse supplier data:', e);
+        throw new Error('Erro ao processar dados do fornecedor');
+      }
+      
+      // Ensure each supplier has a contacts array
+      return data.map((supplier: any) => ({
+        ...supplier,
+        contacts: supplier.contacts || [] // Ensure contacts is always an array
+      }));
     } catch (error) {
       console.error('Error fetching suppliers:', error);
       throw error;
@@ -59,7 +75,21 @@ export const supplierService = {
         throw new Error(errorData.message || 'Falha ao obter fornecedor');
       }
 
-      return await response.json();
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse supplier data:', e);
+        throw new Error('Erro ao processar dados do fornecedor');
+      }
+      
+      // Ensure contacts is always an array
+      return {
+        ...data,
+        contacts: data.contacts || []
+      };
     } catch (error) {
       console.error(`Error fetching supplier ${id}:`, error);
       throw error;
