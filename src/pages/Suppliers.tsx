@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -82,14 +81,20 @@ const Suppliers = () => {
 
   const onSubmit = async (data: SupplierFormValues) => {
     try {
+      // Ensure the data has required properties
+      const supplierData = {
+        name: data.name,
+        active: data.active,
+      };
+
       if (editingSupplier) {
-        await updateSupplier(editingSupplier.id, data);
+        await updateSupplier(editingSupplier.id, supplierData);
         toast({
           title: "Fornecedor atualizado",
           description: "As informações do fornecedor foram atualizadas com sucesso",
         });
       } else {
-        await createSupplier(data);
+        await createSupplier(supplierData);
         toast({
           title: "Fornecedor adicionado",
           description: "Novo fornecedor foi adicionado com sucesso",
