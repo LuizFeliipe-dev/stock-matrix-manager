@@ -30,9 +30,53 @@ export const useSuppliers = () => {
     }
   };
 
+  const createSupplier = async (supplierData: { name: string; active: boolean }) => {
+    try {
+      const newSupplier = await supplierService.create(supplierData);
+      setSuppliers(prev => [...prev, newSupplier]);
+      toast({
+        title: "Sucesso",
+        description: "Fornecedor criado com sucesso.",
+      });
+      return newSupplier;
+    } catch (error) {
+      console.error('Error creating supplier:', error);
+      toast({
+        title: "Erro",
+        description: "Falha ao criar fornecedor. Tente novamente.",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const updateSupplier = async (id: string, supplierData: Partial<Supplier>) => {
+    try {
+      const updatedSupplier = await supplierService.update(id, supplierData);
+      setSuppliers(prev => prev.map(supplier => 
+        supplier.id === id ? updatedSupplier : supplier
+      ));
+      toast({
+        title: "Sucesso",
+        description: "Fornecedor atualizado com sucesso.",
+      });
+      return updatedSupplier;
+    } catch (error) {
+      console.error('Error updating supplier:', error);
+      toast({
+        title: "Erro",
+        description: "Falha ao atualizar fornecedor. Tente novamente.",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   return {
     suppliers,
     isLoading,
-    loadSuppliers
+    loadSuppliers,
+    createSupplier,
+    updateSupplier
   };
 };
