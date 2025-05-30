@@ -4,14 +4,16 @@ import Sidebar from '../components/Sidebar';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { 
   Truck, 
   Plus, 
   Search, 
   Pencil, 
-  ToggleLeft
+  ToggleLeft,
+  Trash2,
+  User
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -50,6 +52,13 @@ import { Textarea } from '@/components/ui/textarea';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+const contactSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
+  phone: z.string().optional(),
+  position: z.string().optional(),
+});
+
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
   email: z.string().email({ message: 'Email inválido' }).optional().or(z.literal('')),
@@ -59,9 +68,9 @@ const supplierFormSchema = z.object({
   city: z.string().optional(),
   state: z.string().optional(),
   zipCode: z.string().optional(),
-  contact: z.string().optional(),
   notes: z.string().optional(),
   active: z.boolean().default(true),
+  contacts: z.array(contactSchema).default([]),
 });
 
 type SupplierFormValues = z.infer<typeof supplierFormSchema>;
@@ -132,13 +141,20 @@ const Suppliers = () => {
       city: '',
       state: '',
       zipCode: '',
-      contact: '',
       notes: '',
       active: true,
+      contacts: [],
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "contacts"
+  });
+
   const onSubmit = (data: SupplierFormValues) => {
+    console.log('Form data with contacts:', data);
+    
     if (editingSupplier) {
       setSuppliers(suppliers.map(supplier => {
         if (supplier.id === editingSupplier.id) {
@@ -189,9 +205,9 @@ const Suppliers = () => {
       city: '',
       state: '',
       zipCode: '',
-      contact: '',
       notes: '',
       active: true,
+      contacts: [],
     });
     setOpenDialog(true);
   };
@@ -207,11 +223,24 @@ const Suppliers = () => {
       city: '',
       state: '',
       zipCode: '',
-      contact: '',
       notes: '',
       active: supplier.active,
+      contacts: [],
     });
     setOpenDialog(true);
+  };
+
+  const handleAddContact = () => {
+    append({
+      name: '',
+      email: '',
+      phone: '',
+      position: '',
+    });
+  };
+
+  const handleRemoveContact = (index: number) => {
+    remove(index);
   };
 
   const handleToggleSupplierStatus = (supplier: Supplier) => {
@@ -245,12 +274,9 @@ const Suppliers = () => {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
-  // Apply filters
   const filteredSuppliers = suppliers.filter(supplier => {
-    // Text search
     const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Status filter
     let matchesStatus = true;
     if (statusFilter === 'active') {
       matchesStatus = supplier.active;
@@ -392,7 +418,7 @@ const Suppliers = () => {
       </div>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[700px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingSupplier ? 'Editar Fornecedor' : 'Adicionar Novo Fornecedor'}
@@ -526,20 +552,6 @@ const Suppliers = () => {
 
               <FormField
                 control={form.control}
-                name="contact"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pessoa de Contato</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome da pessoa responsável" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
@@ -555,6 +567,105 @@ const Suppliers = () => {
                   </FormItem>
                 )}
               />
+
+              {/* Seção de Contatos */}
+              <div className="space-y-4 border-t pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <User className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-medium">Contatos</h3>
+                  </div>
+                  <Button type="button" variant="outline" size="sm" onClick={handleAddContact}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Contato
+                  </Button>
+                </div>
+
+                {fields.length === 0 && (
+                  <div className="text-center py-6 text-muted-foreground border-2 border-dashed rounded-lg">
+                    <User className="h-12 w-12 mx-auto mb-2 text-muted-foreground/50" />
+                    <p>Nenhum contato adicionado</p>
+                    <p className="text-sm">Clique em "Adicionar Contato" para começar</p>
+                  </div>
+                )}
+
+                {fields.map((field, index) => (
+                  <div key={field.id} className="border rounded-lg p-4 space-y-4 bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-sm">Contato {index + 1}</h4>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveContact(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name={`contacts.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nome *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Nome do contato" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name={`contacts.${index}.position`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Cargo</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Cargo do contato" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name={`contacts.${index}.email`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input placeholder="email@exemplo.com" type="email" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name={`contacts.${index}.phone`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Telefone</FormLabel>
+                            <FormControl>
+                              <Input placeholder="(11) 99999-9999" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
               
               <div className="flex justify-end space-x-2 pt-4">
                 <Button 
