@@ -1,33 +1,30 @@
 
 import React from 'react';
 import TaskItem from './TaskItem';
-import { useEntries } from '@/hooks/useEntries';
 
 const TasksSection = () => {
-  const { entries } = useEntries();
-  
-  // Filter entries that don't have "allocated" status
-  const pendingEntries = entries.filter(entry => entry.status !== 'allocated');
-
   return (
     <div className="bg-white rounded-xl shadow-sm border p-4 md:p-6">
       <h2 className="text-xl font-semibold mb-4">Tarefas Pendentes</h2>
       <div className="space-y-3">
-        {pendingEntries.length > 0 ? (
-          pendingEntries.map(entry => (
-            <TaskItem 
-              key={entry.id}
-              title={`Entrada de mercadorias - Pedido #${entry.orderNumber}`}
-              dueDate={entry.date}
-              priority={entry.priority}
-              to={`/entry?order=${entry.orderNumber}`}
-            />
-          ))
-        ) : (
-          <div className="text-gray-500 py-3 text-center">
-            Não há tarefas pendentes
-          </div>
-        )}
+        <TaskItem 
+          title="Entrada de mercadorias - Fornecedor XYZ"
+          dueDate="Hoje, 14:30"
+          priority="Alta"
+          to="/entry"
+        />
+        <TaskItem 
+          title="Inventário semanal - Armazém 001"
+          dueDate="Amanhã, 09:00"
+          priority="Média"
+          to="/inventory"
+        />
+        <TaskItem 
+          title="Preparar saída #82731"
+          dueDate="29/08, 11:00"
+          priority="Baixa"
+          to="/departure"
+        />
       </div>
       <button className="mt-4 text-sm text-primary hover:text-primary/80 font-medium">
         Ver todas as tarefas
