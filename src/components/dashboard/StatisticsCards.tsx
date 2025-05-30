@@ -40,7 +40,7 @@ const StatisticsCards = () => {
         value={dashboardData ? formatValue(dashboardData.loadsThisMonth) : "0"}
         icon={<Package className="h-6 w-6" />}
         to="/tasks"
-        color="blue"
+        color="default"
       />
       
       <DashboardCard
@@ -48,7 +48,7 @@ const StatisticsCards = () => {
         value={dashboardData ? formatValue(dashboardData.suppliersThisMonth) : "0"}
         icon={<Truck className="h-6 w-6" />}
         to="/suppliers"
-        color="green"
+        color="default"
       />
       
       <DashboardCard
@@ -56,7 +56,7 @@ const StatisticsCards = () => {
         value={dashboardData ? formatCurrency(dashboardData.totalValueThisMonth) : "R$ 0,00"}
         icon={<Warehouse className="h-6 w-6" />}
         to="/balance"
-        color="amber"
+        color="default"
       />
       
       <DashboardCard
@@ -64,7 +64,7 @@ const StatisticsCards = () => {
         value={dashboardData ? formatValue(dashboardData.pendingAllocationCount) : "0"}
         icon={<Users className="h-6 w-6" />}
         to="/tasks"
-        color={dashboardData && dashboardData.pendingAllocationCount > 0 ? "red" : "purple"}
+        color="default"
       />
     </div>
   );
