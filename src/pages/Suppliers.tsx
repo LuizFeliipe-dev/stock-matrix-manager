@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -47,11 +46,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from '@/components/ui/textarea';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
+  email: z.string().email({ message: 'Email inválido' }).optional().or(z.literal('')),
+  phone: z.string().optional(),
+  cnpj: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
+  contact: z.string().optional(),
+  notes: z.string().optional(),
   active: z.boolean().default(true),
 });
 
@@ -116,6 +125,15 @@ const Suppliers = () => {
     resolver: zodResolver(supplierFormSchema),
     defaultValues: {
       name: '',
+      email: '',
+      phone: '',
+      cnpj: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      contact: '',
+      notes: '',
       active: true,
     },
   });
@@ -164,6 +182,15 @@ const Suppliers = () => {
     setEditingSupplier(null);
     form.reset({
       name: '',
+      email: '',
+      phone: '',
+      cnpj: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      contact: '',
+      notes: '',
       active: true,
     });
     setOpenDialog(true);
@@ -173,6 +200,15 @@ const Suppliers = () => {
     setEditingSupplier(supplier);
     form.reset({
       name: supplier.name,
+      email: '',
+      phone: '',
+      cnpj: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      contact: '',
+      notes: '',
       active: supplier.active,
     });
     setOpenDialog(true);
@@ -356,7 +392,7 @@ const Suppliers = () => {
       </div>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[400px] w-[calc(100%-2rem)]">
+        <DialogContent className="sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingSupplier ? 'Editar Fornecedor' : 'Adicionar Novo Fornecedor'}
@@ -370,14 +406,150 @@ const Suppliers = () => {
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome do Fornecedor *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nome do fornecedor" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="email@exemplo.com" type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="(11) 99999-9999" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="cnpj"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CNPJ</FormLabel>
+                      <FormControl>
+                        <Input placeholder="00.000.000/0000-00" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
-                name="name"
+                name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome do Fornecedor</FormLabel>
+                    <FormLabel>Endereço</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome do fornecedor" {...field} />
+                      <Input placeholder="Rua, número, bairro" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cidade</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Cidade" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estado</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Estado" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="zipCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CEP</FormLabel>
+                      <FormControl>
+                        <Input placeholder="00000-000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="contact"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pessoa de Contato</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nome da pessoa responsável" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Observações</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Observações adicionais sobre o fornecedor..." 
+                        className="min-h-[80px]"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
