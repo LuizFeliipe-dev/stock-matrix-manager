@@ -30,7 +30,7 @@ export const useSuppliers = () => {
     }
   };
 
-  const createSupplier = async (supplierData: { name: string; active: boolean }) => {
+  const createSupplier = async (supplierData: Omit<Supplier, 'id' | 'accessLogId' | 'createdAt' | 'updatedAt'>) => {
     try {
       const newSupplier = await supplierService.create(supplierData);
       setSuppliers(prev => [...prev, newSupplier]);
