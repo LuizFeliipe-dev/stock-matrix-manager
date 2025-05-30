@@ -1,18 +1,37 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import TaskItem from './TaskItem';
-import { useEntries } from '@/hooks/useEntries';
+import TaskModal from './TaskModal';
+import { useEntries, Entry } from '@/hooks/useEntries';
 import { useNavigate } from 'react-router-dom';
 
 const TasksSection = () => {
-  const { entries } = useEntries();
+  const { entries, updateEntryStatus } = useEntries();
   const navigate = useNavigate();
+  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Filter entries that don't have "allocated" status
-  const pendingEntries = entries.filter(entry => entry.status !== 'allocated');
+  // Filter entries that don't have "allocated" or "completed" status
+  const pendingEntries = entries.filter(entry => 
+    entry.status !== 'allocated' && entry.status !== 'completed'
+  );
 
   const handleViewAllTasks = () => {
     navigate('/tasks');
+  };
+
+  const handleTaskClick = (entry: Entry) => {
+    setSelectedEntry(entry);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEntry(null);
+  };
+
+  const handleStatusUpdate = (id: string, status: Entry['status']) => {
+    updateEntryStatus(id, status);
   };
 
   return (
@@ -25,8 +44,9 @@ const TasksSection = () => {
               key={entry.id}
               title={`Entrada de mercadorias - Pedido #${entry.orderNumber}`}
               dueDate={entry.date}
-              priority={entry.priority}
+              status={entry.status}
               to={`/entry?order=${entry.orderNumber}`}
+              onClick={() => handleTaskClick(entry)}
             />
           ))
         ) : (
@@ -41,6 +61,13 @@ const TasksSection = () => {
       >
         Ver todas as tarefas
       </button>
+      
+      <TaskModal 
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        entry={selectedEntry}
+        onStatusUpdate={handleStatusUpdate}
+      />
     </div>
   );
 };

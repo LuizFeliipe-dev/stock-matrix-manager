@@ -1,16 +1,35 @@
 
-import React from 'react';
-import { useEntries } from '@/hooks/useEntries';
+import React, { useState } from 'react';
+import { useEntries, Entry } from '@/hooks/useEntries';
 import { motion } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import TaskItem from '@/components/dashboard/TaskItem';
+import TaskModal from '@/components/dashboard/TaskModal';
 
 const Tasks = () => {
-  const { entries } = useEntries();
+  const { entries, updateEntryStatus } = useEntries();
+  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Filter entries that don't have "allocated" status
-  const pendingEntries = entries.filter(entry => entry.status !== 'allocated');
+  // Filter entries that don't have "allocated" or "completed" status
+  const pendingEntries = entries.filter(entry => 
+    entry.status !== 'allocated' && entry.status !== 'completed'
+  );
+
+  const handleTaskClick = (entry: Entry) => {
+    setSelectedEntry(entry);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEntry(null);
+  };
+
+  const handleStatusUpdate = (id: string, status: Entry['status']) => {
+    updateEntryStatus(id, status);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -36,8 +55,9 @@ const Tasks = () => {
                     key={entry.id}
                     title={`Entrada de mercadorias - Pedido #${entry.orderNumber}`}
                     dueDate={entry.date}
-                    priority={entry.priority}
+                    status={entry.status}
                     to={`/entry?order=${entry.orderNumber}`}
+                    onClick={() => handleTaskClick(entry)}
                   />
                 ))
               ) : (
@@ -47,6 +67,13 @@ const Tasks = () => {
               )}
             </div>
           </div>
+          
+          <TaskModal 
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            entry={selectedEntry}
+            onStatusUpdate={handleStatusUpdate}
+          />
         </motion.div>
       </ResponsiveContainer>
     </div>

@@ -8,7 +8,7 @@ export interface Entry {
   date: string;
   supplier: string;
   items: number;
-  status: 'pending' | 'processing' | 'allocated' | 'completed';
+  status: 'received' | 'inspection' | 'awaiting storage' | 'in storage process' | 'allocated' | 'completed';
   priority: 'Alta' | 'Média' | 'Baixa';
 }
 
@@ -20,7 +20,7 @@ const initialEntries: Entry[] = [
     date: 'Hoje, 14:30',
     supplier: 'Fornecedor XYZ',
     items: 5,
-    status: 'pending',
+    status: 'received',
     priority: 'Alta'
   },
   {
@@ -29,7 +29,7 @@ const initialEntries: Entry[] = [
     date: 'Amanhã, 09:00',
     supplier: 'Fornecedor ABC',
     items: 3,
-    status: 'processing',
+    status: 'inspection',
     priority: 'Média'
   },
   {
@@ -38,7 +38,7 @@ const initialEntries: Entry[] = [
     date: '29/08, 11:00',
     supplier: 'Fornecedor DEF',
     items: 7,
-    status: 'allocated',
+    status: 'awaiting storage',
     priority: 'Baixa'
   },
   {
@@ -47,7 +47,7 @@ const initialEntries: Entry[] = [
     date: '30/08, 15:45',
     supplier: 'Fornecedor GHI',
     items: 2,
-    status: 'pending',
+    status: 'in storage process',
     priority: 'Alta'
   }
 ];
