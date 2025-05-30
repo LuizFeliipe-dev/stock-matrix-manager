@@ -1,37 +1,22 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import TaskItem from './TaskItem';
-import TaskModal from './TaskModal';
-import { useEntries, Entry } from '@/hooks/useEntries';
+import { useEntries } from '@/hooks/useEntries';
 import { useNavigate } from 'react-router-dom';
 
 const TasksSection = () => {
-  const { entries, updateEntryStatus } = useEntries();
+  const { entries } = useEntries();
   const navigate = useNavigate();
-  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Filter entries that don't have "allocated" or "completed" status
-  const pendingEntries = entries.filter(entry => 
-    entry.status !== 'allocated' && entry.status !== 'completed'
-  );
+  // Filter entries that don't have "allocated" status
+  const pendingEntries = entries.filter(entry => entry.status !== 'allocated');
 
   const handleViewAllTasks = () => {
     navigate('/tasks');
   };
 
-  const handleTaskClick = (entry: Entry) => {
-    setSelectedEntry(entry);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedEntry(null);
-  };
-
-  const handleStatusUpdate = (id: string, status: Entry['status']) => {
-    updateEntryStatus(id, status);
+  const handleTaskClick = () => {
+    navigate('/tasks');
   };
 
   return (
@@ -39,14 +24,14 @@ const TasksSection = () => {
       <h2 className="text-xl font-semibold mb-4">Tarefas Pendentes</h2>
       <div className="space-y-3">
         {pendingEntries.length > 0 ? (
-          pendingEntries.map(entry => (
+          pendingEntries.slice(0, 3).map(entry => (
             <TaskItem 
               key={entry.id}
               title={`Entrada de mercadorias - Pedido #${entry.orderNumber}`}
               dueDate={entry.date}
               status={entry.status}
-              to={`/entry?order=${entry.orderNumber}`}
-              onClick={() => handleTaskClick(entry)}
+              to={`/tasks`}
+              onClick={handleTaskClick}
             />
           ))
         ) : (
@@ -61,13 +46,6 @@ const TasksSection = () => {
       >
         Ver todas as tarefas
       </button>
-      
-      <TaskModal 
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        entry={selectedEntry}
-        onStatusUpdate={handleStatusUpdate}
-      />
     </div>
   );
 };

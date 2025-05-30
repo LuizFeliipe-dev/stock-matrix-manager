@@ -167,7 +167,7 @@ const Sidebar = ({ className }: SidebarProps) => {
               <SidebarItem icon={Truck} title="Fornecedores" to="/suppliers" />
               <SidebarItem icon={Box} title="Categorias" to="/groups" />
               <SidebarItem icon={Warehouse} title="Armazéns" to="/warehouses" />
-              <SidebarItem icon={Users} title="Usuários" to="/users" permission="manager" />
+              <SidebarItem icon={Users} title="Usuários" to="/users" />
             </SidebarGroup>
             
             <SidebarGroup title="Localizações">

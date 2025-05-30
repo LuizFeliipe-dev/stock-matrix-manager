@@ -7,9 +7,10 @@ interface ResponsiveContainerProps {
   children: React.ReactNode;
   className?: string;
   withSidebar?: boolean;
+
 }
 
-/**
+/**a
  * A responsive container that handles padding differently on mobile vs desktop
  */
 const ResponsiveContainer = ({
@@ -18,9 +19,9 @@ const ResponsiveContainer = ({
   withSidebar = true
 }: ResponsiveContainerProps) => {
   const isMobile = useIsMobile();
-  
+
   return (
-    <main 
+    <main
       className={cn(
         "flex-1 p-4 md:p-6 lg:p-8",
         withSidebar && !isMobile && "ml-0 lg:ml-64",

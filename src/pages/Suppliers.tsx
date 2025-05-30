@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
 import { motion } from 'framer-motion';
@@ -13,11 +13,8 @@ import {
   Search, 
   Pencil, 
   ToggleLeft,
-  Phone,
-  Mail,
-  MapPin,
-  Building,
-  UserPlus
+  UserPlus,
+  Loader2
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -54,6 +51,7 @@ import {
 } from "@/components/ui/select";
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Supplier, SupplierContact, supplierService } from '@/services/suppliers';
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
@@ -73,126 +71,15 @@ const supplierFormSchema = z.object({
 
 type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
-interface SupplierContact {
-  id: string;
-  name: string;
-  role?: string;
-  email: string;
-  phone: string;
-}
-
-interface Supplier {
-  id: string;
-  code: string;
-  name: string;
-  address: string;
-  city: string;
-  state: string;
-  active: boolean;
-  contacts: SupplierContact[];
-}
-
-const initialSuppliers: Supplier[] = [
-  {
-    id: '1',
-    code: 'SUP001',
-    name: 'Dell Computadores',
-    address: 'Av. Paulista, 1000',
-    city: 'São Paulo',
-    state: 'SP',
-    active: true,
-    contacts: [
-      {
-        id: '1-1',
-        name: 'Carlos Silva',
-        role: 'Gerente de Vendas',
-        email: 'carlos.silva@dell.com',
-        phone: '(11) 3333-4444',
-      }
-    ],
-  },
-  {
-    id: '2',
-    code: 'SUP002',
-    name: 'LG Brasil',
-    address: 'Rua Augusta, 500',
-    city: 'São Paulo',
-    state: 'SP',
-    active: true,
-    contacts: [
-      {
-        id: '2-1',
-        name: 'Maria Oliveira',
-        role: 'Diretora Comercial',
-        email: 'maria.oliveira@lg.com',
-        phone: '(11) 2222-3333',
-      }
-    ],
-  },
-  {
-    id: '3',
-    code: 'SUP003',
-    name: 'MobiliaCorp',
-    address: 'Av. Rio Branco, 100',
-    city: 'Rio de Janeiro',
-    state: 'RJ',
-    active: false,
-    contacts: [
-      {
-        id: '3-1',
-        name: 'João Santos',
-        role: 'Representante',
-        email: 'joao.santos@mobiliacorp.com',
-        phone: '(21) 4444-5555',
-      }
-    ],
-  },
-  {
-    id: '4',
-    code: 'SUP004',
-    name: 'Logitech Brasil',
-    address: 'Av. Faria Lima, 200',
-    city: 'São Paulo',
-    state: 'SP',
-    active: true,
-    contacts: [
-      {
-        id: '4-1',
-        name: 'Ana Pereira',
-        role: 'Gerente de Contas',
-        email: 'ana.pereira@logitech.com',
-        phone: '(11) 5555-6666',
-      }
-    ],
-  },
-  {
-    id: '5',
-    code: 'SUP005',
-    name: 'Café Especial SA',
-    address: 'Rua dos Cafezais, 150',
-    city: 'Belo Horizonte',
-    state: 'MG',
-    active: true,
-    contacts: [
-      {
-        id: '5-1',
-        name: 'Roberto Almeida',
-        role: 'Diretor',
-        email: 'roberto.almeida@cafeespecial.com',
-        phone: '(31) 6666-7777',
-      }
-    ],
-  },
-];
-
 const Suppliers = () => {
-  const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
@@ -216,62 +103,101 @@ const Suppliers = () => {
     },
   });
 
-  const onSubmit = (data: SupplierFormValues) => {
-    if (editingSupplier) {
-      setSuppliers(suppliers.map(supplier => {
-        if (supplier.id === editingSupplier.id) {
-          return {
-            ...supplier,
-            name: data.name,
-            code: data.code,
-            address: data.address,
-            city: data.city,
-            state: data.state,
-            active: data.active,
-            contacts: data.contacts.map((contact, index) => ({
-              id: contact.id || `${supplier.id}-${index+1}`,
-              name: contact.name,
-              role: contact.role || '',
-              email: contact.email,
-              phone: contact.phone,
-            })),
-          };
-        }
-        return supplier;
-      }));
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
 
+  const fetchSuppliers = async () => {
+    try {
+      setIsLoading(true);
+      const data = await supplierService.getAll();
+      setSuppliers(data);
+    } catch (error) {
+      console.error('Failed to fetch suppliers:', error);
       toast({
-        title: "Fornecedor atualizado",
-        description: "As informações do fornecedor foram atualizadas com sucesso",
+        title: "Erro ao carregar fornecedores",
+        description: "Não foi possível obter a lista de fornecedores",
+        variant: "destructive"
       });
-    } else {
-      const newSupplier: Supplier = {
-        id: (suppliers.length + 1).toString(),
-        code: data.code,
-        name: data.name,
-        address: data.address,
-        city: data.city,
-        state: data.state,
-        active: data.active,
-        contacts: data.contacts.map((contact, index) => ({
-          id: `${suppliers.length + 1}-${index+1}`,
-          name: contact.name,
+      // Use empty array in case of error
+      setSuppliers([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onSubmit = async (data: SupplierFormValues) => {
+    try {
+      if (editingSupplier) {
+        // Update existing supplier - ensure all required fields for contacts
+        const contactsData: SupplierContact[] = data.contacts.map(contact => ({
+          id: contact.id,
+          name: contact.name, // Required field
+          role: contact.role || '', 
+          email: contact.email, // Required field
+          phone: contact.phone, // Required field
+        }));
+        
+        const supplierData: Partial<Supplier> = {
+          name: data.name,
+          code: data.code,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          active: data.active,
+          contacts: contactsData
+        };
+        
+        const updated = await supplierService.update(editingSupplier.id, supplierData);
+        setSuppliers(suppliers.map(supplier => {
+          if (supplier.id === editingSupplier.id) {
+            return updated;
+          }
+          return supplier;
+        }));
+
+        toast({
+          title: "Fornecedor atualizado",
+          description: "As informações do fornecedor foram atualizadas com sucesso",
+        });
+      } else {
+        // Create new supplier - ensure all required fields
+        const contactsData: SupplierContact[] = data.contacts.map(contact => ({
+          name: contact.name, // Required field
           role: contact.role || '',
-          email: contact.email,
-          phone: contact.phone,
-        })),
-      };
+          email: contact.email, // Required field
+          phone: contact.phone, // Required field
+        }));
+        
+        const newSupplierData: Omit<Supplier, 'id'> = {
+          name: data.name,
+          code: data.code,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          active: data.active || true,
+          contacts: contactsData
+        };
+        
+        const newSupplier = await supplierService.create(newSupplierData);
+        setSuppliers([...suppliers, newSupplier]);
 
-      setSuppliers([...suppliers, newSupplier]);
+        toast({
+          title: "Fornecedor adicionado",
+          description: "Novo fornecedor foi adicionado com sucesso",
+        });
+      }
 
+      setOpenDialog(false);
+      form.reset();
+    } catch (error) {
+      console.error('Failed to save supplier:', error);
       toast({
-        title: "Fornecedor adicionado",
-        description: "Novo fornecedor foi adicionado com sucesso",
+        title: "Erro ao salvar fornecedor",
+        description: "Não foi possível salvar as informações do fornecedor",
+        variant: "destructive"
       });
     }
-
-    setOpenDialog(false);
-    form.reset();
   };
 
   const handleAddSupplier = () => {
@@ -320,24 +246,35 @@ const Suppliers = () => {
     setStatusDialogOpen(true);
   };
 
-  const confirmToggleStatus = () => {
+  const confirmToggleStatus = async () => {
     if (selectedSupplier) {
-      setSuppliers(suppliers.map(supplier => {
-        if (supplier.id === selectedSupplier.id) {
-          return {
-            ...supplier,
-            active: !supplier.active,
-          };
-        }
-        return supplier;
-      }));
+      try {
+        const updatedSupplier = await supplierService.update(selectedSupplier.id, {
+          active: !selectedSupplier.active
+        });
 
-      toast({
-        title: selectedSupplier.active ? "Fornecedor inativado" : "Fornecedor ativado",
-        description: `O fornecedor ${selectedSupplier.name} foi ${selectedSupplier.active ? "inativado" : "ativado"} com sucesso.`,
-      });
-      setStatusDialogOpen(false);
-      setSelectedSupplier(null);
+        setSuppliers(suppliers.map(supplier => {
+          if (supplier.id === selectedSupplier.id) {
+            return updatedSupplier;
+          }
+          return supplier;
+        }));
+
+        toast({
+          title: selectedSupplier.active ? "Fornecedor inativado" : "Fornecedor ativado",
+          description: `O fornecedor ${selectedSupplier.name} foi ${selectedSupplier.active ? "inativado" : "ativado"} com sucesso.`,
+        });
+      } catch (error) {
+        console.error('Failed to toggle supplier status:', error);
+        toast({
+          title: "Erro ao alterar status",
+          description: "Não foi possível alterar o status do fornecedor",
+          variant: "destructive"
+        });
+      } finally {
+        setStatusDialogOpen(false);
+        setSelectedSupplier(null);
+      }
     }
   };
 
@@ -449,10 +386,21 @@ const Suppliers = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredSuppliers.length === 0 ? (
+                    {isLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={isMobile ? 4 : 8} className="text-center py-6">
+                          <div className="flex justify-center items-center space-x-2">
+                            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                            <span>Carregando fornecedores...</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : filteredSuppliers.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={isMobile ? 4 : 8} className="text-center py-6 text-muted-foreground">
-                          Nenhum fornecedor encontrado.
+                          {searchTerm || statusFilter !== 'all' ? 
+                            "Nenhum fornecedor encontrado com os filtros aplicados." : 
+                            "Nenhum fornecedor cadastrado."}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -503,17 +451,6 @@ const Suppliers = () => {
                     )}
                   </TableBody>
                 </Table>
-              </div>
-              
-              <div className="p-4 border-t flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="text-sm text-gray-500 w-full md:w-auto text-center md:text-left">
-                  Exibindo {filteredSuppliers.length} de {suppliers.length} fornecedores
-                </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">Anterior</Button>
-                  <Button variant="default" size="sm">1</Button>
-                  <Button variant="outline" size="sm">Próxima</Button>
-                </div>
               </div>
             </div>
           </motion.div>
