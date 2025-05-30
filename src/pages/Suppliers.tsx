@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -47,6 +48,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSuppliers } from '@/hooks/useSuppliers';
@@ -55,6 +58,11 @@ import { ptBR } from 'date-fns/locale';
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
+  email: z.string().email({ message: 'Email inválido' }).optional().or(z.literal('')),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  contact: z.string().optional(),
+  notes: z.string().optional(),
   active: z.boolean().default(true),
 });
 
@@ -75,15 +83,24 @@ const Suppliers = () => {
     resolver: zodResolver(supplierFormSchema),
     defaultValues: {
       name: '',
+      email: '',
+      phone: '',
+      address: '',
+      contact: '',
+      notes: '',
       active: true,
     },
   });
 
   const onSubmit = async (data: SupplierFormValues) => {
     try {
-      // Ensure the data has required properties
       const supplierData = {
         name: data.name,
+        email: data.email || undefined,
+        phone: data.phone || undefined,
+        address: data.address || undefined,
+        contact: data.contact || undefined,
+        notes: data.notes || undefined,
         active: data.active,
       };
 
@@ -113,6 +130,11 @@ const Suppliers = () => {
     setEditingSupplier(null);
     form.reset({
       name: '',
+      email: '',
+      phone: '',
+      address: '',
+      contact: '',
+      notes: '',
       active: true,
     });
     setOpenDialog(true);
@@ -122,6 +144,11 @@ const Suppliers = () => {
     setEditingSupplier(supplier);
     form.reset({
       name: supplier.name,
+      email: supplier.email || '',
+      phone: supplier.phone || '',
+      address: supplier.address || '',
+      contact: supplier.contact || '',
+      notes: supplier.notes || '',
       active: supplier.active,
     });
     setOpenDialog(true);
@@ -303,7 +330,7 @@ const Suppliers = () => {
       </div>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[400px] w-[calc(100%-2rem)]">
+        <DialogContent className="sm:max-w-[500px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingSupplier ? 'Editar Fornecedor' : 'Adicionar Novo Fornecedor'}
@@ -322,11 +349,112 @@ const Suppliers = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome do Fornecedor</FormLabel>
+                    <FormLabel>Nome do Fornecedor *</FormLabel>
                     <FormControl>
                       <Input placeholder="Nome do fornecedor" {...field} />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="email@exemplo.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefone</FormLabel>
+                    <FormControl>
+                      <Input placeholder="(11) 99999-9999" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="contact"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pessoa de Contato</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nome do contato principal" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Endereço</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Endereço completo do fornecedor"
+                        className="resize-none"
+                        rows={3}
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Observações</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Observações adicionais sobre o fornecedor"
+                        className="resize-none"
+                        rows={3}
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="active"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Status Ativo</FormLabel>
+                      <div className="text-sm text-muted-foreground">
+                        Fornecedor ativo pode ser usado em operações
+                      </div>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
                   </FormItem>
                 )}
               />
