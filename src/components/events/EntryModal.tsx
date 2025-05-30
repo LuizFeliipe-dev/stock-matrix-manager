@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -178,200 +179,202 @@ const EntryModal = ({ isOpen, onClose, orderNumber }: EntryModalProps) => {
                   </Button>
                 </div>
 
-                <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                  {products.map((product, index) => (
-                    <div 
-                      key={product.id} 
-                      className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 border rounded-md relative bg-white"
-                    >
-                      <div className="absolute right-2 top-2">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveProduct(product.id)}
-                          disabled={products.length === 1}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <Label htmlFor={`product-${product.id}-id`}>Item *</Label>
-                        <Select 
-                          value={product.itemId} 
-                          onValueChange={(value) => handleProductChange(product.id, 'itemId', value)}
-                        >
-                          <SelectTrigger id={`product-${product.id}-id`}>
-                            <SelectValue placeholder="Selecione um item" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {items.map((item) => (
-                              <SelectItem key={item.id} value={item.id.toString()}>
-                                {item.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <Label htmlFor={`product-${product.id}-quantity`}>Quantidade *</Label>
-                        <div className="flex items-center">
+                <ScrollArea className="max-h-[400px]">
+                  <div className="space-y-4">
+                    {products.map((product, index) => (
+                      <div 
+                        key={product.id} 
+                        className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 border rounded-md relative bg-white"
+                      >
+                        <div className="absolute right-2 top-2">
                           <Button
                             type="button"
-                            variant="outline"
+                            variant="ghost"
                             size="icon"
-                            className="h-8 w-8 rounded-r-none"
-                            onClick={() => handleProductChange(
+                            onClick={() => handleRemoveProduct(product.id)}
+                            disabled={products.length === 1}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label htmlFor={`product-${product.id}-item`}>Item *</Label>
+                          <Select 
+                            value={product.itemId} 
+                            onValueChange={(value) => handleProductChange(product.id, 'itemId', value)}
+                          >
+                            <SelectTrigger id={`product-${product.id}-item`}>
+                              <SelectValue placeholder="Selecione um item" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {items.map((item) => (
+                                <SelectItem key={item.id} value={item.id.toString()}>
+                                  {item.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label htmlFor={`product-${product.id}-quantity`}>Quantidade *</Label>
+                          <div className="flex items-center">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8 rounded-r-none"
+                              onClick={() => handleProductChange(
+                                product.id, 
+                                'quantity', 
+                                Math.max(1, product.quantity - 1)
+                              )}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <Input
+                              id={`product-${product.id}-quantity`}
+                              type="number"
+                              min="1"
+                              className="rounded-none text-center"
+                              value={product.quantity}
+                              onChange={(e) => handleProductChange(
+                                product.id, 
+                                'quantity', 
+                                parseInt(e.target.value) || 1
+                              )}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8 rounded-l-none"
+                              onClick={() => handleProductChange(
+                                product.id, 
+                                'quantity', 
+                                product.quantity + 1
+                              )}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label htmlFor={`product-${product.id}-type`}>Tipo do Pacote *</Label>
+                          <Select 
+                            value={product.packageType} 
+                            onValueChange={(value) => handleProductChange(
                               product.id, 
-                              'quantity', 
-                              Math.max(1, product.quantity - 1)
+                              'packageType', 
+                              value as PackageType
                             )}
                           >
-                            <Minus className="h-3 w-3" />
-                          </Button>
+                            <SelectTrigger id={`product-${product.id}-type`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Unit">Unidade</SelectItem>
+                              <SelectItem value="Pack">Pacote</SelectItem>
+                              <SelectItem value="Box">Caixa</SelectItem>
+                              <SelectItem value="Carton">Cartucho</SelectItem>
+                              <SelectItem value="Pallet">Palete</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label htmlFor={`product-${product.id}-shelf`}>Prateleira *</Label>
+                          <Select 
+                            value={product.shelfId} 
+                            onValueChange={(value) => handleProductChange(
+                              product.id, 
+                              'shelfId', 
+                              value
+                            )}
+                          >
+                            <SelectTrigger id={`product-${product.id}-shelf`}>
+                              <SelectValue placeholder="Selecione uma prateleira" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {locations.map((location) => (
+                                <SelectItem key={location.id} value={location.id.toString()}>
+                                  {location.code} - {location.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label htmlFor={`product-${product.id}-stack`}>Empilhamento Máx *</Label>
                           <Input
-                            id={`product-${product.id}-quantity`}
+                            id={`product-${product.id}-stack`}
                             type="number"
                             min="1"
-                            className="rounded-none text-center"
-                            value={product.quantity}
+                            value={product.maxStack}
                             onChange={(e) => handleProductChange(
                               product.id, 
-                              'quantity', 
+                              'maxStack', 
                               parseInt(e.target.value) || 1
                             )}
                           />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 rounded-l-none"
-                            onClick={() => handleProductChange(
-                              product.id, 
-                              'quantity', 
-                              product.quantity + 1
-                            )}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <Label htmlFor={`product-${product.id}-type`}>Tipo do Pacote *</Label>
-                        <Select 
-                          value={product.packageType} 
-                          onValueChange={(value) => handleProductChange(
-                            product.id, 
-                            'packageType', 
-                            value as PackageType
-                          )}
-                        >
-                          <SelectTrigger id={`product-${product.id}-type`}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Unit">Unidade</SelectItem>
-                            <SelectItem value="Pack">Pacote</SelectItem>
-                            <SelectItem value="Box">Caixa</SelectItem>
-                            <SelectItem value="Carton">Cartucho</SelectItem>
-                            <SelectItem value="Pallet">Palete</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <Label htmlFor={`product-${product.id}-shelf`}>Prateleira *</Label>
-                        <Select 
-                          value={product.shelfId} 
-                          onValueChange={(value) => handleProductChange(
-                            product.id, 
-                            'shelfId', 
-                            value
-                          )}
-                        >
-                          <SelectTrigger id={`product-${product.id}-shelf`}>
-                            <SelectValue placeholder="Selecione uma prateleira" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {locations.map((location) => (
-                              <SelectItem key={location.id} value={location.id.toString()}>
-                                {location.code} - {location.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <Label htmlFor={`product-${product.id}-stack`}>Empilhamento Máx *</Label>
-                        <Input
-                          id={`product-${product.id}-stack`}
-                          type="number"
-                          min="1"
-                          value={product.maxStack}
-                          onChange={(e) => handleProductChange(
-                            product.id, 
-                            'maxStack', 
-                            parseInt(e.target.value) || 1
-                          )}
-                        />
-                      </div>
-                      
-                      <div className="md:col-span-3 grid grid-cols-3 gap-3">
-                        <div className="space-y-1">
-                          <Label htmlFor={`product-${product.id}-width`}>Largura (cm) *</Label>
-                          <Input
-                            id={`product-${product.id}-width`}
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            value={product.width}
-                            onChange={(e) => handleProductChange(
-                              product.id, 
-                              'width', 
-                              parseFloat(e.target.value) || 0
-                            )}
-                          />
                         </div>
                         
-                        <div className="space-y-1">
-                          <Label htmlFor={`product-${product.id}-length`}>Comprimento (cm) *</Label>
-                          <Input
-                            id={`product-${product.id}-length`}
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            value={product.length}
-                            onChange={(e) => handleProductChange(
-                              product.id, 
-                              'length', 
-                              parseFloat(e.target.value) || 0
-                            )}
-                          />
-                        </div>
-                        
-                        <div className="space-y-1">
-                          <Label htmlFor={`product-${product.id}-height`}>Altura (cm) *</Label>
-                          <Input
-                            id={`product-${product.id}-height`}
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            value={product.height}
-                            onChange={(e) => handleProductChange(
-                              product.id, 
-                              'height', 
-                              parseFloat(e.target.value) || 0
-                            )}
-                          />
+                        <div className="md:col-span-3 grid grid-cols-3 gap-3">
+                          <div className="space-y-1">
+                            <Label htmlFor={`product-${product.id}-width`}>Largura (cm) *</Label>
+                            <Input
+                              id={`product-${product.id}-width`}
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              value={product.width}
+                              onChange={(e) => handleProductChange(
+                                product.id, 
+                                'width', 
+                                parseFloat(e.target.value) || 0
+                              )}
+                            />
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <Label htmlFor={`product-${product.id}-length`}>Comprimento (cm) *</Label>
+                            <Input
+                              id={`product-${product.id}-length`}
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              value={product.length}
+                              onChange={(e) => handleProductChange(
+                                product.id, 
+                                'length', 
+                                parseFloat(e.target.value) || 0
+                              )}
+                            />
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <Label htmlFor={`product-${product.id}-height`}>Altura (cm) *</Label>
+                            <Input
+                              id={`product-${product.id}-height`}
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              value={product.height}
+                              onChange={(e) => handleProductChange(
+                                product.id, 
+                                'height', 
+                                parseFloat(e.target.value) || 0
+                              )}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
             </div>
           </ScrollArea>
