@@ -12,12 +12,7 @@ import {
   Plus, 
   Search, 
   Pencil, 
-  ToggleLeft,
-  Phone,
-  Mail,
-  MapPin,
-  Building,
-  UserPlus
+  ToggleLeft
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -57,132 +52,53 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
-  code: z.string().min(3, { message: 'Código deve ter pelo menos 3 caracteres' }),
-  address: z.string().min(5, { message: 'Endereço deve ter pelo menos 5 caracteres' }),
-  city: z.string().min(2, { message: 'Cidade deve ter pelo menos 2 caracteres' }),
-  state: z.string().min(2, { message: 'Estado deve ter pelo menos 2 caracteres' }),
   active: z.boolean().default(true),
-  contacts: z.array(z.object({
-    id: z.string().optional(),
-    name: z.string().min(2, { message: 'Nome do contato deve ter pelo menos 2 caracteres' }),
-    role: z.string().optional(),
-    email: z.string().email({ message: 'Email inválido' }),
-    phone: z.string().min(8, { message: 'Telefone deve ter pelo menos 8 caracteres' }),
-  })).min(1, { message: 'Adicione pelo menos um contato' }),
 });
 
 type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
-interface SupplierContact {
-  id: string;
-  name: string;
-  role?: string;
-  email: string;
-  phone: string;
-}
-
 interface Supplier {
   id: string;
-  code: string;
   name: string;
-  address: string;
-  city: string;
-  state: string;
   active: boolean;
-  contacts: SupplierContact[];
+  accessLogId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const initialSuppliers: Supplier[] = [
   {
-    id: '1',
-    code: 'SUP001',
-    name: 'Dell Computadores',
-    address: 'Av. Paulista, 1000',
-    city: 'São Paulo',
-    state: 'SP',
+    id: "d5bd8aba-c090-475f-8dd8-79e929dc6960",
+    name: "Fornecedor Tech Ltda",
     active: true,
-    contacts: [
-      {
-        id: '1-1',
-        name: 'Carlos Silva',
-        role: 'Gerente de Vendas',
-        email: 'carlos.silva@dell.com',
-        phone: '(11) 3333-4444',
-      }
-    ],
+    accessLogId: "3255de7b-701a-4bf1-8547-b845b483d0bd",
+    createdAt: "2025-05-29T20:23:48.461Z",
+    updatedAt: "2025-05-29T20:23:48.461Z"
   },
   {
-    id: '2',
-    code: 'SUP002',
-    name: 'LG Brasil',
-    address: 'Rua Augusta, 500',
-    city: 'São Paulo',
-    state: 'SP',
+    id: "005fa7c0-1e10-4ab7-b4dc-6f5b129cf240",
+    name: "Móveis Premium SA",
     active: true,
-    contacts: [
-      {
-        id: '2-1',
-        name: 'Maria Oliveira',
-        role: 'Diretora Comercial',
-        email: 'maria.oliveira@lg.com',
-        phone: '(11) 2222-3333',
-      }
-    ],
+    accessLogId: "3255de7b-701a-4bf1-8547-b845b483d0bd",
+    createdAt: "2025-05-29T20:23:48.461Z",
+    updatedAt: "2025-05-29T20:23:48.461Z"
   },
   {
-    id: '3',
-    code: 'SUP003',
-    name: 'MobiliaCorp',
-    address: 'Av. Rio Branco, 100',
-    city: 'Rio de Janeiro',
-    state: 'RJ',
-    active: false,
-    contacts: [
-      {
-        id: '3-1',
-        name: 'João Santos',
-        role: 'Representante',
-        email: 'joao.santos@mobiliacorp.com',
-        phone: '(21) 4444-5555',
-      }
-    ],
+    id: "eaf59975-66f9-40a8-b34b-0e93e1e47474",
+    name: "Distribuidora de Alimentos",
+    active: true,
+    accessLogId: "3255de7b-701a-4bf1-8547-b845b483d0bd",
+    createdAt: "2025-05-29T20:23:48.461Z",
+    updatedAt: "2025-05-29T20:23:48.461Z"
   },
   {
-    id: '4',
-    code: 'SUP004',
-    name: 'Logitech Brasil',
-    address: 'Av. Faria Lima, 200',
-    city: 'São Paulo',
-    state: 'SP',
+    id: "eaf7edf5-09a3-4a7a-b15b-911e2171e4b4",
+    name: "Croissant & Cia",
     active: true,
-    contacts: [
-      {
-        id: '4-1',
-        name: 'Ana Pereira',
-        role: 'Gerente de Contas',
-        email: 'ana.pereira@logitech.com',
-        phone: '(11) 5555-6666',
-      }
-    ],
-  },
-  {
-    id: '5',
-    code: 'SUP005',
-    name: 'Café Especial SA',
-    address: 'Rua dos Cafezais, 150',
-    city: 'Belo Horizonte',
-    state: 'MG',
-    active: true,
-    contacts: [
-      {
-        id: '5-1',
-        name: 'Roberto Almeida',
-        role: 'Diretor',
-        email: 'roberto.almeida@cafeespecial.com',
-        phone: '(31) 6666-7777',
-      }
-    ],
-  },
+    accessLogId: "5afc1d1b-d821-4ba3-af1f-efbdd14610f8",
+    createdAt: "2025-05-29T23:56:30.134Z",
+    updatedAt: "2025-05-29T23:56:30.134Z"
+  }
 ];
 
 const Suppliers = () => {
@@ -200,19 +116,7 @@ const Suppliers = () => {
     resolver: zodResolver(supplierFormSchema),
     defaultValues: {
       name: '',
-      code: '',
-      address: '',
-      city: '',
-      state: '',
       active: true,
-      contacts: [
-        {
-          name: '',
-          role: '',
-          email: '',
-          phone: '',
-        }
-      ],
     },
   });
 
@@ -223,18 +127,8 @@ const Suppliers = () => {
           return {
             ...supplier,
             name: data.name,
-            code: data.code,
-            address: data.address,
-            city: data.city,
-            state: data.state,
             active: data.active,
-            contacts: data.contacts.map((contact, index) => ({
-              id: contact.id || `${supplier.id}-${index+1}`,
-              name: contact.name,
-              role: contact.role || '',
-              email: contact.email,
-              phone: contact.phone,
-            })),
+            updatedAt: new Date().toISOString(),
           };
         }
         return supplier;
@@ -246,20 +140,12 @@ const Suppliers = () => {
       });
     } else {
       const newSupplier: Supplier = {
-        id: (suppliers.length + 1).toString(),
-        code: data.code,
+        id: crypto.randomUUID(),
         name: data.name,
-        address: data.address,
-        city: data.city,
-        state: data.state,
         active: data.active,
-        contacts: data.contacts.map((contact, index) => ({
-          id: `${suppliers.length + 1}-${index+1}`,
-          name: contact.name,
-          role: contact.role || '',
-          email: contact.email,
-          phone: contact.phone,
-        })),
+        accessLogId: "3255de7b-701a-4bf1-8547-b845b483d0bd",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       setSuppliers([...suppliers, newSupplier]);
@@ -278,19 +164,7 @@ const Suppliers = () => {
     setEditingSupplier(null);
     form.reset({
       name: '',
-      code: '',
-      address: '',
-      city: '',
-      state: '',
       active: true,
-      contacts: [
-        {
-          name: '',
-          role: '',
-          email: '',
-          phone: '',
-        }
-      ],
     });
     setOpenDialog(true);
   };
@@ -299,18 +173,7 @@ const Suppliers = () => {
     setEditingSupplier(supplier);
     form.reset({
       name: supplier.name,
-      code: supplier.code,
-      address: supplier.address,
-      city: supplier.city,
-      state: supplier.state,
       active: supplier.active,
-      contacts: supplier.contacts.map(contact => ({
-        id: contact.id,
-        name: contact.name,
-        role: contact.role || '',
-        email: contact.email,
-        phone: contact.phone,
-      })),
     });
     setOpenDialog(true);
   };
@@ -327,6 +190,7 @@ const Suppliers = () => {
           return {
             ...supplier,
             active: !supplier.active,
+            updatedAt: new Date().toISOString(),
           };
         }
         return supplier;
@@ -341,30 +205,14 @@ const Suppliers = () => {
     }
   };
 
-  const addContactField = () => {
-    const contacts = form.getValues('contacts');
-    form.setValue('contacts', [
-      ...contacts,
-      { name: '', role: '', email: '', phone: '' }
-    ]);
-  };
-
-  const removeContactField = (index: number) => {
-    const contacts = form.getValues('contacts');
-    if (contacts.length > 1) {
-      form.setValue('contacts', contacts.filter((_, i) => i !== index));
-    }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
   // Apply filters
   const filteredSuppliers = suppliers.filter(supplier => {
     // Text search
-    const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          supplier.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          supplier.contacts.some(contact => 
-                            contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            contact.email.toLowerCase().includes(searchTerm.toLowerCase())
-                          );
+    const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase());
     
     // Status filter
     let matchesStatus = true;
@@ -438,12 +286,9 @@ const Suppliers = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Código</TableHead>
                       <TableHead>Nome</TableHead>
-                      {!isMobile && <TableHead>Contato</TableHead>}
-                      {!isMobile && <TableHead>Email</TableHead>}
-                      {!isMobile && <TableHead>Telefone</TableHead>}
-                      {!isMobile && <TableHead>Localização</TableHead>}
+                      {!isMobile && <TableHead>Data de Criação</TableHead>}
+                      {!isMobile && <TableHead>Última Atualização</TableHead>}
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
@@ -451,26 +296,16 @@ const Suppliers = () => {
                   <TableBody>
                     {filteredSuppliers.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={isMobile ? 4 : 8} className="text-center py-6 text-muted-foreground">
+                        <TableCell colSpan={isMobile ? 3 : 5} className="text-center py-6 text-muted-foreground">
                           Nenhum fornecedor encontrado.
                         </TableCell>
                       </TableRow>
                     ) : (
                       filteredSuppliers.map((supplier) => (
                         <TableRow key={supplier.id}>
-                          <TableCell className="font-medium">{supplier.code}</TableCell>
-                          <TableCell className="max-w-[150px] truncate">{supplier.name}</TableCell>
-                          {!isMobile && <TableCell>
-                            {supplier.contacts.length > 0 ? supplier.contacts[0].name : '-'}
-                            {supplier.contacts.length > 1 && 
-                              <span className="text-xs ml-1 text-muted-foreground">(+{supplier.contacts.length - 1})</span>
-                            }
-                          </TableCell>}
-                          {!isMobile && <TableCell className="max-w-[150px] truncate">
-                            {supplier.contacts.length > 0 ? supplier.contacts[0].email : '-'}
-                          </TableCell>}
-                          {!isMobile && <TableCell>{supplier.contacts.length > 0 ? supplier.contacts[0].phone : '-'}</TableCell>}
-                          {!isMobile && <TableCell>{`${supplier.city}, ${supplier.state}`}</TableCell>}
+                          <TableCell className="font-medium">{supplier.name}</TableCell>
+                          {!isMobile && <TableCell>{formatDate(supplier.createdAt)}</TableCell>}
+                          {!isMobile && <TableCell>{formatDate(supplier.updatedAt)}</TableCell>}
                           <TableCell>
                             <span className={`px-2 py-1 rounded-full text-xs ${
                               supplier.active 
@@ -521,7 +356,7 @@ const Suppliers = () => {
       </div>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[650px] w-[calc(100%-2rem)] overflow-y-auto max-h-[80vh]">
+        <DialogContent className="sm:max-w-[400px] w-[calc(100%-2rem)]">
           <DialogHeader>
             <DialogTitle>
               {editingSupplier ? 'Editar Fornecedor' : 'Adicionar Novo Fornecedor'}
@@ -535,174 +370,19 @@ const Suppliers = () => {
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="code"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Código</FormLabel>
-                      <FormControl>
-                        <Input placeholder="SUP001" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome da Empresa</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nome do fornecedor" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
               <FormField
                 control={form.control}
-                name="address"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Endereço</FormLabel>
+                    <FormLabel>Nome do Fornecedor</FormLabel>
                     <FormControl>
-                      <Input placeholder="Rua, número, complemento" {...field} />
+                      <Input placeholder="Nome do fornecedor" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cidade</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Cidade" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estado</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Estado" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="border-t pt-4">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-lg font-medium">Contatos</h3>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={addContactField}
-                    className="gap-1"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    Adicionar Contato
-                  </Button>
-                </div>
-                
-                {form.watch('contacts').map((_, index) => (
-                  <div key={index} className="border p-4 rounded-md mb-4">
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="font-medium">Contato {index + 1}</h4>
-                      {index > 0 && (
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => removeContactField(index)}
-                          className="h-7 text-destructive hover:text-destructive"
-                        >
-                          Remover
-                        </Button>
-                      )}
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.name`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nome</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Nome do contato" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.role`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Cargo</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Cargo" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.email`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input placeholder="email@exemplo.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.phone`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Telefone</FormLabel>
-                            <FormControl>
-                              <Input placeholder="(00) 0000-0000" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
               
               <div className="flex justify-end space-x-2 pt-4">
                 <Button 
