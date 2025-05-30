@@ -329,178 +329,106 @@ const Suppliers = () => {
         </ResponsiveContainer>
       </div>
       
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[500px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
+
+      <Dialog open={!!selectedEntry} onOpenChange={() => handleCloseModal()}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>
-              {editingSupplier ? 'Editar Fornecedor' : 'Adicionar Novo Fornecedor'}
-            </DialogTitle>
-            <DialogDescription>
-              {editingSupplier 
-                ? 'Edite as informações do fornecedor abaixo.' 
-                : 'Preencha os campos abaixo para adicionar um novo fornecedor.'}
-            </DialogDescription>
+            <DialogTitle>Detalhes da Tarefa</DialogTitle>
           </DialogHeader>
-          
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome do Fornecedor *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome do fornecedor" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <ScrollArea className="flex-grow pr-4 max-h-[calc(80vh-120px)] overflow-y-auto">
+            {selectedEntry && (
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label>Pedido</Label>
+                    <div className="font-medium">#{selectedEntry.orderNumber}</div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Fornecedor</Label>
+                    <div className="font-medium">{selectedEntry.supplier}</div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Itens</Label>
+                    <div className="font-medium">{selectedEntry.items}</div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Status</Label>
+                    <Select 
+                      value={selectedStatus} 
+                      onValueChange={handleStatusChange}
+                    >
+                      <SelectTrigger id="status">
+                        <SelectValue placeholder="Selecione um status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="received">Recebido</SelectItem>
+                        <SelectItem value="inspection">Inspeção</SelectItem>
+                        <SelectItem value="awaiting storage">Aguardando Armazenamento</SelectItem>
+                        <SelectItem value="in storage process">Em Processo de Armazenamento</SelectItem>
+                        <SelectItem value="allocated">Alocado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="email@exemplo.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <Separator className="my-4" />
+                <div className="space-y-2">
+                  <h3 className="font-medium text-sm">Produtos</h3>
+                  <div className="space-y-4">
+                    {[1, 2].map((index) => (
+                      <div 
+                        key={index} 
+                        className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 border rounded-md"
+                      >
+                        <div className="space-y-1">
+                          <Label>Item</Label>
+                          <div className="font-medium">Produto {index}</div>
+                        </div>
+                        <div className="space-y-1">
+                          <Label>Quantidade</Label>
+                          <div className="font-medium">{5 * index}</div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label>Tipo do Pacote</Label>
+                          <div className="font-medium">{index === 1 ? "Caixa" : "Palete"}</div>
+                        </div>
 
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Telefone</FormLabel>
-                    <FormControl>
-                      <Input placeholder="(11) 99999-9999" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                        <div className="space-y-1">
+                          <Label>Prateleira</Label>
+                          <div className="font-medium">A{index}01</div>
+                        </div>
 
-              <FormField
-                control={form.control}
-                name="contact"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pessoa de Contato</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome do contato principal" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                        <div className="space-y-1">
+                          <Label>Empilhamento Máx</Label>
+                          <div className="font-medium">{index}</div>
+                        </div>
 
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Endereço</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Endereço completo do fornecedor"
-                        className="resize-none"
-                        rows={3}
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Observações</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Observações adicionais sobre o fornecedor"
-                        className="resize-none"
-                        rows={3}
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Status Ativo</FormLabel>
-                      <div className="text-sm text-muted-foreground">
-                        Fornecedor ativo pode ser usado em operações
+                        <div className="md:col-span-2 grid grid-cols-3 gap-3">
+                          <div className="space-y-1">
+                            <Label>Largura (cm)</Label>
+                            <div className="font-medium">{10 * index}</div>
+                          </div>
+                          <div className="space-y-1">
+                            <Label>Comprimento (cm)</Label>
+                            <div className="font-medium">{20 * index}</div>
+                          </div>
+                          <div className="space-y-1">
+                            <Label>Altura (cm)</Label>
+                            <div className="font-medium">{5 * index}</div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setOpenDialog(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  {editingSupplier ? 'Salvar Alterações' : 'Cadastrar Fornecedor'}
-                </Button>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+            )}
+          </ScrollArea>
 
-      <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {selectedSupplier?.active ? "Inativar" : "Ativar"} Fornecedor
-            </DialogTitle>
-            <DialogDescription>
-              {selectedSupplier?.active
-                ? "Você tem certeza que deseja inativar este fornecedor? Fornecedores inativos não aparecem nas operações padrão."
-                : "Você tem certeza que deseja ativar este fornecedor? Fornecedores ativos aparecem em todas as operações."}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex space-x-2 justify-end">
-            <Button
-              variant="outline"
-              onClick={() => setStatusDialogOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button 
-              variant={selectedSupplier?.active ? "destructive" : "default"}
-              onClick={confirmToggleStatus}
-            >
-              {selectedSupplier?.active ? "Sim, inativar" : "Sim, ativar"}
-            </Button>
+          <DialogFooter className="pt-4 border-t mt-4">
+            <Button variant="outline" onClick={handleCloseModal}>Cancelar</Button>Add commentMore actions
+            <Button onClick={handleSaveStatus}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
