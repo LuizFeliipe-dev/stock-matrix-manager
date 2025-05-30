@@ -27,7 +27,6 @@ import RacksPage from "./pages/Racks";
 import BalancePage from "./pages/Balance";
 import ShelfTypes from "./pages/ShelfTypes";
 import Zones from "./pages/Zones";
-import Tasks from "./pages/Tasks";
 
 // Create proper pages for Entry, Inventory, and Location View
 const EntryPage = () => (
@@ -97,6 +96,7 @@ const LocationViewPage = () => (
   </div>
 );
 
+const TasksPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Lista de Tarefas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 const StatisticsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Estatísticas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
 
 // Create QueryClient inside the component to ensure proper React context
@@ -127,7 +127,7 @@ const App = () => {
                 <Route path="/entry" element={<EntryPage />} />
                 <Route path="/inventory" element={<InventoryPage />} />
                 <Route path="/transaction" element={<TransactionPage />} />
-                <Route path="/tasks" element={<Tasks />} />
+                <Route path="/tasks" element={<TasksPage />} />
                 <Route path="/statistics" element={<StatisticsPage />} />
                 <Route path="/location-view" element={<LocationViewPage />} />
                 <Route path="/balance" element={<BalancePage />} />
