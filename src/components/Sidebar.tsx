@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import {
   LayoutDashboard,
@@ -45,7 +43,7 @@ const Sidebar = () => {
       ]
     },
     {
-      title: 'Produtos e Estoque',
+      title: 'Cadastros',
       items: [
         {
           name: 'Produtos',
@@ -61,12 +59,7 @@ const Sidebar = () => {
           name: 'Fornecedores',
           href: '/suppliers',
           icon: Truck
-        }
-      ]
-    },
-    {
-      title: 'Estrutura do Armazém',
-      items: [
+        },
         {
           name: 'Armazéns',
           href: '/warehouses',
@@ -91,11 +84,16 @@ const Sidebar = () => {
           name: 'Tipos de Prateleira',
           href: '/shelf-types',
           icon: BookOpen
+        },
+        {
+          name: 'Usuários',
+          href: '/users',
+          icon: Users
         }
       ]
     },
     {
-      title: 'Operações',
+      title: 'Eventos',
       items: [
         {
           name: 'Entrada',
@@ -125,7 +123,7 @@ const Sidebar = () => {
       ]
     },
     {
-      title: 'Análises e Relatórios',
+      title: 'Gerenciamento',
       items: [
         {
           name: 'Estatísticas',
@@ -141,16 +139,6 @@ const Sidebar = () => {
           name: 'Balanço',
           href: '/balance',
           icon: Scale
-        }
-      ]
-    },
-    {
-      title: 'Administração',
-      items: [
-        {
-          name: 'Usuários',
-          href: '/users',
-          icon: Users
         },
         {
           name: 'Configurações',
@@ -280,4 +268,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
