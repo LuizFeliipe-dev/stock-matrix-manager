@@ -1,5 +1,6 @@
 
 import { UserPermission, PermissionData } from './auth';
+import { Role } from './role';
 
 export interface UserFormValues {
   name: string;
@@ -23,5 +24,5 @@ export interface UserData {
   active: boolean;
   createdAt: string;
   updatedAt: string;
-  roles: any[];
+  roles: Role[];
 }

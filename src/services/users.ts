@@ -1,5 +1,6 @@
 
 import { UserData } from '@/types/user';
+import { Role } from '@/types/role';
 
 const API_BASE_URL = 'https://33kg2j8r-3000.brs.devtunnels.ms';
 
@@ -85,7 +86,7 @@ export const userService = {
           department: userData.department,
           permission: userData.permission,
           active: true, // Default to active
-          roles: [] // Default empty roles
+          roles: userData.roles || [] // Include roles
         }),
       });
 

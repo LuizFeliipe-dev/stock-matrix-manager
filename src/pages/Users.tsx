@@ -6,7 +6,8 @@ import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { UserData, UserFormValues } from '@/types/user';
-import { UserPermission, PermissionData } from '@/types/auth';
+import { UserPermission } from '@/types/auth';
+import { Role } from '@/types/role';
 import { userService } from '@/services/users';
 
 // Components
@@ -93,33 +94,33 @@ const Users = () => {
     setPermissionsModalOpen(true);
   };
 
-  const handleSavePermissions = async (permissions: PermissionData[]) => {
+  const handleSaveRoles = async (roles: Role[]) => {
     if (selectedUser) {
       try {
         await userService.update(selectedUser.id, {
           ...selectedUser,
-          permissions
+          roles
         });
 
         setUsers(users.map(user => {
           if (user.id === selectedUser.id) {
             return {
               ...user,
-              permissions
+              roles
             };
           }
           return user;
         }));
         
         toast({
-          title: "Permissões atualizadas",
-          description: "As permissões do usuário foram atualizadas com sucesso",
+          title: "Funções atualizadas",
+          description: "As funções do usuário foram atualizadas com sucesso",
         });
       } catch (error) {
-        console.error('Failed to update permissions:', error);
+        console.error('Failed to update roles:', error);
         toast({
-          title: "Erro ao atualizar permissões",
-          description: "Não foi possível atualizar as permissões do usuário",
+          title: "Erro ao atualizar funções",
+          description: "Não foi possível atualizar as funções do usuário",
           variant: "destructive"
         });
       }
@@ -239,8 +240,8 @@ const Users = () => {
           open={permissionsModalOpen}
           onOpenChange={setPermissionsModalOpen}
           userName={selectedUser.name}
-          initialPermissions={selectedUser.permissions}
-          onSave={handleSavePermissions}
+          initialRoles={selectedUser.roles}
+          onSave={handleSaveRoles}
         />
       )}
     </AuthRequired>
