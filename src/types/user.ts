@@ -18,4 +18,10 @@ export interface UserData {
   permission: string;
   lastAccess: string;
   permissions?: PermissionData[];
+  // New fields from API payload
+  cargo: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  roles: any[];
 }

@@ -31,7 +31,13 @@ const Users = () => {
       try {
         setIsLoading(true);
         const data = await userService.getAll();
-        setUsers(data);
+        // Map cargo to role for backwards compatibility
+        const mappedData = data.map(user => ({
+          ...user,
+          role: user.cargo || user.role,
+          lastAccess: user.updatedAt ? new Date(user.updatedAt).toLocaleDateString('pt-BR') : 'Não disponível'
+        }));
+        setUsers(mappedData);
       } catch (error) {
         console.error('Failed to fetch users:', error);
         toast({
@@ -57,7 +63,7 @@ const Users = () => {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
+      role: user.cargo || user.role,
       department: user.department,
       permission: user.permission as UserPermission,
     });
@@ -66,8 +72,7 @@ const Users = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      // In a real API, you would have a delete endpoint
-      // Since we don't have one specified, we'll just remove from local state
+      await userService.delete(userId);
       setUsers(users.filter(user => user.id !== userId));
       toast({
         title: "Usuário excluído",
@@ -132,9 +137,16 @@ const Users = () => {
           permission: data.permission,
         });
         
+        // Map response data for display
+        const mappedUser = {
+          ...updatedUser,
+          role: updatedUser.cargo || updatedUser.role,
+          lastAccess: updatedUser.updatedAt ? new Date(updatedUser.updatedAt).toLocaleDateString('pt-BR') : 'Não disponível'
+        };
+        
         setUsers(users.map(user => {
           if (user.id === editingUser.id) {
-            return updatedUser;
+            return mappedUser;
           }
           return user;
         }));
@@ -152,7 +164,14 @@ const Users = () => {
           permission: data.permission,
         });
         
-        setUsers([...users, newUser]);
+        // Map response data for display
+        const mappedUser = {
+          ...newUser,
+          role: newUser.cargo || newUser.role,
+          lastAccess: newUser.updatedAt ? new Date(newUser.updatedAt).toLocaleDateString('pt-BR') : 'Não disponível'
+        };
+        
+        setUsers([...users, mappedUser]);
         
         toast({
           title: "Usuário adicionado",

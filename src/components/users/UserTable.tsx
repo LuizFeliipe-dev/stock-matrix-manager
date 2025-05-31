@@ -42,9 +42,14 @@ const UserTable = ({
   const filteredUsers = users.filter(user => 
     user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.cargo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.department?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'Não disponível';
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
 
   return (
     <div className="responsive-table">
@@ -53,16 +58,17 @@ const UserTable = ({
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead>Email</TableHead>
-            {!isMobile && <TableHead>Cargo</TableHead>}
+            <TableHead>Cargo</TableHead>
             {!isMobile && <TableHead>Departamento</TableHead>}
-            <TableHead>Acesso</TableHead>
+            {!isMobile && <TableHead>Status</TableHead>}
+            {!isMobile && <TableHead>Criado em</TableHead>}
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={isMobile ? 4 : 6} className="text-center py-8">
+              <TableCell colSpan={isMobile ? 4 : 7} className="text-center py-8">
                 <div className="flex justify-center items-center">
                   <Loader2 className="h-6 w-6 animate-spin mr-2" />
                   <span>Carregando usuários...</span>
@@ -71,7 +77,7 @@ const UserTable = ({
             </TableRow>
           ) : filteredUsers.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={isMobile ? 4 : 6} className="text-center py-6 text-muted-foreground">
+              <TableCell colSpan={isMobile ? 4 : 7} className="text-center py-6 text-muted-foreground">
                 Nenhum usuário encontrado.
               </TableCell>
             </TableRow>
@@ -80,9 +86,20 @@ const UserTable = ({
               <TableRow key={user.id} className="hover:bg-gray-50 transition-colors">
                 <TableCell className="font-medium">{user.name}</TableCell>
                 <TableCell className="max-w-[140px] truncate">{user.email}</TableCell>
-                {!isMobile && <TableCell>{user.role}</TableCell>}
+                <TableCell>{user.cargo || user.role}</TableCell>
                 {!isMobile && <TableCell>{user.department}</TableCell>}
-                <TableCell className="text-sm">{user.lastAccess || "Não disponível"}</TableCell>
+                {!isMobile && (
+                  <TableCell>
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                      user.active 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {user.active ? 'Ativo' : 'Inativo'}
+                    </span>
+                  </TableCell>
+                )}
+                {!isMobile && <TableCell className="text-sm">{formatDate(user.createdAt)}</TableCell>}
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button 

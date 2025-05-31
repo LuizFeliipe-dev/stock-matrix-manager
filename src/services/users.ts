@@ -78,7 +78,15 @@ export const userService = {
           ...getAuthHeader(),
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({
+          name: userData.name,
+          email: userData.email,
+          cargo: userData.role, // Map role to cargo for API
+          department: userData.department,
+          permission: userData.permission,
+          active: true, // Default to active
+          roles: [] // Default empty roles
+        }),
       });
 
       if (!response.ok) {
@@ -107,7 +115,15 @@ export const userService = {
           ...getAuthHeader(),
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({
+          name: userData.name,
+          email: userData.email,
+          cargo: userData.role, // Map role to cargo for API
+          department: userData.department,
+          permission: userData.permission,
+          active: userData.active !== undefined ? userData.active : true,
+          roles: userData.roles || []
+        }),
       });
 
       if (!response.ok) {
@@ -123,6 +139,32 @@ export const userService = {
       return await response.json();
     } catch (error) {
       console.error(`Error updating user ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Delete user
+  delete: async (id: string): Promise<void> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${id}`, {
+        method: 'DELETE',
+        headers: {
+          ...getAuthHeader(),
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Falha ao excluir usuário');
+        } else {
+          throw new Error(`Falha ao excluir usuário: ${response.status}`);
+        }
+      }
+    } catch (error) {
+      console.error(`Error deleting user ${id}:`, error);
       throw error;
     }
   },
