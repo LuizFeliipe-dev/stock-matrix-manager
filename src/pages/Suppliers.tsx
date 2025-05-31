@@ -13,7 +13,6 @@ import {
   Search, 
   Pencil, 
   ToggleLeft,
-  UserPlus,
   Loader2
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -49,24 +48,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Supplier, SupplierContact, supplierService } from '@/services/suppliers';
+import { Supplier, supplierService } from '@/services/suppliers';
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
-  code: z.string().min(3, { message: 'Código deve ter pelo menos 3 caracteres' }),
-  address: z.string().min(5, { message: 'Endereço deve ter pelo menos 5 caracteres' }),
-  city: z.string().min(2, { message: 'Cidade deve ter pelo menos 2 caracteres' }),
-  state: z.string().min(2, { message: 'Estado deve ter pelo menos 2 caracteres' }),
   active: z.boolean().default(true),
-  contacts: z.array(z.object({
-    id: z.string().optional(),
-    name: z.string().min(2, { message: 'Nome do contato deve ter pelo menos 2 caracteres' }),
-    role: z.string().optional(),
-    email: z.string().email({ message: 'Email inválido' }),
-    phone: z.string().min(8, { message: 'Telefone deve ter pelo menos 8 caracteres' }),
-  })).min(1, { message: 'Adicione pelo menos um contato' }),
 });
 
 type SupplierFormValues = z.infer<typeof supplierFormSchema>;
@@ -87,19 +76,7 @@ const Suppliers = () => {
     resolver: zodResolver(supplierFormSchema),
     defaultValues: {
       name: '',
-      code: '',
-      address: '',
-      city: '',
-      state: '',
       active: true,
-      contacts: [
-        {
-          name: '',
-          role: '',
-          email: '',
-          phone: '',
-        }
-      ],
     },
   });
 
@@ -119,7 +96,6 @@ const Suppliers = () => {
         description: "Não foi possível obter a lista de fornecedores",
         variant: "destructive"
       });
-      // Use empty array in case of error
       setSuppliers([]);
     } finally {
       setIsLoading(false);
@@ -129,26 +105,7 @@ const Suppliers = () => {
   const onSubmit = async (data: SupplierFormValues) => {
     try {
       if (editingSupplier) {
-        // Update existing supplier - ensure all required fields for contacts
-        const contactsData: SupplierContact[] = data.contacts.map(contact => ({
-          id: contact.id,
-          name: contact.name, // Required field
-          role: contact.role || '', 
-          email: contact.email, // Required field
-          phone: contact.phone, // Required field
-        }));
-        
-        const supplierData: Partial<Supplier> = {
-          name: data.name,
-          code: data.code,
-          address: data.address,
-          city: data.city,
-          state: data.state,
-          active: data.active,
-          contacts: contactsData
-        };
-        
-        const updated = await supplierService.update(editingSupplier.id, supplierData);
+        const updated = await supplierService.update(editingSupplier.id, data);
         setSuppliers(suppliers.map(supplier => {
           if (supplier.id === editingSupplier.id) {
             return updated;
@@ -161,25 +118,7 @@ const Suppliers = () => {
           description: "As informações do fornecedor foram atualizadas com sucesso",
         });
       } else {
-        // Create new supplier - ensure all required fields
-        const contactsData: SupplierContact[] = data.contacts.map(contact => ({
-          name: contact.name, // Required field
-          role: contact.role || '',
-          email: contact.email, // Required field
-          phone: contact.phone, // Required field
-        }));
-        
-        const newSupplierData: Omit<Supplier, 'id'> = {
-          name: data.name,
-          code: data.code,
-          address: data.address,
-          city: data.city,
-          state: data.state,
-          active: data.active || true,
-          contacts: contactsData
-        };
-        
-        const newSupplier = await supplierService.create(newSupplierData);
+        const newSupplier = await supplierService.create(data);
         setSuppliers([...suppliers, newSupplier]);
 
         toast({
@@ -190,6 +129,7 @@ const Suppliers = () => {
 
       setOpenDialog(false);
       form.reset();
+      setEditingSupplier(null);
     } catch (error) {
       console.error('Failed to save supplier:', error);
       toast({
@@ -204,19 +144,7 @@ const Suppliers = () => {
     setEditingSupplier(null);
     form.reset({
       name: '',
-      code: '',
-      address: '',
-      city: '',
-      state: '',
       active: true,
-      contacts: [
-        {
-          name: '',
-          role: '',
-          email: '',
-          phone: '',
-        }
-      ],
     });
     setOpenDialog(true);
   };
@@ -225,18 +153,7 @@ const Suppliers = () => {
     setEditingSupplier(supplier);
     form.reset({
       name: supplier.name,
-      code: supplier.code,
-      address: supplier.address,
-      city: supplier.city,
-      state: supplier.state,
       active: supplier.active,
-      contacts: supplier.contacts.map(contact => ({
-        id: contact.id,
-        name: contact.name,
-        role: contact.role || '',
-        email: contact.email,
-        phone: contact.phone,
-      })),
     });
     setOpenDialog(true);
   };
@@ -278,30 +195,10 @@ const Suppliers = () => {
     }
   };
 
-  const addContactField = () => {
-    const contacts = form.getValues('contacts');
-    form.setValue('contacts', [
-      ...contacts,
-      { name: '', role: '', email: '', phone: '' }
-    ]);
-  };
-
-  const removeContactField = (index: number) => {
-    const contacts = form.getValues('contacts');
-    if (contacts.length > 1) {
-      form.setValue('contacts', contacts.filter((_, i) => i !== index));
-    }
-  };
-
   // Apply filters
   const filteredSuppliers = suppliers.filter(supplier => {
     // Text search
-    const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          supplier.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          supplier.contacts.some(contact => 
-                            contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            contact.email.toLowerCase().includes(searchTerm.toLowerCase())
-                          );
+    const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase());
     
     // Status filter
     let matchesStatus = true;
@@ -313,6 +210,16 @@ const Suppliers = () => {
     
     return matchesSearch && matchesStatus;
   });
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   return (
     <AuthRequired>
@@ -375,20 +282,17 @@ const Suppliers = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Código</TableHead>
                       <TableHead>Nome</TableHead>
-                      {!isMobile && <TableHead>Contato</TableHead>}
-                      {!isMobile && <TableHead>Email</TableHead>}
-                      {!isMobile && <TableHead>Telefone</TableHead>}
-                      {!isMobile && <TableHead>Localização</TableHead>}
                       <TableHead>Status</TableHead>
+                      {!isMobile && <TableHead>Criado em</TableHead>}
+                      {!isMobile && <TableHead>Atualizado em</TableHead>}
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {isLoading ? (
                       <TableRow>
-                        <TableCell colSpan={isMobile ? 4 : 8} className="text-center py-6">
+                        <TableCell colSpan={isMobile ? 3 : 5} className="text-center py-6">
                           <div className="flex justify-center items-center space-x-2">
                             <Loader2 className="h-5 w-5 animate-spin text-primary" />
                             <span>Carregando fornecedores...</span>
@@ -397,7 +301,7 @@ const Suppliers = () => {
                       </TableRow>
                     ) : filteredSuppliers.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={isMobile ? 4 : 8} className="text-center py-6 text-muted-foreground">
+                        <TableCell colSpan={isMobile ? 3 : 5} className="text-center py-6 text-muted-foreground">
                           {searchTerm || statusFilter !== 'all' ? 
                             "Nenhum fornecedor encontrado com os filtros aplicados." : 
                             "Nenhum fornecedor cadastrado."}
@@ -406,19 +310,7 @@ const Suppliers = () => {
                     ) : (
                       filteredSuppliers.map((supplier) => (
                         <TableRow key={supplier.id}>
-                          <TableCell className="font-medium">{supplier.code}</TableCell>
-                          <TableCell className="max-w-[150px] truncate">{supplier.name}</TableCell>
-                          {!isMobile && <TableCell>
-                            {supplier.contacts.length > 0 ? supplier.contacts[0].name : '-'}
-                            {supplier.contacts.length > 1 && 
-                              <span className="text-xs ml-1 text-muted-foreground">(+{supplier.contacts.length - 1})</span>
-                            }
-                          </TableCell>}
-                          {!isMobile && <TableCell className="max-w-[150px] truncate">
-                            {supplier.contacts.length > 0 ? supplier.contacts[0].email : '-'}
-                          </TableCell>}
-                          {!isMobile && <TableCell>{supplier.contacts.length > 0 ? supplier.contacts[0].phone : '-'}</TableCell>}
-                          {!isMobile && <TableCell>{`${supplier.city}, ${supplier.state}`}</TableCell>}
+                          <TableCell className="font-medium">{supplier.name}</TableCell>
                           <TableCell>
                             <span className={`px-2 py-1 rounded-full text-xs ${
                               supplier.active 
@@ -428,6 +320,8 @@ const Suppliers = () => {
                               {supplier.active ? 'Ativo' : 'Inativo'}
                             </span>
                           </TableCell>
+                          {!isMobile && <TableCell className="text-sm text-gray-500">{formatDate(supplier.createdAt)}</TableCell>}
+                          {!isMobile && <TableCell className="text-sm text-gray-500">{formatDate(supplier.updatedAt)}</TableCell>}
                           <TableCell className="text-right">
                             <div className="flex space-x-2 justify-end">
                               <Button 
@@ -458,7 +352,7 @@ const Suppliers = () => {
       </div>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[650px] w-[calc(100%-2rem)] overflow-y-auto max-h-[80vh]">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
               {editingSupplier ? 'Editar Fornecedor' : 'Adicionar Novo Fornecedor'}
@@ -472,174 +366,42 @@ const Suppliers = () => {
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="code"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Código</FormLabel>
-                      <FormControl>
-                        <Input placeholder="SUP001" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome da Empresa</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nome do fornecedor" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
               <FormField
                 control={form.control}
-                name="address"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Endereço</FormLabel>
+                    <FormLabel>Nome do Fornecedor</FormLabel>
                     <FormControl>
-                      <Input placeholder="Rua, número, complemento" {...field} />
+                      <Input placeholder="Nome do fornecedor" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cidade</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Cidade" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estado</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Estado" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="border-t pt-4">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-lg font-medium">Contatos</h3>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={addContactField}
-                    className="gap-1"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    Adicionar Contato
-                  </Button>
-                </div>
-                
-                {form.watch('contacts').map((_, index) => (
-                  <div key={index} className="border p-4 rounded-md mb-4">
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="font-medium">Contato {index + 1}</h4>
-                      {index > 0 && (
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => removeContactField(index)}
-                          className="h-7 text-destructive hover:text-destructive"
-                        >
-                          Remover
-                        </Button>
-                      )}
+              <FormField
+                control={form.control}
+                name="active"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">
+                        Status Ativo
+                      </FormLabel>
+                      <div className="text-sm text-muted-foreground">
+                        Fornecedor ativo pode ser usado nas operações
+                      </div>
                     </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.name`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nome</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Nome do contato" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
                       />
-                      
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.role`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Cargo</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Cargo" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.email`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input placeholder="email@exemplo.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.phone`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Telefone</FormLabel>
-                            <FormControl>
-                              <Input placeholder="(00) 0000-0000" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
               
               <div className="flex justify-end space-x-2 pt-4">
                 <Button 

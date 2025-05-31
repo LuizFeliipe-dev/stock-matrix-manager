@@ -2,23 +2,13 @@
 const API_BASE_URL = 'https://33kg2j8r-3000.brs.devtunnels.ms';
 import { getAuthHeader } from '@/utils/auth';
 
-export interface SupplierContact {
-  id?: string;
-  name: string;
-  role?: string;
-  email: string;
-  phone: string;
-}
-
 export interface Supplier {
   id: string;
-  code: string;
   name: string;
-  address: string;
-  city: string;
-  state: string;
   active: boolean;
-  contacts: SupplierContact[];
+  accessLogId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const supplierService = {
@@ -37,23 +27,8 @@ export const supplierService = {
         throw new Error(errorData.message || 'Falha ao obter fornecedores');
       }
 
-      // Get response as text first
-      const responseText = await response.text();
-      
-      // Parse JSON safely
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
-        console.error('Failed to parse supplier data:', e);
-        throw new Error('Erro ao processar dados do fornecedor');
-      }
-      
-      // Ensure each supplier has a contacts array
-      return data.map((supplier: any) => ({
-        ...supplier,
-        contacts: supplier.contacts || [] // Ensure contacts is always an array
-      }));
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error('Error fetching suppliers:', error);
       throw error;
@@ -75,21 +50,8 @@ export const supplierService = {
         throw new Error(errorData.message || 'Falha ao obter fornecedor');
       }
 
-      const responseText = await response.text();
-      let data;
-      
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
-        console.error('Failed to parse supplier data:', e);
-        throw new Error('Erro ao processar dados do fornecedor');
-      }
-      
-      // Ensure contacts is always an array
-      return {
-        ...data,
-        contacts: data.contacts || []
-      };
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error(`Error fetching supplier ${id}:`, error);
       throw error;
@@ -97,7 +59,7 @@ export const supplierService = {
   },
 
   // Create new supplier
-  create: async (supplierData: Omit<Supplier, 'id'>): Promise<Supplier> => {
+  create: async (supplierData: Pick<Supplier, 'name' | 'active'>): Promise<Supplier> => {
     try {
       const response = await fetch(`${API_BASE_URL}/supplier`, {
         method: 'POST',
@@ -121,7 +83,7 @@ export const supplierService = {
   },
 
   // Update supplier
-  update: async (id: string, supplierData: Partial<Supplier>): Promise<Supplier> => {
+  update: async (id: string, supplierData: Partial<Pick<Supplier, 'name' | 'active'>>): Promise<Supplier> => {
     try {
       const response = await fetch(`${API_BASE_URL}/supplier/${id}`, {
         method: 'PUT',

@@ -30,7 +30,7 @@ export const useSuppliers = () => {
     }
   };
 
-  const createSupplier = async (supplierData: Omit<Supplier, 'id' | 'accessLogId' | 'createdAt' | 'updatedAt'>) => {
+  const createSupplier = async (supplierData: Pick<Supplier, 'name' | 'active'>) => {
     try {
       const newSupplier = await supplierService.create(supplierData);
       setSuppliers(prev => [...prev, newSupplier]);
@@ -50,7 +50,7 @@ export const useSuppliers = () => {
     }
   };
 
-  const updateSupplier = async (id: string, supplierData: Partial<Supplier>) => {
+  const updateSupplier = async (id: string, supplierData: Partial<Pick<Supplier, 'name' | 'active'>>) => {
     try {
       const updatedSupplier = await supplierService.update(id, supplierData);
       setSuppliers(prev => prev.map(supplier => 
