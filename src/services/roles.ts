@@ -1,10 +1,5 @@
 
-interface Role {
-  id: string;
-  name: string;
-  description?: string;
-  permissions?: string[];
-}
+import { Role } from '@/types/role';
 
 const API_BASE_URL = 'https://33kg2j8r-3000.brs.devtunnels.ms';
 
