@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   LayoutDashboard,
@@ -122,6 +123,11 @@ const Sidebar = () => {
       href: '/zones',
       icon: MapPin
     },
+    {
+      name: 'Configurações',
+      href: '/settings',
+      icon: Settings
+    },
   ];
 
   if (isMobile) {
@@ -139,13 +145,13 @@ const Sidebar = () => {
         {isOpen && (
           <div className="fixed inset-0 z-40 md:hidden">
             <div className="fixed inset-0 bg-black/50" onClick={() => setIsOpen(false)} />
-            <div className="fixed left-0 top-0 h-full w-80 bg-white shadow-lg">
+            <div className="fixed left-0 top-0 h-full w-80 bg-gray-50 border-r border-gray-200 shadow-lg">
               <div className="flex flex-col h-full">
-                <div className="p-6 border-b">
-                  <h1 className="text-lg font-semibold">Painel Administrativo</h1>
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h1 className="text-lg font-semibold text-gray-900">Painel Administrativo</h1>
                 </div>
                 
-                <nav className="flex-1 p-6 overflow-y-auto">
+                <nav className="flex-1 px-6 py-4 overflow-y-auto">
                   <ul className="space-y-2">
                     {navigationItems.map((item) => (
                       <li key={item.name}>
@@ -154,8 +160,8 @@ const Sidebar = () => {
                           onClick={() => setIsOpen(false)}
                           className={({ isActive }) =>
                             cn(
-                              "flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors",
-                              isActive && "bg-primary text-primary-foreground font-medium"
+                              "flex items-center px-4 py-2 text-gray-700 rounded-md hover:bg-gray-100 transition-colors",
+                              isActive && "bg-gray-100 font-medium text-gray-900"
                             )
                           }
                         >
@@ -167,14 +173,13 @@ const Sidebar = () => {
                   </ul>
                 </nav>
 
-                <div className="p-6 border-t">
-                  <Button
+                <div className="px-6 py-4 border-t border-gray-200">
+                  <button
                     onClick={logout}
-                    variant="destructive"
-                    className="w-full"
+                    className="w-full py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
                   >
                     Sair
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
@@ -185,13 +190,13 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:w-64 md:bg-white md:border-r md:border-gray-200">
+    <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:w-64 md:bg-gray-50 md:border-r md:border-gray-200">
       <div className="flex flex-col h-full">
-        <div className="p-6 border-b">
+        <div className="px-6 py-4 border-b border-gray-200">
           <h1 className="text-lg font-semibold text-gray-900">Painel Administrativo</h1>
         </div>
         
-        <nav className="flex-1 p-6 overflow-y-auto">
+        <nav className="flex-1 px-6 py-4 overflow-y-auto">
           <ul className="space-y-2">
             {navigationItems.map((item) => (
               <li key={item.name}>
@@ -199,8 +204,8 @@ const Sidebar = () => {
                   to={item.href}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors",
-                      isActive && "bg-primary text-primary-foreground font-medium"
+                      "flex items-center px-4 py-2 text-gray-700 rounded-md hover:bg-gray-100 transition-colors",
+                      isActive && "bg-gray-100 font-medium text-gray-900"
                     )
                   }
                 >
@@ -212,14 +217,13 @@ const Sidebar = () => {
           </ul>
         </nav>
 
-        <div className="p-6 border-t">
-          <Button
+        <div className="px-6 py-4 border-t border-gray-200">
+          <button
             onClick={logout}
-            variant="destructive"
-            className="w-full"
+            className="w-full py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
           >
             Sair
-          </Button>
+          </button>
         </div>
       </div>
     </div>
