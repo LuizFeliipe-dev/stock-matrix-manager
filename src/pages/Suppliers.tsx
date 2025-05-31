@@ -104,8 +104,14 @@ const Suppliers = () => {
 
   const onSubmit = async (data: SupplierFormValues) => {
     try {
+      // Ensure data matches the required type structure
+      const supplierData: Pick<Supplier, 'name' | 'active'> = {
+        name: data.name,
+        active: data.active
+      };
+
       if (editingSupplier) {
-        const updated = await supplierService.update(editingSupplier.id, data);
+        const updated = await supplierService.update(editingSupplier.id, supplierData);
         setSuppliers(suppliers.map(supplier => {
           if (supplier.id === editingSupplier.id) {
             return updated;
@@ -118,7 +124,7 @@ const Suppliers = () => {
           description: "As informações do fornecedor foram atualizadas com sucesso",
         });
       } else {
-        const newSupplier = await supplierService.create(data);
+        const newSupplier = await supplierService.create(supplierData);
         setSuppliers([...suppliers, newSupplier]);
 
         toast({
