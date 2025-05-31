@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   LayoutDashboard,
@@ -10,6 +9,15 @@ import {
   ShoppingBag,
   Menu,
   X,
+  Warehouse,
+  MapPin,
+  Archive,
+  CheckSquare,
+  BarChart3,
+  Eye,
+  Scale,
+  BookOpen,
+  Zap,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
@@ -31,12 +39,12 @@ const Sidebar = () => {
     },
     {
       name: 'Produtos',
-      href: '/products',
+      href: '/items',
       icon: ShoppingBag
     },
     {
       name: 'Grupos de Produtos',
-      href: '/product/group',
+      href: '/groups',
       icon: Package
     },
     {
@@ -45,19 +53,74 @@ const Sidebar = () => {
       icon: Truck
     },
     {
-      name: 'Clientes',
-      href: '/customers',
+      name: 'Usuários',
+      href: '/users',
       icon: Users
     },
     {
-      name: 'Pedidos',
-      href: '/orders',
+      name: 'Armazéns',
+      href: '/warehouses',
+      icon: Warehouse
+    },
+    {
+      name: 'Localizações',
+      href: '/locations',
+      icon: MapPin
+    },
+    {
+      name: 'Racks',
+      href: '/racks',
+      icon: Archive
+    },
+    {
+      name: 'Eventos',
+      href: '/events',
       icon: FileText
     },
     {
-      name: 'Configurações',
-      href: '/settings',
-      icon: Settings
+      name: 'Entrada',
+      href: '/entry',
+      icon: CheckSquare
+    },
+    {
+      name: 'Inventário',
+      href: '/inventory',
+      icon: BarChart3
+    },
+    {
+      name: 'Transação',
+      href: '/transaction',
+      icon: Zap
+    },
+    {
+      name: 'Tarefas',
+      href: '/tasks',
+      icon: CheckSquare
+    },
+    {
+      name: 'Estatísticas',
+      href: '/statistics',
+      icon: BarChart3
+    },
+    {
+      name: 'Visualização 3D',
+      href: '/location-view',
+      icon: Eye
+    },
+    {
+      name: 'Balanço',
+      href: '/balance',
+      icon: Scale
+    },
+    {
+      name: 'Tipos de Prateleira',
+      href: '/shelf-types',
+      icon: BookOpen
+    },
+    {
+      name: 'Zonas',
+      href: '/zones',
+      icon: MapPin
     },
   ];
 
@@ -82,7 +145,7 @@ const Sidebar = () => {
                   <h1 className="text-lg font-semibold">Painel Administrativo</h1>
                 </div>
                 
-                <nav className="flex-1 p-6">
+                <nav className="flex-1 p-6 overflow-y-auto">
                   <ul className="space-y-2">
                     {navigationItems.map((item) => (
                       <li key={item.name}>
@@ -128,7 +191,7 @@ const Sidebar = () => {
           <h1 className="text-lg font-semibold text-gray-900">Painel Administrativo</h1>
         </div>
         
-        <nav className="flex-1 p-6">
+        <nav className="flex-1 p-6 overflow-y-auto">
           <ul className="space-y-2">
             {navigationItems.map((item) => (
               <li key={item.name}>

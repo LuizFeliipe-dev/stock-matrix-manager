@@ -19,6 +19,7 @@ import Warehouses from "./pages/Warehouses";
 import Groups from "./pages/Groups";
 import Events from "./pages/Events";
 import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
 import TransactionSection from "./components/events/TransactionSection";
 import EntrySection from "./components/events/EntrySection";
 import InventorySection from "./components/events/InventorySection";
