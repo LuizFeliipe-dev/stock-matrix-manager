@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   LayoutDashboard,
@@ -9,7 +10,7 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../lib/auth';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Sidebar = () => {
