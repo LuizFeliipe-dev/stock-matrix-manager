@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import {
   LayoutDashboard,
@@ -32,102 +33,132 @@ const Sidebar = () => {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
 
-  const navigationItems = [
+  const navigationSections = [
     {
-      name: 'Dashboard',
-      href: '/dashboard',
-      icon: LayoutDashboard
+      title: 'Principal',
+      items: [
+        {
+          name: 'Dashboard',
+          href: '/dashboard',
+          icon: LayoutDashboard
+        }
+      ]
     },
     {
-      name: 'Produtos',
-      href: '/items',
-      icon: ShoppingBag
+      title: 'Produtos e Estoque',
+      items: [
+        {
+          name: 'Produtos',
+          href: '/items',
+          icon: ShoppingBag
+        },
+        {
+          name: 'Grupos de Produtos',
+          href: '/groups',
+          icon: Package
+        },
+        {
+          name: 'Fornecedores',
+          href: '/suppliers',
+          icon: Truck
+        }
+      ]
     },
     {
-      name: 'Grupos de Produtos',
-      href: '/groups',
-      icon: Package
+      title: 'Estrutura do Armazém',
+      items: [
+        {
+          name: 'Armazéns',
+          href: '/warehouses',
+          icon: Warehouse
+        },
+        {
+          name: 'Localizações',
+          href: '/locations',
+          icon: MapPin
+        },
+        {
+          name: 'Racks',
+          href: '/racks',
+          icon: Archive
+        },
+        {
+          name: 'Zonas',
+          href: '/zones',
+          icon: MapPin
+        },
+        {
+          name: 'Tipos de Prateleira',
+          href: '/shelf-types',
+          icon: BookOpen
+        }
+      ]
     },
     {
-      name: 'Fornecedores',
-      href: '/suppliers',
-      icon: Truck
+      title: 'Operações',
+      items: [
+        {
+          name: 'Entrada',
+          href: '/entry',
+          icon: CheckSquare
+        },
+        {
+          name: 'Inventário',
+          href: '/inventory',
+          icon: BarChart3
+        },
+        {
+          name: 'Transação',
+          href: '/transaction',
+          icon: Zap
+        },
+        {
+          name: 'Eventos',
+          href: '/events',
+          icon: FileText
+        },
+        {
+          name: 'Tarefas',
+          href: '/tasks',
+          icon: CheckSquare
+        }
+      ]
     },
     {
-      name: 'Usuários',
-      href: '/users',
-      icon: Users
+      title: 'Análises e Relatórios',
+      items: [
+        {
+          name: 'Estatísticas',
+          href: '/statistics',
+          icon: BarChart3
+        },
+        {
+          name: 'Visualização 3D',
+          href: '/location-view',
+          icon: Eye
+        },
+        {
+          name: 'Balanço',
+          href: '/balance',
+          icon: Scale
+        }
+      ]
     },
     {
-      name: 'Armazéns',
-      href: '/warehouses',
-      icon: Warehouse
-    },
-    {
-      name: 'Localizações',
-      href: '/locations',
-      icon: MapPin
-    },
-    {
-      name: 'Racks',
-      href: '/racks',
-      icon: Archive
-    },
-    {
-      name: 'Eventos',
-      href: '/events',
-      icon: FileText
-    },
-    {
-      name: 'Entrada',
-      href: '/entry',
-      icon: CheckSquare
-    },
-    {
-      name: 'Inventário',
-      href: '/inventory',
-      icon: BarChart3
-    },
-    {
-      name: 'Transação',
-      href: '/transaction',
-      icon: Zap
-    },
-    {
-      name: 'Tarefas',
-      href: '/tasks',
-      icon: CheckSquare
-    },
-    {
-      name: 'Estatísticas',
-      href: '/statistics',
-      icon: BarChart3
-    },
-    {
-      name: 'Visualização 3D',
-      href: '/location-view',
-      icon: Eye
-    },
-    {
-      name: 'Balanço',
-      href: '/balance',
-      icon: Scale
-    },
-    {
-      name: 'Tipos de Prateleira',
-      href: '/shelf-types',
-      icon: BookOpen
-    },
-    {
-      name: 'Zonas',
-      href: '/zones',
-      icon: MapPin
-    },
-    {
-      name: 'Configurações',
-      href: '/settings',
-      icon: Settings
-    },
+      title: 'Administração',
+      items: [
+        {
+          name: 'Usuários',
+          href: '/users',
+          icon: Users
+        },
+        {
+          name: 'Configurações',
+          href: '/settings',
+          icon: Settings
+        }
+      ]
+    }
   ];
 
   if (isMobile) {
@@ -152,25 +183,34 @@ const Sidebar = () => {
                 </div>
                 
                 <nav className="flex-1 px-6 py-4 overflow-y-auto">
-                  <ul className="space-y-2">
-                    {navigationItems.map((item) => (
-                      <li key={item.name}>
-                        <NavLink
-                          to={item.href}
-                          onClick={() => setIsOpen(false)}
-                          className={({ isActive }) =>
-                            cn(
-                              "flex items-center px-4 py-2 text-gray-700 rounded-md hover:bg-gray-100 transition-colors",
-                              isActive && "bg-gray-100 font-medium text-gray-900"
-                            )
-                          }
-                        >
-                          <item.icon className="mr-3 h-5 w-5" />
-                          {item.name}
-                        </NavLink>
-                      </li>
+                  <div className="space-y-6">
+                    {navigationSections.map((section) => (
+                      <div key={section.title}>
+                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                          {section.title}
+                        </h3>
+                        <ul className="space-y-1">
+                          {section.items.map((item) => (
+                            <li key={item.name}>
+                              <NavLink
+                                to={item.href}
+                                onClick={() => setIsOpen(false)}
+                                className={({ isActive }) =>
+                                  cn(
+                                    "flex items-center px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-100 transition-colors",
+                                    isActive && "bg-gray-100 font-medium text-gray-900"
+                                  )
+                                }
+                              >
+                                <item.icon className="mr-3 h-4 w-4" />
+                                {item.name}
+                              </NavLink>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </nav>
 
                 <div className="px-6 py-4 border-t border-gray-200">
@@ -197,24 +237,33 @@ const Sidebar = () => {
         </div>
         
         <nav className="flex-1 px-6 py-4 overflow-y-auto">
-          <ul className="space-y-2">
-            {navigationItems.map((item) => (
-              <li key={item.name}>
-                <NavLink
-                  to={item.href}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center px-4 py-2 text-gray-700 rounded-md hover:bg-gray-100 transition-colors",
-                      isActive && "bg-gray-100 font-medium text-gray-900"
-                    )
-                  }
-                >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </NavLink>
-              </li>
+          <div className="space-y-6">
+            {navigationSections.map((section) => (
+              <div key={section.title}>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  {section.title}
+                </h3>
+                <ul className="space-y-1">
+                  {section.items.map((item) => (
+                    <li key={item.name}>
+                      <NavLink
+                        to={item.href}
+                        className={({ isActive }) =>
+                          cn(
+                            "flex items-center px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-100 transition-colors",
+                            isActive && "bg-gray-100 font-medium text-gray-900"
+                          )
+                        }
+                      >
+                        <item.icon className="mr-3 h-4 w-4" />
+                        {item.name}
+                      </NavLink>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         </nav>
 
         <div className="px-6 py-4 border-t border-gray-200">
@@ -231,3 +280,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
