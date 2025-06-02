@@ -8,7 +8,6 @@ import {
   ShoppingBag,
   Menu,
   X,
-  Warehouse,
   MapPin,
   Archive,
   CheckSquare,
@@ -58,11 +57,6 @@ const Sidebar = () => {
           name: 'Fornecedores',
           href: '/suppliers',
           icon: Truck
-        },
-        {
-          name: 'Armazéns',
-          href: '/warehouses',
-          icon: Warehouse
         },
         {
           name: 'Localizações',
