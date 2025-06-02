@@ -16,7 +16,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     <SidebarProvider>
       <div className={cn("min-h-screen flex w-full", isMobile && "app-layout")}>
         <Sidebar />
-        <div className="flex-1 flex flex-col">
+        <main className="flex-1 flex flex-col">
           <header className={cn(
             "h-12 flex items-center border-b bg-white px-4",
             isMobile && "app-header"
@@ -28,8 +28,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               </h1>
             )}
           </header>
-          {children}
-        </div>
+          <div className="flex-1">
+            {children}
+          </div>
+        </main>
       </div>
     </SidebarProvider>
   );
