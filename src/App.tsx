@@ -22,7 +22,6 @@ import TransactionSection from "./components/events/TransactionSection";
 import EntrySection from "./components/events/EntrySection";
 import InventorySection from "./components/events/InventorySection";
 import Stats3DView from "./components/Stats3DView";
-import LocationsPage from "./pages/Locations";
 import RacksPage from "./pages/Racks";
 import BalancePage from "./pages/Balance";
 import ShelfTypes from "./pages/ShelfTypes";
@@ -120,7 +119,6 @@ const App = () => {
                 <Route path="/items" element={<Items />} />
                 <Route path="/suppliers" element={<Suppliers />} />
                 <Route path="/groups" element={<Groups />} />
-                <Route path="/locations" element={<LocationsPage />} />
                 <Route path="/racks" element={<RacksPage />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/events" element={<Events />} />

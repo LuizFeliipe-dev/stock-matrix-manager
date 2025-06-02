@@ -8,7 +8,6 @@ import {
   ShoppingBag,
   Menu,
   X,
-  MapPin,
   Archive,
   CheckSquare,
   BarChart3,
@@ -59,11 +58,6 @@ const Sidebar = () => {
           icon: Truck
         },
         {
-          name: 'Localizações',
-          href: '/locations',
-          icon: MapPin
-        },
-        {
           name: 'Racks',
           href: '/racks',
           icon: Archive
@@ -71,7 +65,7 @@ const Sidebar = () => {
         {
           name: 'Zonas',
           href: '/zones',
-          icon: MapPin
+          icon: LayoutDashboard
         },
         {
           name: 'Tipos de Prateleira',
