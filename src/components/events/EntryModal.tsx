@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { useItems } from '@/hooks/useItems';
 import { useSuppliers } from '@/hooks/useSuppliers';
-import { useLocations } from '@/hooks/useLocations';
+import { useShelves } from '@/hooks/useShelves';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Minus, Trash2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -53,7 +52,7 @@ const EntryModal = ({ isOpen, onClose, orderNumber }: EntryModalProps) => {
   const { toast } = useToast();
   const { items } = useItems();
   const { suppliers } = useSuppliers();
-  const { locations } = useLocations();
+  const { locations } = useShelves();
 
   const handleAddProduct = () => {
     setProducts([
