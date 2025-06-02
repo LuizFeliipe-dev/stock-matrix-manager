@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,7 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
-import Sidebar from "./components/Sidebar";
+import AppLayout from "./components/AppLayout";
+import ResponsiveContainer from "./components/ResponsiveContainer";
 
 // Pages
 import Login from "./pages/Login";
@@ -30,9 +32,8 @@ import Tasks from "./pages/Tasks";
 
 // Create proper pages for Entry, Inventory, and Location View
 const EntryPage = () => (
-  <div className="min-h-screen flex">
-    <Sidebar />
-    <main className="flex-1 ml-64 p-8">
+  <AppLayout>
+    <ResponsiveContainer>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -41,14 +42,13 @@ const EntryPage = () => (
         <h1 className="text-2xl font-bold mb-6">Entrada de Produtos</h1>
         <EntrySection />
       </motion.div>
-    </main>
-  </div>
+    </ResponsiveContainer>
+  </AppLayout>
 );
 
 const InventoryPage = () => (
-  <div className="min-h-screen flex">
-    <Sidebar />
-    <main className="flex-1 ml-64 p-8">
+  <AppLayout>
+    <ResponsiveContainer>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -57,14 +57,13 @@ const InventoryPage = () => (
         <h1 className="text-2xl font-bold mb-6">Inventário</h1>
         <InventorySection />
       </motion.div>
-    </main>
-  </div>
+    </ResponsiveContainer>
+  </AppLayout>
 );
 
 const TransactionPage = () => (
-  <div className="min-h-screen flex">
-    <Sidebar />
-    <main className="flex-1 ml-64 p-8">
+  <AppLayout>
+    <ResponsiveContainer>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -73,15 +72,14 @@ const TransactionPage = () => (
         <h1 className="text-2xl font-bold mb-6">Transação de Produtos</h1>
         <TransactionSection />
       </motion.div>
-    </main>
-  </div>
+    </ResponsiveContainer>
+  </AppLayout>
 );
 
 // Create a dedicated page for 3D visualization
 const LocationViewPage = () => (
-  <div className="min-h-screen flex">
-    <Sidebar />
-    <main className="flex-1 ml-64 p-8">
+  <AppLayout>
+    <ResponsiveContainer>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -92,11 +90,24 @@ const LocationViewPage = () => (
           <Stats3DView />
         </div>
       </motion.div>
-    </main>
-  </div>
+    </ResponsiveContainer>
+  </AppLayout>
 );
 
-const StatisticsPage = () => <div className="p-8 ml-64"><h1 className="text-2xl font-bold">Estatísticas</h1><p className="mt-4">Página em desenvolvimento</p></div>;
+const StatisticsPage = () => (
+  <AppLayout>
+    <ResponsiveContainer>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="page-transition"
+      >
+        <h1 className="text-2xl font-bold">Estatísticas</h1>
+        <p className="mt-4">Página em desenvolvimento</p>
+      </motion.div>
+    </ResponsiveContainer>
+  </AppLayout>
+);
 
 // Create QueryClient inside the component to ensure proper React context
 const App = () => {
