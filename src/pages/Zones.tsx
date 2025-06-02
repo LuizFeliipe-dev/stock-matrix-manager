@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import AuthRequired from '../components/AuthRequired';
 import Sidebar from '../components/Sidebar';
@@ -44,7 +43,6 @@ interface Zone {
   id: string;
   name: string;
   racks: string[];
-  permissions?: string[];
 }
 
 const Zones = () => {
@@ -75,7 +73,6 @@ const Zones = () => {
           id: role.id,
           name: role.name,
           racks: [], // This field might need a different API
-          permissions: role.permissions
         }));
         setZones(mappedZones);
       } catch (error) {
@@ -134,8 +131,6 @@ const Zones = () => {
       if (editingZone) {
         const updatedZone = await roleService.update(editingZone.id, {
           name: data.name,
-          // Map racks to permissions array if needed
-          permissions: editingZone.permissions
         });
 
         setZones(zones.map(z => {
@@ -155,8 +150,6 @@ const Zones = () => {
       } else {
         const newZone = await roleService.create({
           name: data.name,
-          // No permissions initially
-          permissions: []
         });
 
         setZones([...zones, { ...newZone, racks: data.racks }]);
