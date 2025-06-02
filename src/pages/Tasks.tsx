@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useEntries, Entry } from '@/hooks/useEntries';
 import { useShelves } from '@/hooks/useShelves';
 import { motion } from 'framer-motion';
-import Sidebar from '../components/Sidebar';
+import AppLayout from '@/components/AppLayout';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
 import TaskItem from '@/components/dashboard/TaskItem';
 import { 
@@ -80,8 +79,7 @@ const Tasks = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Sidebar />
+    <AppLayout>
       <ResponsiveContainer>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -246,7 +244,7 @@ const Tasks = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AppLayout>
   );
 };
 

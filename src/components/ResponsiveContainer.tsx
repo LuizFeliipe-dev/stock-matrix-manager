@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { SidebarInset } from '@/components/ui/sidebar';
 
 interface ResponsiveContainerProps {
   children: React.ReactNode;
@@ -17,17 +17,18 @@ const ResponsiveContainer = ({
   className,
   withSidebar = true
 }: ResponsiveContainerProps) => {
-  const isMobile = useIsMobile();
+  if (withSidebar) {
+    return (
+      <SidebarInset>
+        <main className={cn("flex-1 p-4 md:p-6 lg:p-8", className)}>
+          {children}
+        </main>
+      </SidebarInset>
+    );
+  }
 
   return (
-    <main
-      className={cn(
-        "flex-1 p-4 md:p-6 lg:p-8",
-        withSidebar && !isMobile && "md:ml-64",
-        isMobile && "pt-16", // Add top padding for mobile menu button
-        className
-      )}
-    >
+    <main className={cn("flex-1 p-4 md:p-6 lg:p-8", className)}>
       {children}
     </main>
   );
