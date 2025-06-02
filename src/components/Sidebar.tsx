@@ -4,7 +4,6 @@ import {
   Package,
   Users,
   FileText,
-  Settings,
   Truck,
   ShoppingBag,
   Menu,
@@ -111,11 +110,6 @@ const Sidebar = () => {
           icon: Zap
         },
         {
-          name: 'Eventos',
-          href: '/events',
-          icon: FileText
-        },
-        {
           name: 'Tarefas',
           href: '/tasks',
           icon: CheckSquare
@@ -139,11 +133,6 @@ const Sidebar = () => {
           name: 'Balanço',
           href: '/balance',
           icon: Scale
-        },
-        {
-          name: 'Configurações',
-          href: '/settings',
-          icon: Settings
         }
       ]
     }
