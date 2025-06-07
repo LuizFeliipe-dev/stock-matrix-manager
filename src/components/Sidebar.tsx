@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   LayoutDashboard,
@@ -14,6 +13,7 @@ import {
   Scale,
   BookOpen,
   Zap,
+  Cube,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
@@ -139,11 +139,16 @@ const Sidebar = () => {
   return (
     <SidebarContainer className="border-r border-gray-200">
       <SidebarHeader className="border-b border-gray-200 px-6 py-4">
-        {!isCollapsed && (
-          <h1 className="text-lg font-semibold text-gray-900">
-            Painel Administrativo
-          </h1>
-        )}
+        <div className="flex items-center gap-3">
+          <div className="bg-primary text-primary-foreground p-2 rounded-lg">
+            <Cube className="h-6 w-6" />
+          </div>
+          {!isCollapsed && (
+            <h1 className="text-lg font-semibold text-gray-900">
+              MALLDRE WMS
+            </h1>
+          )}
+        </div>
       </SidebarHeader>
       
       <SidebarContent className="px-6 py-4">
